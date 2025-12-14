@@ -7,6 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* --- FIX CSS FONDAMENTALE --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         /* --- STILI GENERALI --- */
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 20px; margin: 0; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); min-height: 85vh; }
@@ -29,7 +34,7 @@
         button.primary-btn { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
         button.primary-btn:active { transform: scale(0.98); }
         
-        /* CARD ISTRUTTORE (Stile "Ore Lavoro") */
+        /* CARD ISTRUTTORE */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .user-card { 
             background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; 
@@ -52,7 +57,7 @@
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
         .course-title { font-weight: 700; color: #111; font-size: 1.1rem; margin-top: 5px; }
         
-        /* Sezione Gestione Corsi (Compattata) */
+        /* Sezione Gestione Corsi */
         .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 30px; }
         .admin-tools h3 { margin: 0 0 10px 0; color: #b45309; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -105,12 +110,15 @@
                 <button onclick="renderAdminDashboard(null)" style="background:none; border:none; color:#4f46e5; cursor:pointer; font-weight:600; font-size:0.9rem">Mostra Tutti</button>
             </div>
             <div id="instructors-grid" class="cards-grid">
-                </div>
+                <p style="color:#666; font-style:italic;">Nessun dato. Appena un istruttore salverà una lezione, apparirà qui.</p>
+            </div>
 
             <h3 style="margin-top:30px; border-bottom:1px solid #e5e7eb; padding-bottom:10px">
                 📝 Registro Attività <span id="filter-label" style="font-weight:400; color:#666; font-size:0.9rem">(Tutti)</span>
             </h3>
-            <div id="admin-lessons-list"></div>
+            <div id="admin-lessons-list">
+                 <p style='color:#999'>Nessuna lezione trovata.</p>
+            </div>
         </div>
 
         <div id="instructor-view" class="hidden">
@@ -177,7 +185,7 @@
     let allLessonsCache = []; // Per l'admin
     let selectedEmail = null; // Filtro admin
     
-    // IMPORTANTE: LA TUA EMAIL ADMIN
+    // IMPORTANTE: LA TUA EMAIL ADMIN (Deve coincidere con quella nelle Regole di Firebase)
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
     // LOGIN
@@ -232,43 +240,45 @@
         selectedEmail = filterEmail;
         
         // A. GENERIAMO LE CARD DEGLI ISTRUTTORI
-        // Raggruppa le lezioni per email
         const instructors = {};
         allLessonsCache.forEach(l => {
             const email = l.email;
             if(!instructors[email]) instructors[email] = { count: 0, lastDate: l.data };
             instructors[email].count++;
-            // Siccome sono ordinate per data desc, la prima che trovo è la più recente
             if(l.data > instructors[email].lastDate) instructors[email].lastDate = l.data;
         });
 
         const grid = document.getElementById('instructors-grid');
         grid.innerHTML = "";
         
-        Object.keys(instructors).forEach(email => {
-            const data = instructors[email];
-            const name = email.split('@')[0].toUpperCase(); // Nome fittizio dalla mail
-            const isActive = (email === selectedEmail) ? 'active' : '';
-            
-            grid.innerHTML += `
-                <div class="user-card ${isActive}" onclick="renderAdminDashboard('${email}')">
-                    <div class="uc-name">${name}</div>
-                    <span class="uc-email">${email}</span>
-                    <div class="uc-stats">
-                        <div class="uc-stat-item">
-                            <span class="uc-val">${data.count}</span>
-                            <span class="uc-label">Lezioni</span>
-                        </div>
-                         <div class="uc-stat-item">
-                            <span class="uc-val" style="color:#10b981; font-size:1rem; padding-top:2px">
-                                ${new Date(data.lastDate).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'})}
-                            </span>
-                            <span class="uc-label">Ultima</span>
+        if (Object.keys(instructors).length === 0) {
+             grid.innerHTML = "<p style='color:#666; font-style:italic; grid-column: 1 / -1;'>Nessun dato. Appena un istruttore salverà una lezione, la sua scheda apparirà qui.</p>";
+        } else {
+            Object.keys(instructors).forEach(email => {
+                const data = instructors[email];
+                const name = email.split('@')[0].toUpperCase();
+                const isActive = (email === selectedEmail) ? 'active' : '';
+                
+                grid.innerHTML += `
+                    <div class="user-card ${isActive}" onclick="renderAdminDashboard('${email}')">
+                        <div class="uc-name">${name}</div>
+                        <span class="uc-email">${email}</span>
+                        <div class="uc-stats">
+                            <div class="uc-stat-item">
+                                <span class="uc-val">${data.count}</span>
+                                <span class="uc-label">Lezioni</span>
+                            </div>
+                             <div class="uc-stat-item">
+                                <span class="uc-val" style="color:#10b981; font-size:1rem; padding-top:2px">
+                                    ${new Date(data.lastDate).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'})}
+                                </span>
+                                <span class="uc-label">Ultima</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
 
         // B. LISTA FILTRATA
         const listDiv = document.getElementById('admin-lessons-list');
@@ -309,9 +319,16 @@
         const n = document.getElementById('new-course-name').value;
         const e = document.getElementById('new-course-email').value.toLowerCase().trim();
         if(n && e) {
-            await addDoc(collection(db, "corsi_assegnati"), { nome:n, istruttore:e, created:new Date() });
-            alert("Corso assegnato a " + e);
-            document.getElementById('new-course-name').value="";
+            try {
+                await addDoc(collection(db, "corsi_assegnati"), { nome:n, istruttore:e, created:new Date() });
+                alert("✅ Corso creato con successo e assegnato a " + e);
+                document.getElementById('new-course-name').value="";
+                document.getElementById('new-course-email').value="";
+            } catch (error) {
+                alert("Errore durante la creazione del corso: " + error.message + "\n\nControlla di essere loggato con l'email admin corretta.");
+            }
+        } else {
+            alert("Compila tutti i campi.");
         }
     };
 
@@ -357,9 +374,9 @@
                 attivita: document.getElementById('attivita').value,
                 timestamp: new Date()
             });
-            alert("Salvato");
+            alert("Salvato! ✅");
             document.getElementById('attivita').value = "";
-        } catch(e){alert(e.message);}
+        } catch(e){alert("Errore salvataggio: " + e.message);}
     }
 </script>
 </body>
