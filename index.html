@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro Istruttori</title>
+    <title>Registro Istruttori & Assegnazioni</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- FIX CSS FONDAMENTALE --- */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        /* --- FIX CSS --- */
+        *, *::before, *::after { box-sizing: border-box; }
 
         /* --- STILI GENERALI --- */
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 20px; margin: 0; }
@@ -24,7 +22,7 @@
         button.logout-btn { background-color: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
         button.logout-btn:hover { background-color: #dc2626; }
 
-        /* Form */
+        /* Form Elements */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #374151; }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; background: #fff; transition: border 0.2s; }
@@ -57,9 +55,15 @@
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
         .course-title { font-weight: 700; color: #111; font-size: 1.1rem; margin-top: 5px; }
         
-        /* Sezione Gestione Corsi */
+        /* Admin Tools & Course List */
         .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 30px; }
         .admin-tools h3 { margin: 0 0 10px 0; color: #b45309; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .active-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 12px; margin-bottom: 25px; }
+        .course-tag { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; border: 1px solid #e0e7ff; }
+        .course-tag strong { color: #4338ca; font-size: 0.9rem; }
+        .btn-del-course { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+        .btn-del-course:hover { background: #fecaca; }
 
         .hidden { display: none !important; }
         .badge-admin { background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; vertical-align: middle; margin-left: 5px; }
@@ -91,34 +95,41 @@
         <div id="admin-view" class="hidden">
             
             <div class="admin-tools">
-                <h3>🛠 Crea Nuovo Corso</h3>
+                <h3>🛠 Crea Nuovo Corso & Assegna</h3>
                 <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px; align-items:end;">
                     <div>
                         <label style="color:#b45309">Nome Corso</label>
                         <input type="text" id="new-course-name" placeholder="Es. Lunedì 18:00">
                     </div>
                     <div>
-                        <label style="color:#b45309">Istruttore (Email)</label>
-                        <input type="email" id="new-course-email" placeholder="email@istruttore.it">
+                        <label style="color:#b45309">Assegna a (Email)</label>
+                        <input type="email" id="new-course-email" placeholder="istruttore@email.com">
                     </div>
                     <button onclick="addCourse()" style="width:auto; background:#d97706; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer">Crea</button>
                 </div>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:end; margin-bottom:15px">
-                <h3 style="margin:0">👥 Team Istruttori</h3>
+                <h3 style="margin:0">👥 Team & Assegnazioni</h3>
                 <button onclick="renderAdminDashboard(null)" style="background:none; border:none; color:#4f46e5; cursor:pointer; font-weight:600; font-size:0.9rem">Mostra Tutti</button>
             </div>
+            
             <div id="instructors-grid" class="cards-grid">
-                <p style="color:#666; font-style:italic;">Nessun dato. Appena un istruttore salverà una lezione, apparirà qui.</p>
+                </div>
+
+            <div id="instructor-detail-view" class="hidden">
+                <div class="active-courses-box">
+                    <h4 style="margin:0 0 10px 0; color:#4338ca">📋 Corsi Attivi di <span id="detail-email-display">...</span></h4>
+                    <div id="admin-courses-list">
+                        </div>
+                    <p style="font-size:0.8rem; color:#666; margin-top:10px">💡 Clicca "Elimina" per togliere l'assegnazione del corso a questo istruttore.</p>
+                </div>
             </div>
 
-            <h3 style="margin-top:30px; border-bottom:1px solid #e5e7eb; padding-bottom:10px">
+            <h3 style="margin-top:20px; border-bottom:1px solid #e5e7eb; padding-bottom:10px">
                 📝 Registro Attività <span id="filter-label" style="font-weight:400; color:#666; font-size:0.9rem">(Tutti)</span>
             </h3>
-            <div id="admin-lessons-list">
-                 <p style='color:#999'>Nessuna lezione trovata.</p>
-            </div>
+            <div id="admin-lessons-list"></div>
         </div>
 
         <div id="instructor-view" class="hidden">
@@ -165,9 +176,9 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // CONFIGURAZIONE
+    // --- CONFIGURAZIONE ---
     const firebaseConfig = {
       apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA",
       authDomain: "gestioneore-3bf5f.firebaseapp.com",
@@ -182,10 +193,11 @@
     const db = getFirestore(app);
     
     let currentUser = null;
-    let allLessonsCache = []; // Per l'admin
-    let selectedEmail = null; // Filtro admin
+    let allLessonsCache = []; 
+    let allAssignmentsCache = []; // Cache dei corsi assegnati
+    let selectedEmail = null; 
     
-    // IMPORTANTE: LA TUA EMAIL ADMIN (Deve coincidere con quella nelle Regole di Firebase)
+    // --- IMPORTANTE: LA TUA EMAIL ADMIN ---
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
     // LOGIN
@@ -227,37 +239,60 @@
     // --- LOGICA ADMIN ---
 
     function initAdmin() {
-        // 1. Carica tutte le lezioni per statistiche e lista
-        const q = query(collection(db, "registro_didattico"), orderBy("data", "desc"));
-        onSnapshot(q, (snap) => {
+        // 1. Carica lezioni (per i conteggi)
+        onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
             allLessonsCache = [];
             snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
+            renderAdminDashboard();
+        });
+
+        // 2. Carica Assegnazioni (per trovare gli istruttori)
+        onSnapshot(query(collection(db, "corsi_assegnati")), (snap) => {
+            allAssignmentsCache = [];
+            snap.forEach(d => allAssignmentsCache.push({id:d.id, ...d.data()}));
             renderAdminDashboard();
         });
     }
 
     window.renderAdminDashboard = (filterEmail = null) => {
-        selectedEmail = filterEmail;
+        // Se filterEmail è passato (o null per 'tutti'), lo impostiamo. 
+        // Se invece è undefined (chiamata automatica), teniamo quello vecchio.
+        if (filterEmail !== undefined) selectedEmail = filterEmail;
         
-        // A. GENERIAMO LE CARD DEGLI ISTRUTTORI
-        const instructors = {};
-        allLessonsCache.forEach(l => {
-            const email = l.email;
-            if(!instructors[email]) instructors[email] = { count: 0, lastDate: l.data };
-            instructors[email].count++;
-            if(l.data > instructors[email].lastDate) instructors[email].lastDate = l.data;
+        // A. COSTRUIAMO LA LISTA UNICA DI ISTRUTTORI
+        // Uniamo chi ha corsi assegnati E chi ha scritto lezioni (per sicurezza)
+        const instructorsMap = {}; // email -> { hasCourses: bool, lessonCount: 0, lastDate: null }
+
+        // Step 1: Da Assegnazioni
+        allAssignmentsCache.forEach(a => {
+            const e = a.istruttore;
+            if(!instructorsMap[e]) instructorsMap[e] = { count: 0, lastDate: null };
         });
 
+        // Step 2: Da Registro (Legacy)
+        allLessonsCache.forEach(l => {
+            const e = l.email;
+            if(!instructorsMap[e]) instructorsMap[e] = { count: 0, lastDate: null };
+            instructorsMap[e].count++;
+            if(!instructorsMap[e].lastDate || l.data > instructorsMap[e].lastDate) {
+                instructorsMap[e].lastDate = l.data;
+            }
+        });
+
+        // B. RENDER CARD ISTRUTTORI
         const grid = document.getElementById('instructors-grid');
         grid.innerHTML = "";
         
-        if (Object.keys(instructors).length === 0) {
-             grid.innerHTML = "<p style='color:#666; font-style:italic; grid-column: 1 / -1;'>Nessun dato. Appena un istruttore salverà una lezione, la sua scheda apparirà qui.</p>";
+        const emails = Object.keys(instructorsMap).sort();
+        
+        if (emails.length === 0) {
+             grid.innerHTML = "<p style='color:#666; font-style:italic; grid-column: 1 / -1;'>Nessun istruttore trovato (Assegna un corso per iniziare).</p>";
         } else {
-            Object.keys(instructors).forEach(email => {
-                const data = instructors[email];
+            emails.forEach(email => {
+                const data = instructorsMap[email];
                 const name = email.split('@')[0].toUpperCase();
                 const isActive = (email === selectedEmail) ? 'active' : '';
+                const lastDateStr = data.lastDate ? new Date(data.lastDate).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) : '--';
                 
                 grid.innerHTML += `
                     <div class="user-card ${isActive}" onclick="renderAdminDashboard('${email}')">
@@ -270,7 +305,7 @@
                             </div>
                              <div class="uc-stat-item">
                                 <span class="uc-val" style="color:#10b981; font-size:1rem; padding-top:2px">
-                                    ${new Date(data.lastDate).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'})}
+                                    ${lastDateStr}
                                 </span>
                                 <span class="uc-label">Ultima</span>
                             </div>
@@ -280,7 +315,33 @@
             });
         }
 
-        // B. LISTA FILTRATA
+        // C. DETTAGLIO CORSI (Se selezionato)
+        const detailBox = document.getElementById('instructor-detail-view');
+        if(selectedEmail) {
+            detailBox.classList.remove('hidden');
+            document.getElementById('detail-email-display').innerText = selectedEmail;
+            
+            const coursesList = document.getElementById('admin-courses-list');
+            coursesList.innerHTML = "";
+            const myCourses = allAssignmentsCache.filter(c => c.istruttore === selectedEmail);
+            
+            if(myCourses.length === 0) {
+                coursesList.innerHTML = "<p style='font-style:italic; font-size:0.9rem'>Nessun corso attivo assegnato.</p>";
+            } else {
+                myCourses.forEach(c => {
+                    coursesList.innerHTML += `
+                        <div class="course-tag">
+                            <strong>${c.nome}</strong>
+                            <button class="btn-del-course" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                        </div>
+                    `;
+                });
+            }
+        } else {
+            detailBox.classList.add('hidden');
+        }
+
+        // D. LISTA LEZIONI FILTRATA
         const listDiv = document.getElementById('admin-lessons-list');
         const filterLabel = document.getElementById('filter-label');
         listDiv.innerHTML = "";
@@ -315,27 +376,30 @@
         });
     };
 
+    // AZIONI ADMIN
     window.addCourse = async () => {
         const n = document.getElementById('new-course-name').value;
         const e = document.getElementById('new-course-email').value.toLowerCase().trim();
         if(n && e) {
             try {
                 await addDoc(collection(db, "corsi_assegnati"), { nome:n, istruttore:e, created:new Date() });
-                alert("✅ Corso creato con successo e assegnato a " + e);
+                // Pulizia e refresh
                 document.getElementById('new-course-name').value="";
                 document.getElementById('new-course-email').value="";
-            } catch (error) {
-                alert("Errore durante la creazione del corso: " + error.message + "\n\nControlla di essere loggato con l'email admin corretta.");
-            }
-        } else {
-            alert("Compila tutti i campi.");
+            } catch (error) { alert("Errore: " + error.message); }
+        } else { alert("Compila tutti i campi."); }
+    };
+
+    window.deleteAssignment = async (id) => {
+        if(confirm("Vuoi togliere questo corso all'istruttore?")) {
+            await deleteDoc(doc(db, "corsi_assegnati", id));
+            // La UI si aggiorna da sola grazie a onSnapshot
         }
     };
 
     // --- LOGICA ISTRUTTORE ---
 
     function initInstructor() {
-        // Carica menu corsi
         const qCorsi = query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase()));
         onSnapshot(qCorsi, (snap) => {
             const sel = document.getElementById('corso');
@@ -344,7 +408,6 @@
             if(snap.empty) sel.innerHTML = "<option>Nessun corso assegnato</option>";
         });
 
-        // Carica lezioni
         const qLez = query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid), orderBy("data", "desc"));
         onSnapshot(qLez, (snap) => {
             const list = document.getElementById('my-lessons-list');
