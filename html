@@ -2,97 +2,414 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro Didattico</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Registro Didattico Istruttori</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Qui definiamo i colori e lo stile */
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #333; padding: 20px; margin: 0; }
-        
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
-        h2 { text-align: center; color: #4f46e5; margin-bottom: 30px; }
-        
-        /* Stile delle caselle di input */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        textarea { height: 100px; resize: vertical; }
-        
-        /* Stile del bottone */
-        button { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #4338ca; }
+        /* --- STILI BASE (Ereditati dal progetto Ore Lavoro) --- */
+        :root {
+            --primary: #4f46e5; /* Indaco per un look più "Educational" */
+            --primary-dark: #4338ca;
+            --bg-body: #f3f4f6; 
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border-radius: 12px; 
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
 
-        /* Stile delle card (le lezioni salvate) */
-        .lezione-card { background: #fff; border: 1px solid #eee; border-left: 5px solid #4f46e5; padding: 15px; margin-top: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .card-header { display: flex; justify-content: space-between; font-weight: bold; color: #555; margin-bottom: 8px; }
-        .card-body { font-size: 0.95rem; color: #444; }
-        .tag { background: #e0e7ff; color: #4f46e5; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); margin: 0; padding: 15px; 
+            font-size: 14px; -webkit-font-smoothing: antialiased;
+        }
 
-        /* Nascondi elementi se non loggato */
-        .hidden { display: none; }
+        .container { 
+            max-width: 1000px; margin: 0 auto; background: var(--bg-card); 
+            padding: 24px; border-radius: 20px; box-shadow: var(--shadow); 
+            min-height: 85vh;
+        }
+
+        /* Visibilità Viste */
+        .view-section { display: none; } 
+        .view-section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 5px 0; color: #111; } 
+        h3 { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px 0; font-weight: 700; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; display: inline-block; }
+
+        /* Form Elements */
+        .form-box { background: #f9fafb; padding: 20px; border-radius: 16px; margin-bottom: 25px; border: 1px solid #e5e7eb; }
+        .row-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; } 
+        .full-width { grid-column: span 2; }
+
+        label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+        input, select, textarea { 
+            width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; 
+            font-size: 15px; background: #fff; color: var(--text-main); outline: none; transition: border 0.2s; font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); ring: 2px solid var(--primary); }
+        textarea { resize: vertical; min-height: 80px; }
+
+        button { 
+            width: 100%; padding: 12px; border: none; border-radius: 10px; 
+            font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
+            transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        button:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: #e5e7eb; color: var(--text-main); }
+        .btn-secondary:hover { background: #d1d5db; }
+        .btn-danger { background: #ef4444; color: white; width: auto; padding: 6px 12px; font-size: 0.8rem; }
+
+        /* Card Lezione (Stile Diario) */
+        .lesson-card {
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+            padding: 16px; margin-bottom: 15px; position: relative;
+            border-left: 5px solid var(--primary); transition: transform 0.2s;
+        }
+        .lesson-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        
+        .l-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .l-date { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .l-course { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        
+        .l-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem; margin-top: 10px; }
+        .l-box { background: #f3f4f6; padding: 10px; border-radius: 8px; }
+        .l-label { font-size: 0.7rem; color: #6b7280; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            .container { padding: 15px; box-shadow: none; background: transparent; }
+            .row-inputs { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+            .l-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Utils */
+        .hidden { display: none !important; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; background: #e0e7ff; color: var(--primary); }
+        
+        /* Loading & Modal */
+        #toast { visibility: hidden; min-width: 250px; background: #333; color: #fff; text-align: center; border-radius: 50px; padding: 12px; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2000; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} } @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>🏊 Registro Attività</h2>
+<div id="toast">Notifica</div>
 
-    <div id="login-section">
-        <p style="text-align:center">Accedi per segnare le attività</p>
-        <input type="email" id="email" placeholder="La tua email" style="margin-bottom:10px">
-        <input type="password" id="password" placeholder="Password">
-        <button id="btn-login">Accedi</button>
+<div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px">
+        <div>
+            <h2 id="welcome-msg">Registro Lezioni</h2>
+            <div id="user-role-badge" class="badge hidden">ADMIN</div>
+        </div>
+        <button id="logout-btn" class="btn-secondary hidden" style="width:auto; padding:8px 16px;">Esci</button>
     </div>
 
-    <div id="app-section" class="hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <span id="welcome-user" style="font-weight:bold">Ciao!</span>
-            <button onclick="logout()" style="width:auto; background:#999; padding:5px 15px; font-size:0.8rem">Esci</button>
+    <div id="login-view" class="view-section active">
+        <div class="form-box" style="max-width:400px; margin:40px auto; text-align:center;">
+            <h2 style="margin-bottom:20px">Accesso Istruttori</h2>
+            <input type="email" id="email" placeholder="Email" style="margin-bottom:10px">
+            <input type="password" id="password" placeholder="Password" style="margin-bottom:20px">
+            <button id="btn-login" class="btn-primary">Accedi al Registro</button>
         </div>
+    </div>
 
-        <div style="background:#f9fafb; padding:15px; border-radius:10px; border:1px solid #e5e7eb;">
-            <div class="form-group">
-                <label>Data</label>
-                <input type="date" id="data">
-            </div>
+    <div id="instructor-view" class="view-section">
+        
+        <div class="form-box">
+            <h3 style="margin-top:0">📝 Nuova Scheda Lezione</h3>
             
-            <div class="form-group">
-                <label>Corso / Gruppo</label>
-                <input type="text" id="corso" placeholder="Es. Nuoto Intermedio, Propaganda...">
+            <div class="row-inputs">
+                <div>
+                    <label>Data</label>
+                    <input type="date" id="i-data">
+                </div>
+                <div>
+                    <label>Corso / Gruppo</label>
+                    <input type="text" id="i-corso" placeholder="Es. Nuoto Intermedio, Yoga...">
+                    </div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-                <div class="form-group">
-                    <label>Livello Partenza</label>
-                    <select id="livello">
-                        <option>Principiante</option>
-                        <option>Base</option>
-                        <option>Intermedio</option>
-                        <option>Avanzato</option>
+            <div class="row-inputs">
+                <div>
+                    <label>Livello di Partenza</label>
+                    <select id="i-livello">
+                        <option value="Principiante">Principiante</option>
+                        <option value="Base">Base</option>
+                        <option value="Intermedio">Intermedio</option>
+                        <option value="Avanzato">Avanzato</option>
+                        <option value="Agonismo">Agonismo</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Obiettivo</label>
-                    <input type="text" id="obiettivo" placeholder="Es. Migliorare la respirazione">
+                <div>
+                    <label>Obiettivo della Lezione</label>
+                    <input type="text" id="i-obiettivo" placeholder="Es. Migliorare la virata">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Attività Svolta (Cosa avete fatto?)</label>
-                <textarea id="attivita" placeholder="Es. 10 vasche tavoletta, esercizi galleggiamento..."></textarea>
+            <div style="margin-bottom:15px">
+                <label>Cosa abbiamo fatto (Attività)</label>
+                <textarea id="i-attivita" placeholder="Descrivi gli esercizi svolti..."></textarea>
             </div>
 
-            <button onclick="salva()">Salva Lezione</button>
+            <div style="margin-bottom:15px">
+                <label>Note sui Progressi / Risultati</label>
+                <textarea id="i-progressi" placeholder="Come hanno risposto gli allievi? Problemi riscontrati?"></textarea>
+            </div>
+
+            <button onclick="salvaLezione()" class="btn-primary">Salva nel Registro</button>
         </div>
 
-        <hr style="margin: 30px 0; border:0; border-top:1px solid #eee;">
-        
         <h3>📚 Le tue lezioni passate</h3>
-        <div id="lista-lezioni">Caricamento...</div>
+        <input type="text" id="search-my-lessons" placeholder="Cerca corso o data..." style="margin-bottom:15px" onkeyup="renderMyLessons()">
+        
+        <div id="my-lessons-container">
+            <p style="text-align:center; color:#999">Caricamento...</p>
+        </div>
+
     </div>
+
+    <div id="admin-view" class="view-section">
+        <div class="form-box" style="background:#e0e7ff; border-color:#c7d2fe;">
+            <h3 style="margin-top:0; color:var(--primary)">🔍 Supervisione Corsi</h3>
+            <div class="row-inputs" style="margin-bottom:0">
+                <input type="text" id="a-search" placeholder="Filtra per istruttore, corso o contenuto..." onkeyup="loadAdminData()">
+                <button onclick="exportExcel()" class="btn-primary" style="width:auto">📥 Scarica Excel</button>
+            </div>
+        </div>
+
+        <div id="admin-feed-container">
+            </div>
+    </div>
+
 </div>
 
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // --- CONFIGURAZIONE (Usa la stessa del progetto Ore Lavoro se vuoi lo stesso DB, o creane uno nuovo) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA", // Inserisci qui le tue API KEY reali se diverse
+      authDomain: "gestioneore-3bf5f.firebaseapp.com",
+      projectId: "gestioneore-3bf5f",
+      storageBucket: "gestioneore-3bf5f.firebasestorage.app",
+      messagingSenderId: "99818377406",
+      appId: "1:99818377406:web:a62ee0e6f323b8b4178eef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_EMAIL = "a.chiodini01@gmail.com"; // La tua email admin
+    let currentUser = null;
+    let myLessons = [];
+    let allLessons = [];
+
+    // UTILS
+    const toast = (msg) => { const t = document.getElementById("toast"); t.innerText=msg; t.className="show"; setTimeout(()=>t.className="",3000); };
+    
+    // AUTH LOGIC
+    document.getElementById('btn-login').addEventListener('click', async () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
+        try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Errore: " + err.message); }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('login-view').classList.remove('active');
+            document.getElementById('logout-btn').classList.remove('hidden');
+            
+            const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            
+            if (isAdmin) {
+                document.getElementById('user-role-badge').classList.remove('hidden');
+                document.getElementById('admin-view').classList.add('active');
+                loadAdminData();
+            } else {
+                document.getElementById('instructor-view').classList.add('active');
+                document.getElementById('i-data').valueAsDate = new Date();
+                loadMyLessons();
+            }
+        } else {
+            currentUser = null;
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('login-view').classList.add('active');
+            document.getElementById('logout-btn').classList.add('hidden');
+            document.getElementById('user-role-badge').classList.add('hidden');
+        }
+    });
+
+    // --- LOGICA ISTRUTTORE ---
+    
+    window.salvaLezione = async () => {
+        const data = document.getElementById('i-data').value;
+        const corso = document.getElementById('i-corso').value;
+        const livello = document.getElementById('i-livello').value;
+        const attivita = document.getElementById('i-attivita').value;
+        const obiettivo = document.getElementById('i-obiettivo').value;
+        const progressi = document.getElementById('i-progressi').value;
+
+        if(!data || !corso || !attivita) return alert("Compila almeno Data, Corso e Attività.");
+
+        try {
+            await addDoc(collection(db, "registro_lezioni"), {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                data: data,
+                corso: corso,
+                livello: livello,
+                obiettivo: obiettivo,
+                attivita: attivita,
+                progressi: progressi,
+                timestamp: new Date()
+            });
+            toast("Lezione salvata!");
+            // Pulisci campi
+            document.getElementById('i-attivita').value = "";
+            document.getElementById('i-progressi').value = "";
+            document.getElementById('i-obiettivo').value = "";
+            loadMyLessons();
+        } catch(e) { alert("Errore salvataggio: " + e.message); }
+    };
+
+    async function loadMyLessons() {
+        const q = query(collection(db, "registro_lezioni"), where("uid", "==", currentUser.uid), orderBy("data", "desc"));
+        const snap = await getDocs(q);
+        myLessons = [];
+        snap.forEach(d => myLessons.push({id: d.id, ...d.data()}));
+        renderMyLessons();
+    }
+
+    window.renderMyLessons = () => {
+        const filter = document.getElementById('search-my-lessons').value.toLowerCase();
+        const container = document.getElementById('my-lessons-container');
+        container.innerHTML = "";
+
+        const filtered = myLessons.filter(l => l.corso.toLowerCase().includes(filter) || l.data.includes(filter));
+
+        if(filtered.length === 0) { container.innerHTML = "<p>Nessuna lezione trovata.</p>"; return; }
+
+        filtered.forEach(l => {
+            const dateStr = new Date(l.data).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+            container.innerHTML += `
+                <div class="lesson-card">
+                    <div class="l-header">
+                        <div>
+                            <span class="l-date">${dateStr}</span>
+                            <div class="l-course">${l.corso} <span style="font-size:0.8rem; font-weight:400; color:#666">(${l.livello})</span></div>
+                        </div>
+                        <button class="btn-danger" onclick="eliminaLezione('${l.id}')">Elimina</button>
+                    </div>
+                    <div class="l-grid">
+                        <div class="l-box">
+                            <span class="l-label">Obiettivo</span>
+                            ${l.obiettivo || '-'}
+                        </div>
+                         <div class="l-box">
+                            <span class="l-label">Attività Svolta</span>
+                            ${l.attivita}
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; font-size:0.9rem; color:#444; background:#fff; padding:5px; border-radius:5px; border:1px dashed #ccc">
+                        <span class="l-label">Progressi / Note</span>
+                        ${l.progressi || 'Nessuna nota'}
+                    </div>
+                </div>
+            `;
+        });
+    };
+
+    window.eliminaLezione = async (id) => {
+        if(confirm("Sei sicuro di voler eliminare questa scheda?")) {
+            await deleteDoc(doc(db, "registro_lezioni", id));
+            loadMyLessons();
+            toast("Eliminata");
+        }
+    }
+
+    // --- LOGICA ADMIN ---
+
+    window.loadAdminData = async () => {
+        // Carichiamo tutto e filtriamo in JS per semplicità (su pochi record va bene)
+        const q = query(collection(db, "registro_lezioni"), orderBy("data", "desc"));
+        const snap = await getDocs(q);
+        allLessons = [];
+        snap.forEach(d => allLessons.push({id: d.id, ...d.data()}));
+        renderAdminFeed();
+    };
+
+    function renderAdminFeed() {
+        const filter = document.getElementById('a-search').value.toLowerCase();
+        const container = document.getElementById('admin-feed-container');
+        container.innerHTML = "";
+
+        const filtered = allLessons.filter(l => 
+            l.corso.toLowerCase().includes(filter) || 
+            l.email.toLowerCase().includes(filter) ||
+            l.attivita.toLowerCase().includes(filter)
+        );
+
+        filtered.forEach(l => {
+            const dateStr = new Date(l.data).toLocaleDateString('it-IT');
+            container.innerHTML += `
+                <div class="lesson-card" style="border-left-color: #10b981;">
+                    <div class="l-header">
+                        <div>
+                            <span class="l-date">${dateStr} • <strong>${l.email}</strong></span>
+                            <div class="l-course">${l.corso}</div>
+                        </div>
+                    </div>
+                     <div class="l-grid">
+                        <div class="l-box">
+                            <span class="l-label">Livello & Obiettivo</span>
+                            ${l.livello} <br> ${l.obiettivo}
+                        </div>
+                         <div class="l-box">
+                            <span class="l-label">Attività</span>
+                            ${l.attivita}
+                        </div>
+                    </div>
+                    <div style="margin-top:8px; font-size:0.85rem">
+                         <span class="l-label">Progressi</span>
+                         ${l.progressi}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    window.exportExcel = () => {
+        let csv = "Data;Istruttore;Corso;Livello;Obiettivo;Attività;Progressi\n";
+        allLessons.forEach(l => {
+            // Pulisci i testi da ; e a capo per non rompere il CSV
+            const clean = (t) => (t || "").replace(/;/g, ",").replace(/\n/g, " ");
+            csv += `${l.data};${l.email};${clean(l.corso)};${clean(l.livello)};${clean(l.obiettivo)};${clean(l.attivita)};${clean(l.progressi)}\n`;
+        });
+        const blob = new Blob(["\uFEFF"+csv], {type: 'text/csv;charset=utf-8;'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a"); a.href = url; a.download = "Registro_Lezioni.csv";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    };
+
+</script>
 </body>
 </html>
