@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Didattico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Qui definiamo i colori e lo stile */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #333; padding: 20px; margin: 0; }
+        
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        h2 { text-align: center; color: #4f46e5; margin-bottom: 30px; }
+        
+        /* Stile delle caselle di input */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        textarea { height: 100px; resize: vertical; }
+        
+        /* Stile del bottone */
+        button { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #4338ca; }
+
+        /* Stile delle card (le lezioni salvate) */
+        .lezione-card { background: #fff; border: 1px solid #eee; border-left: 5px solid #4f46e5; padding: 15px; margin-top: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; font-weight: bold; color: #555; margin-bottom: 8px; }
+        .card-body { font-size: 0.95rem; color: #444; }
+        .tag { background: #e0e7ff; color: #4f46e5; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+
+        /* Nascondi elementi se non loggato */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🏊 Registro Attività</h2>
+
+    <div id="login-section">
+        <p style="text-align:center">Accedi per segnare le attività</p>
+        <input type="email" id="email" placeholder="La tua email" style="margin-bottom:10px">
+        <input type="password" id="password" placeholder="Password">
+        <button id="btn-login">Accedi</button>
+    </div>
+
+    <div id="app-section" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <span id="welcome-user" style="font-weight:bold">Ciao!</span>
+            <button onclick="logout()" style="width:auto; background:#999; padding:5px 15px; font-size:0.8rem">Esci</button>
+        </div>
+
+        <div style="background:#f9fafb; padding:15px; border-radius:10px; border:1px solid #e5e7eb;">
+            <div class="form-group">
+                <label>Data</label>
+                <input type="date" id="data">
+            </div>
+            
+            <div class="form-group">
+                <label>Corso / Gruppo</label>
+                <input type="text" id="corso" placeholder="Es. Nuoto Intermedio, Propaganda...">
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                <div class="form-group">
+                    <label>Livello Partenza</label>
+                    <select id="livello">
+                        <option>Principiante</option>
+                        <option>Base</option>
+                        <option>Intermedio</option>
+                        <option>Avanzato</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Obiettivo</label>
+                    <input type="text" id="obiettivo" placeholder="Es. Migliorare la respirazione">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Attività Svolta (Cosa avete fatto?)</label>
+                <textarea id="attivita" placeholder="Es. 10 vasche tavoletta, esercizi galleggiamento..."></textarea>
+            </div>
+
+            <button onclick="salva()">Salva Lezione</button>
+        </div>
+
+        <hr style="margin: 30px 0; border:0; border-top:1px solid #eee;">
+        
+        <h3>📚 Le tue lezioni passate</h3>
+        <div id="lista-lezioni">Caricamento...</div>
+    </div>
+</div>
+
+</body>
+</html>
