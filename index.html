@@ -40,15 +40,27 @@
         .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
         .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; display: inline-block; }
 
-        /* --- LISTA STORICO --- */
+        /* --- LISTA STORICO & TOOLBAR --- */
         .history-container { display: none; animation: fadeIn 0.3s ease; }
         .history-container.active { display: block; }
+
+        .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
+        .sort-select { padding: 6px; border-radius: 6px; border: 1px solid #ddd; font-size: 0.9rem; }
         
-        .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; }
+        .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; position: relative; }
+        .card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
         
+        .actions-div { display: flex; gap: 8px; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px; transition: transform 0.2s; }
+        .icon-btn:hover { transform: scale(1.2); }
+
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
         .back-btn:hover { color: #111; }
+
+        /* MODAL MODIFICA */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
         /* Admin Styles */
         .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 30px; }
@@ -135,7 +147,15 @@
             <div id="course-history" class="history-container">
                 <div style="margin-top:30px; border-top:1px solid #ddd; padding-top:15px">
                     <button class="back-btn" onclick="closeHistory()">⬅ Torna ai Corsi</button>
-                    <h3 style="margin:10px 0 0 0; color:#4f46e5">Storico: <span id="hist-title">...</span></h3>
+                    
+                    <div class="history-toolbar">
+                        <h3 style="margin:0; color:#4f46e5; font-size:1.1rem"><span id="hist-title">...</span></h3>
+                        <select id="sort-order" class="sort-select" onchange="renderHistoryList()">
+                            <option value="desc">Più Recenti</option>
+                            <option value="asc">Più Vecchi</option>
+                        </select>
+                    </div>
+
                     <div id="history-list"></div>
                 </div>
             </div>
@@ -145,10 +165,35 @@
     </div>
 </div>
 
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="margin-top:0">✏️ Modifica Lezione</h3>
+        <input type="hidden" id="edit-id">
+        
+        <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="edit-data">
+        </div>
+        <div class="form-group">
+            <label>Obiettivo</label>
+            <input type="text" id="edit-obiettivo">
+        </div>
+        <div class="form-group">
+            <label>Attività</label>
+            <textarea id="edit-attivita" style="height:100px"></textarea>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-top:20px">
+            <button onclick="closeEditModal()" style="flex:1; padding:10px; border:none; background:#e5e7eb; border-radius:8px; cursor:pointer">Annulla</button>
+            <button onclick="saveEdit()" style="flex:1; padding:10px; border:none; background:#4f46e5; color:white; border-radius:8px; font-weight:bold; cursor:pointer">Salva Modifiche</button>
+        </div>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     // --- CONFIGURAZIONE ---
     const firebaseConfig = {
@@ -166,6 +211,8 @@
     
     let currentUser = null;
     let myLessonsCache = []; 
+    let currentOpenCourse = null; // Per sapere quale corso stiamo guardando
+
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
     // AUTH
@@ -203,7 +250,7 @@
     // --- ISTRUTTORE ---
 
     function initInstructor() {
-        // 1. CARICA IL MENU A TENDINA (Corsi assegnati)
+        // 1. CARICA IL MENU A TENDINA
         onSnapshot(query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase())), (snap) => {
             const sel = document.getElementById('corso');
             sel.innerHTML = "";
@@ -221,8 +268,14 @@
         onSnapshot(qLez, (snap) => {
             myLessonsCache = [];
             snap.forEach(d => myLessonsCache.push({id:d.id, ...d.data()}));
-            myLessonsCache.sort((a,b) => new Date(b.data) - new Date(a.data));
+            
+            // Aggiorna la vista corsi
             renderCourseFolders();
+            
+            // Se ho lo storico aperto, aggiorno anche quello in tempo reale
+            if(currentOpenCourse) {
+                renderHistoryList();
+            }
         });
     }
 
@@ -252,25 +305,52 @@
                 <div class="cf-title">${cName}</div>
                 <div class="cf-count">${count} Schede</div>
             `;
-            div.onclick = () => openHistory(cName, groups[cName]);
+            div.onclick = () => openHistory(cName);
             grid.appendChild(div);
         });
     }
 
-    // Apre lo storico di un corso specifico
-    window.openHistory = (courseName, lessons) => {
+    // Apre lo storico
+    window.openHistory = (courseName) => {
+        currentOpenCourse = courseName;
         document.getElementById('courses-overview').classList.add('hidden');
         document.getElementById('course-history').classList.add('active');
         document.getElementById('hist-title').innerText = courseName;
+        renderHistoryList();
+    };
 
+    // Renderizza la lista con filtri e bottoni
+    window.renderHistoryList = () => {
+        if(!currentOpenCourse) return;
+        
+        const sortOrder = document.getElementById('sort-order').value;
         const list = document.getElementById('history-list');
         list.innerHTML = "";
 
-        lessons.forEach(l => {
+        // Filtra solo il corso corrente
+        let filtered = myLessonsCache.filter(l => l.corso === currentOpenCourse);
+
+        // Ordina
+        filtered.sort((a,b) => {
+            return sortOrder === 'desc' 
+                ? new Date(b.data) - new Date(a.data) 
+                : new Date(a.data) - new Date(b.data);
+        });
+
+        if(filtered.length === 0) {
+            list.innerHTML = "<p>Nessuna lezione trovata.</p>";
+            return;
+        }
+
+        filtered.forEach(l => {
             list.innerHTML += `
                 <div class="lezione-card">
-                    <div style="margin-bottom:5px">
+                    <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
+                        <div class="actions-div">
+                            <button class="icon-btn" onclick="openEditModal('${l.id}')" title="Modifica">✏️</button>
+                            <button class="icon-btn" onclick="deleteLesson('${l.id}')" title="Elimina" style="color:#ef4444">🗑️</button>
+                        </div>
                     </div>
                     <div style="font-weight:600; margin-bottom:5px; color:#333">🎯 ${l.obiettivo || '-'}</div>
                     <div style="color:#555; font-size:0.95rem; line-height:1.4">${l.attivita}</div>
@@ -280,8 +360,49 @@
     };
 
     window.closeHistory = () => {
+        currentOpenCourse = null;
         document.getElementById('course-history').classList.remove('active');
         document.getElementById('courses-overview').classList.remove('hidden');
+    };
+
+    // --- FUNZIONI MODIFICA & ELIMINA ---
+
+    window.deleteLesson = async (id) => {
+        if(confirm("Sei sicuro di voler eliminare questa lezione?")) {
+            await deleteDoc(doc(db, "registro_didattico", id));
+        }
+    };
+
+    window.openEditModal = (id) => {
+        const lesson = myLessonsCache.find(l => l.id === id);
+        if(!lesson) return;
+
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-data').value = lesson.data;
+        document.getElementById('edit-obiettivo').value = lesson.obiettivo;
+        document.getElementById('edit-attivita').value = lesson.attivita;
+
+        document.getElementById('edit-modal').style.display = 'flex';
+    };
+
+    window.closeEditModal = () => {
+        document.getElementById('edit-modal').style.display = 'none';
+    };
+
+    window.saveEdit = async () => {
+        const id = document.getElementById('edit-id').value;
+        const newData = {
+            data: document.getElementById('edit-data').value,
+            obiettivo: document.getElementById('edit-obiettivo').value,
+            attivita: document.getElementById('edit-attivita').value
+        };
+
+        if(!newData.data || !newData.attivita) return alert("Compila i campi");
+
+        try {
+            await updateDoc(doc(db, "registro_didattico", id), newData);
+            closeEditModal();
+        } catch(e) { alert("Errore modifica: " + e.message); }
     };
 
     window.salvaLezione = async () => {
@@ -291,7 +412,6 @@
                 email: currentUser.email,
                 data: document.getElementById('data').value,
                 corso: document.getElementById('corso').value,
-                // Rimosso livello, salviamo solo l'obiettivo
                 obiettivo: document.getElementById('obiettivo').value,
                 attivita: document.getElementById('attivita').value,
                 timestamp: new Date()
@@ -302,13 +422,10 @@
         } catch(e){ alert(e.message); }
     };
 
-    // --- ADMIN ---
+    // --- ADMIN (Semplificato) ---
     function initAdmin() {
-        // ... (Logica Admin simile ma semplificata per brevità nel blocco, 
-        // se ti serve vedere anche lì l'obiettivo aggiornato fammi sapere)
         onSnapshot(collection(db, "registro_didattico"), (snap) => {});
     }
-    
     window.addCourse = async () => {
         try {
             await addDoc(collection(db, "corsi_assegnati"), { 
