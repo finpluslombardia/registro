@@ -29,7 +29,7 @@
         button.primary-btn { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
         button.primary-btn:hover { background-color: #4338ca; }
 
-        /* --- CARTE CORSI (Nuovo Design) --- */
+        /* --- CARTE CORSI --- */
         .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
         
         .course-folder { 
@@ -40,13 +40,12 @@
         .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
         .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; display: inline-block; }
 
-        /* --- LISTA STORICO (Nascosta di base) --- */
+        /* --- LISTA STORICO --- */
         .history-container { display: none; animation: fadeIn 0.3s ease; }
         .history-container.active { display: block; }
         
         .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; }
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
-        .level-badge { float: right; font-size: 0.8rem; font-weight: 700; color: #4f46e5; }
         
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
         .back-btn:hover { color: #111; }
@@ -113,25 +112,15 @@
                     <label>Seleziona Corso</label>
                     <select id="corso"><option>Caricamento...</option></select>
                 </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
-                    <div class="form-group">
-                        <label>Livello</label>
-                        <select id="livello">
-                            <option>Ambientamento</option>
-                            <option>Principiante</option>
-                            <option>Intermedio</option>
-                            <option>Avanzato</option>
-                            <option>Agonismo</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Obiettivo</label>
-                        <input type="text" id="obiettivo" placeholder="Es. Dorso">
-                    </div>
+                
+                <div class="form-group">
+                    <label>Obiettivo della lezione</label>
+                    <input type="text" id="obiettivo" placeholder="Es. Miglioramento virata dorso">
                 </div>
+
                 <div class="form-group">
                     <label>Attività Svolta</label>
-                    <textarea id="attivita" placeholder="Descrizione..."></textarea>
+                    <textarea id="attivita" placeholder="Descrizione esercizi..."></textarea>
                 </div>
                 <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             </div>
@@ -226,23 +215,19 @@
             if(!coursesFound) sel.innerHTML = "<option>Nessun corso assegnato</option>";
         });
 
-        // 2. CARICA LE LEZIONI (Senza 'orderBy' per evitare blocchi Firebase)
+        // 2. CARICA LE LEZIONI
         const qLez = query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid));
         
         onSnapshot(qLez, (snap) => {
             myLessonsCache = [];
             snap.forEach(d => myLessonsCache.push({id:d.id, ...d.data()}));
-            
-            // Ordiniamo noi via software (più sicuro)
             myLessonsCache.sort((a,b) => new Date(b.data) - new Date(a.data));
-            
             renderCourseFolders();
         });
     }
 
     // Genera le "Cartelle" dei corsi
     function renderCourseFolders() {
-        // Raggruppa le lezioni per corso
         const groups = {};
         myLessonsCache.forEach(l => {
             if(!groups[l.corso]) groups[l.corso] = [];
@@ -252,7 +237,6 @@
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
 
-        // Crea una card per ogni gruppo che ha lezioni
         const courseNames = Object.keys(groups).sort();
         
         if(courseNames.length === 0) {
@@ -262,8 +246,6 @@
 
         courseNames.forEach(cName => {
             const count = groups[cName].length;
-            // Usiamo onclick per chiamare la funzione openHistory
-            // Trick: salviamo il nome nel dataset per evitare problemi con virgolette
             const div = document.createElement('div');
             div.className = 'course-folder';
             div.innerHTML = `
@@ -289,9 +271,8 @@
                 <div class="lezione-card">
                     <div style="margin-bottom:5px">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
-                        <span class="level-badge">${l.livello}</span>
                     </div>
-                    <div style="font-weight:600; margin-bottom:5px; color:#333">🎯 ${l.obiettivo}</div>
+                    <div style="font-weight:600; margin-bottom:5px; color:#333">🎯 ${l.obiettivo || '-'}</div>
                     <div style="color:#555; font-size:0.95rem; line-height:1.4">${l.attivita}</div>
                 </div>
             `;
@@ -310,21 +291,22 @@
                 email: currentUser.email,
                 data: document.getElementById('data').value,
                 corso: document.getElementById('corso').value,
-                livello: document.getElementById('livello').value,
+                // Rimosso livello, salviamo solo l'obiettivo
                 obiettivo: document.getElementById('obiettivo').value,
                 attivita: document.getElementById('attivita').value,
                 timestamp: new Date()
             });
             alert("Salvato! ✅");
             document.getElementById('attivita').value = "";
+            document.getElementById('obiettivo').value = "";
         } catch(e){ alert(e.message); }
     };
 
-    // --- ADMIN (Semplificato per debug) ---
+    // --- ADMIN ---
     function initAdmin() {
-        onSnapshot(collection(db, "registro_didattico"), (snap) => {
-            // Logica admin simile...
-        });
+        // ... (Logica Admin simile ma semplificata per brevità nel blocco, 
+        // se ti serve vedere anche lì l'obiettivo aggiornato fammi sapere)
+        onSnapshot(collection(db, "registro_didattico"), (snap) => {});
     }
     
     window.addCourse = async () => {
@@ -335,6 +317,8 @@
                 created: new Date() 
             });
             alert("Corso Creato!");
+            document.getElementById('new-course-name').value = "";
+            document.getElementById('new-course-email').value = "";
         } catch(e){ alert(e.message); }
     };
 
