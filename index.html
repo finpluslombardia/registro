@@ -16,7 +16,6 @@
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #e5e7eb; padding-bottom: 15px; }
         h2 { margin: 0; color: #4f46e5; font-weight: 800; font-size: 1.5rem; }
         .user-info { font-size: 0.9rem; color: #6b7280; font-weight: 500; }
-        
         button.logout-btn { background-color: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
         
         /* Form & Inputs */
@@ -25,43 +24,43 @@
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; background: #fff; }
         input:focus, select:focus, textarea:focus { border-color: #4f46e5; outline: 3px solid #e0e7ff; }
         textarea { height: 80px; resize: vertical; }
-        
         button.primary-btn { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
         button.primary-btn:hover { background-color: #4338ca; }
 
-        /* --- STILI SPECIFICI ADMIN --- */
+        /* --- ADMIN TOOLS --- */
         .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
+        
+        /* Griglia Creazione Corso */
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 10px; align-items: end; }
-        /* Mobile adjustment per la griglia di creazione */
         @media (max-width: 700px) { .create-grid { grid-template-columns: 1fr 1fr; } .create-grid button { grid-column: span 2; } }
+
+        /* Gestione Livelli (Tags) */
+        .levels-manager { margin-bottom: 25px; border-bottom: 1px solid #fcd34d; padding-bottom: 20px; }
+        .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .level-tag { background: white; border: 1px solid #d97706; color: #b45309; padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .btn-del-level { background: #fee2e2; color: #ef4444; border: none; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
+        .add-level-box { display: flex; gap: 10px; margin-top: 10px; max-width: 400px; }
 
         /* Card Istruttori */
         .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin-top: 20px; }
-        
-        .user-card { 
-            background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; 
-            cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
-            position: relative; overflow: hidden;
-        }
+        .user-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
         .user-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); border-color: #4f46e5; }
         .user-card.active { border: 2px solid #4f46e5; background: #e0e7ff; }
         .uc-name { font-weight: 700; font-size: 1.1rem; color: #111; margin-bottom: 2px; }
         .uc-email { font-size: 0.75rem; color: #6b7280; margin-bottom: 15px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 10px; }
         .uc-val { display: block; font-weight: 800; font-size: 1.2rem; color: #4f46e5; }
-        
-        /* Istruttore: Course Folders */
-        .course-folder { 
-            background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; 
-            cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5;
-        }
+
+        /* Istruttore Elements */
+        .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5; }
         .course-folder:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); }
         .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
         .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; display: inline-block; }
 
-        /* Lezione Card & Storico */
+        /* Storico */
         .history-container { display: none; animation: fadeIn 0.3s ease; }
         .history-container.active { display: block; }
+        .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
         .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; position: relative; }
         .card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
@@ -69,10 +68,7 @@
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px; transition: transform 0.2s; }
         .icon-btn:hover { transform: scale(1.2); }
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
-        
-        /* Filtri */
-        .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
-        
+
         /* Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
@@ -107,34 +103,32 @@
         <div id="admin-view" class="hidden">
             
             <div class="admin-tools">
-                <h3 style="margin-top:0; color:#b45309">🛠 Nuova Assegnazione Corso</h3>
-                <p style="font-size:0.8rem; color:#b45309; margin-bottom:15px">Il sistema creerà automaticamente il nome del corso unendo Livello, Giorno e Ora.</p>
-                
+                <div class="levels-manager">
+                    <h3 style="margin-top:0; color:#b45309">🎚 Gestione Livelli</h3>
+                    <div id="levels-container" class="levels-container">
+                        <span style="font-size:0.8rem; color:#b45309; opacity:0.7">Caricamento livelli...</span>
+                    </div>
+                    
+                    <div class="add-level-box">
+                        <input type="text" id="new-level-input" placeholder="Nuovo livello (es. Master)" style="padding:8px; font-size:0.9rem">
+                        <button onclick="saveNewLevel()" style="background:#b45309; color:white; border:none; padding:0 15px; border-radius:8px; cursor:pointer; font-weight:bold">+</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:20px; color:#b45309">🛠 Nuova Assegnazione Corso</h3>
                 <div class="create-grid">
                     <div>
                         <label style="color:#b45309">Livello</label>
-                        <select id="new-level">
-                            <option value="">Scegli...</option>
-                            <option>Ambientamento</option>
-                            <option>Principiante</option>
-                            <option>Intermedio</option>
-                            <option>Avanzato</option>
-                            <option>Agonismo</option>
-                            <option>Propaganda</option>
-                            <option>Fitness</option>
+                        <select id="new-level-select">
+                            <option value="">-- Caricamento --</option>
                         </select>
                     </div>
                     <div>
                         <label style="color:#b45309">Giorno</label>
                         <select id="new-day">
                             <option value="">Scegli...</option>
-                            <option>Lunedì</option>
-                            <option>Martedì</option>
-                            <option>Mercoledì</option>
-                            <option>Giovedì</option>
-                            <option>Venerdì</option>
-                            <option>Sabato</option>
-                            <option>Domenica</option>
+                            <option>Lunedì</option><option>Martedì</option><option>Mercoledì</option>
+                            <option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option>
                         </select>
                     </div>
                     <div>
@@ -163,53 +157,30 @@
         </div>
 
         <div id="instructor-view" class="hidden">
-            
             <h3 style="margin-bottom:15px">Nuova Lezione</h3>
             <div style="background:#f9fafb; padding:20px; border-radius:12px; border:1px solid #e5e7eb;">
-                <div class="form-group">
-                    <label>Data</label>
-                    <input type="date" id="data">
-                </div>
-                <div class="form-group">
-                    <label>Seleziona Corso (Livello - Giorno - Ora)</label>
-                    <select id="corso"><option>Caricamento...</option></select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Obiettivo della lezione</label>
-                    <input type="text" id="obiettivo" placeholder="Es. Miglioramento virata dorso">
-                </div>
-
-                <div class="form-group">
-                    <label>Attività Svolta</label>
-                    <textarea id="attivita" placeholder="Descrizione esercizi..."></textarea>
-                </div>
+                <div class="form-group"><label>Data</label><input type="date" id="data"></div>
+                <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
+                <div class="form-group"><label>Obiettivo della lezione</label><input type="text" id="obiettivo" placeholder="Es. Miglioramento virata dorso"></div>
+                <div class="form-group"><label>Attività Svolta</label><textarea id="attivita" placeholder="Descrizione esercizi..."></textarea></div>
                 <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             </div>
 
             <div id="courses-overview">
                 <h3 style="margin-top:40px; border-bottom:1px solid #ddd; padding-bottom:10px">I Tuoi Corsi</h3>
-                <div id="my-courses-grid" class="grid-courses">
-                    <p style="color:#666">Caricamento corsi...</p>
-                </div>
+                <div id="my-courses-grid" class="grid-courses"><p style="color:#666">Caricamento corsi...</p></div>
             </div>
 
             <div id="course-history" class="history-container">
                 <div style="margin-top:30px; border-top:1px solid #ddd; padding-top:15px">
                     <button class="back-btn" onclick="closeHistory()">⬅ Torna ai Corsi</button>
-                    
                     <div class="history-toolbar">
                         <h3 style="margin:0; color:#4f46e5; font-size:1.1rem"><span id="hist-title">...</span></h3>
-                        <select id="sort-order" class="sort-select" onchange="renderHistoryList()">
-                            <option value="desc">Più Recenti</option>
-                            <option value="asc">Più Vecchi</option>
-                        </select>
+                        <select id="sort-order" class="sort-select" onchange="renderHistoryList()"><option value="desc">Più Recenti</option><option value="asc">Più Vecchi</option></select>
                     </div>
-
                     <div id="history-list"></div>
                 </div>
             </div>
-
         </div>
 
     </div>
@@ -250,8 +221,8 @@
     
     let currentUser = null;
     let myLessonsCache = []; 
-    let allLessonsCache = []; // Per Admin
-    let allAssignmentsCache = []; // Per Admin
+    let allLessonsCache = []; 
+    let allAssignmentsCache = []; 
     let currentOpenCourse = null; 
 
     // IMPORTANTE: TUA EMAIL ADMIN
@@ -370,7 +341,7 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
-    // --- FUNZIONI MODIFICA & ELIMINA ---
+    // --- FUNZIONI MODIFICA & ELIMINA (Comuni) ---
     window.deleteLesson = async (id) => { if(confirm("Eliminare questa lezione?")) await deleteDoc(doc(db, "registro_didattico", id)); };
     window.openEditModal = (id) => {
         const lesson = myLessonsCache.find(l => l.id === id) || allLessonsCache.find(l => l.id === id);
@@ -412,6 +383,9 @@
 
     // --- LOGICA ADMIN ---
     function initAdmin() {
+        // 1. Inizializza gestione livelli dinamici
+        initLevels();
+
         onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
             allLessonsCache = [];
             snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
@@ -424,8 +398,54 @@
         });
     }
 
+    // NUOVO: GESTIONE LIVELLI DINAMICI
+    function initLevels() {
+        const levelsDiv = document.getElementById('levels-container');
+        const select = document.getElementById('new-level-select');
+
+        // Ascolta la collezione dei livelli
+        onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
+            levelsDiv.innerHTML = "";
+            select.innerHTML = '<option value="">Scegli...</option>';
+
+            if(snap.empty) {
+                levelsDiv.innerHTML = "<span style='font-size:0.8rem; color:#666'>Nessun livello. Aggiungine uno!</span>";
+            }
+
+            snap.forEach(d => {
+                const lvl = d.data().nome;
+                
+                // Popola la lista di gestione (Tag)
+                levelsDiv.innerHTML += `
+                    <div class="level-tag">
+                        ${lvl}
+                        <button class="btn-del-level" onclick="deleteLevel('${d.id}')">✕</button>
+                    </div>
+                `;
+
+                // Popola il menu a tendina
+                select.innerHTML += `<option value="${lvl}">${lvl}</option>`;
+            });
+        });
+    }
+
+    window.saveNewLevel = async () => {
+        const name = document.getElementById('new-level-input').value.trim();
+        if(!name) return;
+        try {
+            await addDoc(collection(db, "elenco_livelli"), { nome: name });
+            document.getElementById('new-level-input').value = "";
+        } catch(e) { alert("Errore: " + e.message); }
+    };
+
+    window.deleteLevel = async (id) => {
+        if(confirm("Eliminare questo livello?")) {
+            await deleteDoc(doc(db, "elenco_livelli", id));
+        }
+    };
+
     window.addCourseStructured = async () => {
-        const lvl = document.getElementById('new-level').value;
+        const lvl = document.getElementById('new-level-select').value; // Ora prende dal DB
         const day = document.getElementById('new-day').value;
         const time = document.getElementById('new-time').value;
         const email = document.getElementById('new-email').value.trim().toLowerCase();
@@ -436,15 +456,14 @@
 
         try {
             await addDoc(collection(db, "corsi_assegnati"), { 
-                nome: fullName, // Questo è quello che vede l'istruttore
-                livello: lvl,   // Dati puri per macro-categorie future
+                nome: fullName,
+                livello: lvl,
                 giorno: day,
                 ora: time,
                 istruttore: email, 
                 created: new Date() 
             });
             alert("Corso Creato: " + fullName);
-            // Pulisci
             document.getElementById('new-email').value = "";
         } catch(e){ alert(e.message); }
     };
