@@ -62,9 +62,21 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
-        /* Admin Styles */
+        /* ADMIN - USER CARDS */
         .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 30px; }
-        .user-card { background: white; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
+        
+        .user-card { 
+            background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; 
+            cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
+            position: relative; overflow: hidden;
+        }
+        .user-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); border-color: #4f46e5; }
+        .user-card.active { border: 2px solid #4f46e5; background: #e0e7ff; }
+        .uc-name { font-weight: 700; font-size: 1.1rem; color: #111; margin-bottom: 2px; }
+        .uc-email { font-size: 0.75rem; color: #6b7280; margin-bottom: 15px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 10px; }
+        .uc-val { display: block; font-weight: 800; font-size: 1.2rem; color: #4f46e5; }
+        .uc-label { font-size: 0.65rem; text-transform: uppercase; color: #9ca3af; font-weight: 700; }
         
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -103,11 +115,15 @@
                 </div>
             </div>
             
-            <h3 style="margin-bottom:10px">👥 Team & Assegnazioni</h3>
+            <div style="display:flex; justify-content:space-between; align-items:end; margin-bottom:15px">
+                <h3 style="margin:0">👥 Team Istruttori</h3>
+                <button onclick="renderAdminDashboard(null)" style="background:none; border:none; color:#4f46e5; cursor:pointer; font-weight:600; font-size:0.9rem">Mostra Tutti</button>
+            </div>
+            
             <div id="instructors-grid" class="grid-courses"></div>
             
             <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px">
-                <h4 style="margin:0 0 15px 0">Attività di <span id="adm-sel-user" style="color:#4f46e5">...</span></h4>
+                <h4 style="margin:0 0 15px 0">Storico Lezioni di <span id="adm-sel-user" style="color:#4f46e5">...</span></h4>
                 <div id="admin-lessons-list"></div>
             </div>
         </div>
@@ -211,8 +227,11 @@
     
     let currentUser = null;
     let myLessonsCache = []; 
-    let currentOpenCourse = null; // Per sapere quale corso stiamo guardando
+    let allLessonsCache = []; // Per Admin
+    let allAssignmentsCache = []; // Per Admin
+    let currentOpenCourse = null; 
 
+    // IMPORTANTE: TUA EMAIL ADMIN
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
     // AUTH
@@ -248,9 +267,7 @@
     });
 
     // --- ISTRUTTORE ---
-
     function initInstructor() {
-        // 1. CARICA IL MENU A TENDINA
         onSnapshot(query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase())), (snap) => {
             const sel = document.getElementById('corso');
             sel.innerHTML = "";
@@ -262,24 +279,14 @@
             if(!coursesFound) sel.innerHTML = "<option>Nessun corso assegnato</option>";
         });
 
-        // 2. CARICA LE LEZIONI
-        const qLez = query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid));
-        
-        onSnapshot(qLez, (snap) => {
+        onSnapshot(query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid)), (snap) => {
             myLessonsCache = [];
             snap.forEach(d => myLessonsCache.push({id:d.id, ...d.data()}));
-            
-            // Aggiorna la vista corsi
             renderCourseFolders();
-            
-            // Se ho lo storico aperto, aggiorno anche quello in tempo reale
-            if(currentOpenCourse) {
-                renderHistoryList();
-            }
+            if(currentOpenCourse) renderHistoryList();
         });
     }
 
-    // Genera le "Cartelle" dei corsi
     function renderCourseFolders() {
         const groups = {};
         myLessonsCache.forEach(l => {
@@ -289,7 +296,6 @@
 
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
-
         const courseNames = Object.keys(groups).sort();
         
         if(courseNames.length === 0) {
@@ -301,16 +307,12 @@
             const count = groups[cName].length;
             const div = document.createElement('div');
             div.className = 'course-folder';
-            div.innerHTML = `
-                <div class="cf-title">${cName}</div>
-                <div class="cf-count">${count} Schede</div>
-            `;
+            div.innerHTML = `<div class="cf-title">${cName}</div><div class="cf-count">${count} Schede</div>`;
             div.onclick = () => openHistory(cName);
             grid.appendChild(div);
         });
     }
 
-    // Apre lo storico
     window.openHistory = (courseName) => {
         currentOpenCourse = courseName;
         document.getElementById('courses-overview').classList.add('hidden');
@@ -319,28 +321,15 @@
         renderHistoryList();
     };
 
-    // Renderizza la lista con filtri e bottoni
     window.renderHistoryList = () => {
         if(!currentOpenCourse) return;
-        
         const sortOrder = document.getElementById('sort-order').value;
         const list = document.getElementById('history-list');
         list.innerHTML = "";
-
-        // Filtra solo il corso corrente
         let filtered = myLessonsCache.filter(l => l.corso === currentOpenCourse);
+        filtered.sort((a,b) => sortOrder === 'desc' ? new Date(b.data) - new Date(a.data) : new Date(a.data) - new Date(b.data));
 
-        // Ordina
-        filtered.sort((a,b) => {
-            return sortOrder === 'desc' 
-                ? new Date(b.data) - new Date(a.data) 
-                : new Date(a.data) - new Date(b.data);
-        });
-
-        if(filtered.length === 0) {
-            list.innerHTML = "<p>Nessuna lezione trovata.</p>";
-            return;
-        }
+        if(filtered.length === 0) { list.innerHTML = "<p>Nessuna lezione trovata.</p>"; return; }
 
         filtered.forEach(l => {
             list.innerHTML += `
@@ -348,8 +337,8 @@
                     <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
                         <div class="actions-div">
-                            <button class="icon-btn" onclick="openEditModal('${l.id}')" title="Modifica">✏️</button>
-                            <button class="icon-btn" onclick="deleteLesson('${l.id}')" title="Elimina" style="color:#ef4444">🗑️</button>
+                            <button class="icon-btn" onclick="openEditModal('${l.id}')">✏️</button>
+                            <button class="icon-btn" onclick="deleteLesson('${l.id}')" style="color:#ef4444">🗑️</button>
                         </div>
                     </div>
                     <div style="font-weight:600; margin-bottom:5px; color:#333">🎯 ${l.obiettivo || '-'}</div>
@@ -365,44 +354,32 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
-    // --- FUNZIONI MODIFICA & ELIMINA ---
-
+    // --- FUNZIONI MODIFICA & ELIMINA (Comuni) ---
     window.deleteLesson = async (id) => {
         if(confirm("Sei sicuro di voler eliminare questa lezione?")) {
             await deleteDoc(doc(db, "registro_didattico", id));
         }
     };
-
     window.openEditModal = (id) => {
-        const lesson = myLessonsCache.find(l => l.id === id);
+        const lesson = myLessonsCache.find(l => l.id === id) || allLessonsCache.find(l => l.id === id);
         if(!lesson) return;
-
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-data').value = lesson.data;
         document.getElementById('edit-obiettivo').value = lesson.obiettivo;
         document.getElementById('edit-attivita').value = lesson.attivita;
-
         document.getElementById('edit-modal').style.display = 'flex';
     };
-
-    window.closeEditModal = () => {
-        document.getElementById('edit-modal').style.display = 'none';
-    };
-
+    window.closeEditModal = () => document.getElementById('edit-modal').style.display = 'none';
     window.saveEdit = async () => {
         const id = document.getElementById('edit-id').value;
-        const newData = {
-            data: document.getElementById('edit-data').value,
-            obiettivo: document.getElementById('edit-obiettivo').value,
-            attivita: document.getElementById('edit-attivita').value
-        };
-
-        if(!newData.data || !newData.attivita) return alert("Compila i campi");
-
         try {
-            await updateDoc(doc(db, "registro_didattico", id), newData);
+            await updateDoc(doc(db, "registro_didattico", id), {
+                data: document.getElementById('edit-data').value,
+                obiettivo: document.getElementById('edit-obiettivo').value,
+                attivita: document.getElementById('edit-attivita').value
+            });
             closeEditModal();
-        } catch(e) { alert("Errore modifica: " + e.message); }
+        } catch(e) { alert(e.message); }
     };
 
     window.salvaLezione = async () => {
@@ -422,10 +399,96 @@
         } catch(e){ alert(e.message); }
     };
 
-    // --- ADMIN (Semplificato) ---
+    // --- LOGICA ADMIN (RIPRISTINATA) ---
     function initAdmin() {
-        onSnapshot(collection(db, "registro_didattico"), (snap) => {});
+        // 1. Carica Tutte le lezioni
+        onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
+            allLessonsCache = [];
+            snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
+            renderAdminDashboard();
+        });
+        // 2. Carica Assegnazioni
+        onSnapshot(collection(db, "corsi_assegnati"), (snap) => {
+            allAssignmentsCache = [];
+            snap.forEach(d => allAssignmentsCache.push({id:d.id, ...d.data()}));
+            renderAdminDashboard();
+        });
     }
+
+    window.renderAdminDashboard = (filterEmail = null) => {
+        // Costruiamo la lista istruttori incrociando i dati
+        const instructorsMap = {};
+        
+        // Da assegnazioni
+        allAssignmentsCache.forEach(a => {
+            const e = a.istruttore;
+            if(!instructorsMap[e]) instructorsMap[e] = { count: 0, lastDate: null };
+        });
+        // Da lezioni
+        allLessonsCache.forEach(l => {
+            const e = l.email;
+            if(!instructorsMap[e]) instructorsMap[e] = { count: 0, lastDate: null };
+            instructorsMap[e].count++;
+            if(!instructorsMap[e].lastDate || l.data > instructorsMap[e].lastDate) {
+                instructorsMap[e].lastDate = l.data;
+            }
+        });
+
+        // Render Griglia Istruttori
+        const grid = document.getElementById('instructors-grid');
+        grid.innerHTML = "";
+        const emails = Object.keys(instructorsMap).sort();
+        
+        if (emails.length === 0) grid.innerHTML = "<p>Nessun istruttore attivo.</p>";
+        else {
+            emails.forEach(email => {
+                const data = instructorsMap[email];
+                const name = email.split('@')[0].toUpperCase();
+                const activeClass = (email === filterEmail) ? 'active' : '';
+                const lastDate = data.lastDate ? new Date(data.lastDate).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) : '--';
+                
+                grid.innerHTML += `
+                    <div class="user-card ${activeClass}" onclick="renderAdminDashboard('${email}')">
+                        <div class="uc-name">${name}</div>
+                        <span class="uc-email">${email}</span>
+                        <div class="uc-stats">
+                            <span class="uc-val">${data.count} <small style="font-size:0.7rem; color:#999; font-weight:400">LEZIONI</small></span>
+                            <span class="uc-val" style="color:#10b981">${lastDate}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Render Dettaglio Lezioni (Se selezionato)
+        const detailArea = document.getElementById('admin-detail-area');
+        const listDiv = document.getElementById('admin-lessons-list');
+        
+        if(filterEmail) {
+            detailArea.classList.remove('hidden');
+            document.getElementById('adm-sel-user').innerText = filterEmail;
+            listDiv.innerHTML = "";
+            
+            const filtered = allLessonsCache.filter(l => l.email === filterEmail);
+            if(filtered.length === 0) listDiv.innerHTML = "<p>Nessuna lezione registrata.</p>";
+            
+            filtered.forEach(l => {
+                listDiv.innerHTML += `
+                    <div class="lezione-card">
+                        <div class="card-top">
+                            <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span>
+                            <strong>${l.corso}</strong>
+                        </div>
+                        <div style="font-weight:600; color:#333">🎯 ${l.obiettivo || '-'}</div>
+                        <div style="color:#555; font-size:0.9rem">${l.attivita}</div>
+                    </div>
+                `;
+            });
+        } else {
+            detailArea.classList.add('hidden');
+        }
+    };
+
     window.addCourse = async () => {
         try {
             await addDoc(collection(db, "corsi_assegnati"), { 
