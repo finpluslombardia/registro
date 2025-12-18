@@ -29,12 +29,10 @@
 
         /* --- ADMIN TOOLS --- */
         .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
-        
-        /* Griglia Creazione Corso */
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 10px; align-items: end; }
         @media (max-width: 700px) { .create-grid { grid-template-columns: 1fr 1fr; } .create-grid button { grid-column: span 2; } }
 
-        /* Gestione Livelli (Tags) */
+        /* Gestione Livelli */
         .levels-manager { margin-bottom: 25px; border-bottom: 1px solid #fcd34d; padding-bottom: 20px; }
         .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .level-tag { background: white; border: 1px solid #d97706; color: #b45309; padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
@@ -51,13 +49,19 @@
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 10px; }
         .uc-val { display: block; font-weight: 800; font-size: 1.2rem; color: #4f46e5; }
 
-        /* Istruttore Elements */
+        /* ADMIN: Corsi Assegnati Box */
+        .assigned-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .ac-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; border: 1px solid #e0e7ff; }
+        .ac-title { font-weight: 600; color: #3730a3; font-size: 0.9rem; }
+        .btn-del-assign { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
+
+        /* Istruttore: Course Folders */
         .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5; }
         .course-folder:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); }
         .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
         .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; display: inline-block; }
 
-        /* Storico */
+        /* Storico & Cards */
         .history-container { display: none; animation: fadeIn 0.3s ease; }
         .history-container.active { display: block; }
         .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
@@ -108,7 +112,6 @@
                     <div id="levels-container" class="levels-container">
                         <span style="font-size:0.8rem; color:#b45309; opacity:0.7">Caricamento livelli...</span>
                     </div>
-                    
                     <div class="add-level-box">
                         <input type="text" id="new-level-input" placeholder="Nuovo livello (es. Master)" style="padding:8px; font-size:0.9rem">
                         <button onclick="saveNewLevel()" style="background:#b45309; color:white; border:none; padding:0 15px; border-radius:8px; cursor:pointer; font-weight:bold">+</button>
@@ -117,28 +120,10 @@
 
                 <h3 style="margin-top:20px; color:#b45309">🛠 Nuova Assegnazione Corso</h3>
                 <div class="create-grid">
-                    <div>
-                        <label style="color:#b45309">Livello</label>
-                        <select id="new-level-select">
-                            <option value="">-- Caricamento --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="color:#b45309">Giorno</label>
-                        <select id="new-day">
-                            <option value="">Scegli...</option>
-                            <option>Lunedì</option><option>Martedì</option><option>Mercoledì</option>
-                            <option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="color:#b45309">Ora</label>
-                        <input type="time" id="new-time">
-                    </div>
-                    <div>
-                        <label style="color:#b45309">Istruttore (Email)</label>
-                        <input type="email" id="new-email" placeholder="email@istr.it">
-                    </div>
+                    <div><label style="color:#b45309">Livello</label><select id="new-level-select"><option value="">-- Caricamento --</option></select></div>
+                    <div><label style="color:#b45309">Giorno</label><select id="new-day"><option value="">Scegli...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select></div>
+                    <div><label style="color:#b45309">Ora</label><input type="time" id="new-time"></div>
+                    <div><label style="color:#b45309">Istruttore (Email)</label><input type="email" id="new-email" placeholder="email@istr.it"></div>
                     <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px">Crea</button>
                 </div>
             </div>
@@ -151,7 +136,14 @@
             <div id="instructors-grid" class="grid-courses"></div>
             
             <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px">
-                <h4 style="margin:0 0 15px 0">Attività di <span id="adm-sel-user" style="color:#4f46e5">...</span></h4>
+                <h4 style="margin:0 0 10px 0">Dettagli di <span id="adm-sel-user" style="color:#4f46e5">...</span></h4>
+                
+                <div class="assigned-courses-box">
+                    <h5 style="margin:0 0 10px 0; color:#3730a3">📋 Corsi Assegnati</h5>
+                    <div id="admin-assigned-list"></div>
+                </div>
+
+                <h5 style="margin:20px 0 10px 0">📝 Storico Lezioni</h5>
                 <div id="admin-lessons-list"></div>
             </div>
         </div>
@@ -161,8 +153,8 @@
             <div style="background:#f9fafb; padding:20px; border-radius:12px; border:1px solid #e5e7eb;">
                 <div class="form-group"><label>Data</label><input type="date" id="data"></div>
                 <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
-                <div class="form-group"><label>Obiettivo della lezione</label><input type="text" id="obiettivo" placeholder="Es. Miglioramento virata dorso"></div>
-                <div class="form-group"><label>Attività Svolta</label><textarea id="attivita" placeholder="Descrizione esercizi..."></textarea></div>
+                <div class="form-group"><label>Obiettivo</label><input type="text" id="obiettivo" placeholder="Es. Dorso"></div>
+                <div class="form-group"><label>Attività Svolta</label><textarea id="attivita" placeholder="Descrizione..."></textarea></div>
                 <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             </div>
 
@@ -221,6 +213,7 @@
     
     let currentUser = null;
     let myLessonsCache = []; 
+    let myAssignmentsCache = []; // Per l'istruttore
     let allLessonsCache = []; 
     let allAssignmentsCache = []; 
     let currentOpenCourse = null; 
@@ -262,37 +255,55 @@
 
     // --- ISTRUTTORE ---
     function initInstructor() {
+        // 1. Carica Corsi Assegnati (per menu e griglia)
         onSnapshot(query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase())), (snap) => {
             const sel = document.getElementById('corso');
             sel.innerHTML = "";
-            let coursesFound = false;
+            myAssignmentsCache = []; // Reset cache
+            
             snap.forEach(d => {
-                sel.innerHTML += `<option>${d.data().nome}</option>`;
-                coursesFound = true;
+                const corsoData = d.data();
+                myAssignmentsCache.push(corsoData.nome); // Salvo solo il nome
+                sel.innerHTML += `<option>${corsoData.nome}</option>`;
             });
-            if(!coursesFound) sel.innerHTML = "<option>Nessun corso assegnato</option>";
+
+            if(myAssignmentsCache.length === 0) sel.innerHTML = "<option>Nessun corso assegnato</option>";
+            
+            // Aggiorno la griglia corsi (chiamo la funzione qui perché dipende dagli assegnamenti)
+            renderCourseFolders();
         });
 
+        // 2. Carica Lezioni (per conteggi e storico)
         onSnapshot(query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid)), (snap) => {
             myLessonsCache = [];
             snap.forEach(d => myLessonsCache.push({id:d.id, ...d.data()}));
+            
+            // Ridisegna la griglia per aggiornare i conteggi
             renderCourseFolders();
+            
             if(currentOpenCourse) renderHistoryList();
         });
     }
 
     function renderCourseFolders() {
-        const groups = {};
-        myLessonsCache.forEach(l => {
-            if(!groups[l.corso]) groups[l.corso] = [];
-            groups[l.corso].push(l);
-        });
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
-        const courseNames = Object.keys(groups).sort();
-        if(courseNames.length === 0) { grid.innerHTML = "<p>Nessuna lezione salvata ancora.</p>"; return; }
-        courseNames.forEach(cName => {
-            const count = groups[cName].length;
+        
+        // Unisco corsi assegnati e corsi che hanno lezioni (caso mai ne avesse uno vecchio non più assegnato)
+        const allCourseNames = new Set(myAssignmentsCache);
+        myLessonsCache.forEach(l => allCourseNames.add(l.corso));
+
+        const sortedCourses = Array.from(allCourseNames).sort();
+
+        if(sortedCourses.length === 0) {
+            grid.innerHTML = "<p>Nessun corso assegnato e nessuna lezione.</p>";
+            return;
+        }
+
+        sortedCourses.forEach(cName => {
+            // Conto quante lezioni ci sono per questo corso
+            const count = myLessonsCache.filter(l => l.corso === cName).length;
+            
             const div = document.createElement('div');
             div.className = 'course-folder';
             div.innerHTML = `<div class="cf-title">${cName}</div><div class="cf-count">${count} Schede</div>`;
@@ -341,7 +352,7 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
-    // --- FUNZIONI MODIFICA & ELIMINA (Comuni) ---
+    // --- FUNZIONI COMUNI ---
     window.deleteLesson = async (id) => { if(confirm("Eliminare questa lezione?")) await deleteDoc(doc(db, "registro_didattico", id)); };
     window.openEditModal = (id) => {
         const lesson = myLessonsCache.find(l => l.id === id) || allLessonsCache.find(l => l.id === id);
@@ -383,9 +394,7 @@
 
     // --- LOGICA ADMIN ---
     function initAdmin() {
-        // 1. Inizializza gestione livelli dinamici
         initLevels();
-
         onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
             allLessonsCache = [];
             snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
@@ -398,74 +407,50 @@
         });
     }
 
-    // NUOVO: GESTIONE LIVELLI DINAMICI
+    // Gestione Livelli
     function initLevels() {
         const levelsDiv = document.getElementById('levels-container');
         const select = document.getElementById('new-level-select');
-
-        // Ascolta la collezione dei livelli
         onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
             levelsDiv.innerHTML = "";
             select.innerHTML = '<option value="">Scegli...</option>';
-
-            if(snap.empty) {
-                levelsDiv.innerHTML = "<span style='font-size:0.8rem; color:#666'>Nessun livello. Aggiungine uno!</span>";
-            }
-
+            if(snap.empty) levelsDiv.innerHTML = "<span style='font-size:0.8rem; color:#666'>Nessun livello. Aggiungine uno!</span>";
             snap.forEach(d => {
                 const lvl = d.data().nome;
-                
-                // Popola la lista di gestione (Tag)
-                levelsDiv.innerHTML += `
-                    <div class="level-tag">
-                        ${lvl}
-                        <button class="btn-del-level" onclick="deleteLevel('${d.id}')">✕</button>
-                    </div>
-                `;
-
-                // Popola il menu a tendina
+                levelsDiv.innerHTML += `<div class="level-tag">${lvl}<button class="btn-del-level" onclick="deleteLevel('${d.id}')">✕</button></div>`;
                 select.innerHTML += `<option value="${lvl}">${lvl}</option>`;
             });
         });
     }
-
     window.saveNewLevel = async () => {
         const name = document.getElementById('new-level-input').value.trim();
         if(!name) return;
-        try {
-            await addDoc(collection(db, "elenco_livelli"), { nome: name });
-            document.getElementById('new-level-input').value = "";
-        } catch(e) { alert("Errore: " + e.message); }
+        try { await addDoc(collection(db, "elenco_livelli"), { nome: name }); document.getElementById('new-level-input').value = ""; } catch(e) { alert(e.message); }
     };
-
-    window.deleteLevel = async (id) => {
-        if(confirm("Eliminare questo livello?")) {
-            await deleteDoc(doc(db, "elenco_livelli", id));
-        }
-    };
-
+    window.deleteLevel = async (id) => { if(confirm("Eliminare questo livello?")) await deleteDoc(doc(db, "elenco_livelli", id)); };
+    
+    // Gestione Corsi Admin
     window.addCourseStructured = async () => {
-        const lvl = document.getElementById('new-level-select').value; // Ora prende dal DB
+        const lvl = document.getElementById('new-level-select').value;
         const day = document.getElementById('new-day').value;
         const time = document.getElementById('new-time').value;
         const email = document.getElementById('new-email').value.trim().toLowerCase();
-
         if(!lvl || !day || !time || !email) return alert("Compila tutti i campi!");
-        
         const fullName = `${lvl} - ${day} ${time}`;
-
         try {
             await addDoc(collection(db, "corsi_assegnati"), { 
-                nome: fullName,
-                livello: lvl,
-                giorno: day,
-                ora: time,
-                istruttore: email, 
-                created: new Date() 
+                nome: fullName, livello: lvl, giorno: day, ora: time, istruttore: email, created: new Date() 
             });
             alert("Corso Creato: " + fullName);
             document.getElementById('new-email').value = "";
         } catch(e){ alert(e.message); }
+    };
+    
+    // Rimuovi Assegnazione
+    window.deleteAssignment = async (id) => {
+        if(confirm("Vuoi togliere l'assegnazione di questo corso all'istruttore?")) {
+            await deleteDoc(doc(db, "corsi_assegnati", id));
+        }
     };
 
     window.renderAdminDashboard = (filterEmail = null) => {
@@ -507,16 +492,34 @@
         }
 
         const detailArea = document.getElementById('admin-detail-area');
-        const listDiv = document.getElementById('admin-lessons-list');
+        const assignedListDiv = document.getElementById('admin-assigned-list');
+        const lessonListDiv = document.getElementById('admin-lessons-list');
         
         if(filterEmail) {
             detailArea.classList.remove('hidden');
             document.getElementById('adm-sel-user').innerText = filterEmail;
-            listDiv.innerHTML = "";
+            
+            // Render Corsi Assegnati
+            assignedListDiv.innerHTML = "";
+            const userAssignments = allAssignmentsCache.filter(a => a.istruttore === filterEmail);
+            if(userAssignments.length === 0) assignedListDiv.innerHTML = "<p style='font-size:0.9rem; color:#666'>Nessun corso assegnato.</p>";
+            else {
+                userAssignments.forEach(c => {
+                    assignedListDiv.innerHTML += `
+                        <div class="ac-item">
+                            <span class="ac-title">${c.nome}</span>
+                            <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                        </div>
+                    `;
+                });
+            }
+
+            // Render Storico Lezioni
+            lessonListDiv.innerHTML = "";
             const filtered = allLessonsCache.filter(l => l.email === filterEmail);
-            if(filtered.length === 0) listDiv.innerHTML = "<p>Nessuna lezione registrata.</p>";
+            if(filtered.length === 0) lessonListDiv.innerHTML = "<p>Nessuna lezione registrata.</p>";
             filtered.forEach(l => {
-                listDiv.innerHTML += `
+                lessonListDiv.innerHTML += `
                     <div class="lezione-card">
                         <div class="card-top">
                             <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span>
