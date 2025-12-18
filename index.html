@@ -10,7 +10,7 @@
         /* --- CSS BASE --- */
         *, *::before, *::after { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 20px; margin: 0; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); min-height: 85vh; position: relative; }
+        .container { max-width: 950px; margin: 0 auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); min-height: 85vh; position: relative; }
         
         /* Header */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #e5e7eb; padding-bottom: 15px; }
@@ -29,41 +29,14 @@
         button.primary-btn { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
         button.primary-btn:hover { background-color: #4338ca; }
 
-        /* --- CARTE CORSI --- */
-        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        
-        .course-folder { 
-            background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; 
-            cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5;
-        }
-        .course-folder:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); }
-        .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
-        .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+        /* --- STILI SPECIFICI ADMIN --- */
+        .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
+        .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 10px; align-items: end; }
+        /* Mobile adjustment per la griglia di creazione */
+        @media (max-width: 700px) { .create-grid { grid-template-columns: 1fr 1fr; } .create-grid button { grid-column: span 2; } }
 
-        /* --- LISTA STORICO & TOOLBAR --- */
-        .history-container { display: none; animation: fadeIn 0.3s ease; }
-        .history-container.active { display: block; }
-
-        .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
-        .sort-select { padding: 6px; border-radius: 6px; border: 1px solid #ddd; font-size: 0.9rem; }
-        
-        .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; position: relative; }
-        .card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
-        .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
-        
-        .actions-div { display: flex; gap: 8px; }
-        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px; transition: transform 0.2s; }
-        .icon-btn:hover { transform: scale(1.2); }
-
-        .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
-        .back-btn:hover { color: #111; }
-
-        /* MODAL MODIFICA */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; display: none; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-
-        /* ADMIN - USER CARDS */
-        .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 30px; }
+        /* Card Istruttori */
+        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin-top: 20px; }
         
         .user-card { 
             background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; 
@@ -76,8 +49,34 @@
         .uc-email { font-size: 0.75rem; color: #6b7280; margin-bottom: 15px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 10px; }
         .uc-val { display: block; font-weight: 800; font-size: 1.2rem; color: #4f46e5; }
-        .uc-label { font-size: 0.65rem; text-transform: uppercase; color: #9ca3af; font-weight: 700; }
         
+        /* Istruttore: Course Folders */
+        .course-folder { 
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; 
+            cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5;
+        }
+        .course-folder:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); }
+        .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
+        .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+
+        /* Lezione Card & Storico */
+        .history-container { display: none; animation: fadeIn 0.3s ease; }
+        .history-container.active { display: block; }
+        .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; position: relative; }
+        .card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
+        .actions-div { display: flex; gap: 8px; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px; transition: transform 0.2s; }
+        .icon-btn:hover { transform: scale(1.2); }
+        .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
+        
+        /* Filtri */
+        .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -106,12 +105,47 @@
     <div id="dashboard-section" class="hidden">
         
         <div id="admin-view" class="hidden">
+            
             <div class="admin-tools">
-                <h3 style="margin-top:0; color:#b45309">🛠 Crea Corso & Assegna</h3>
-                <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px; align-items:end;">
-                    <input type="text" id="new-course-name" placeholder="Es. Lunedì 18:00">
-                    <input type="email" id="new-course-email" placeholder="istruttore@email.com">
-                    <button onclick="addCourse()" class="primary-btn" style="background:#d97706; padding:10px">Crea</button>
+                <h3 style="margin-top:0; color:#b45309">🛠 Nuova Assegnazione Corso</h3>
+                <p style="font-size:0.8rem; color:#b45309; margin-bottom:15px">Il sistema creerà automaticamente il nome del corso unendo Livello, Giorno e Ora.</p>
+                
+                <div class="create-grid">
+                    <div>
+                        <label style="color:#b45309">Livello</label>
+                        <select id="new-level">
+                            <option value="">Scegli...</option>
+                            <option>Ambientamento</option>
+                            <option>Principiante</option>
+                            <option>Intermedio</option>
+                            <option>Avanzato</option>
+                            <option>Agonismo</option>
+                            <option>Propaganda</option>
+                            <option>Fitness</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="color:#b45309">Giorno</label>
+                        <select id="new-day">
+                            <option value="">Scegli...</option>
+                            <option>Lunedì</option>
+                            <option>Martedì</option>
+                            <option>Mercoledì</option>
+                            <option>Giovedì</option>
+                            <option>Venerdì</option>
+                            <option>Sabato</option>
+                            <option>Domenica</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="color:#b45309">Ora</label>
+                        <input type="time" id="new-time">
+                    </div>
+                    <div>
+                        <label style="color:#b45309">Istruttore (Email)</label>
+                        <input type="email" id="new-email" placeholder="email@istr.it">
+                    </div>
+                    <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px">Crea</button>
                 </div>
             </div>
             
@@ -123,7 +157,7 @@
             <div id="instructors-grid" class="grid-courses"></div>
             
             <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px">
-                <h4 style="margin:0 0 15px 0">Storico Lezioni di <span id="adm-sel-user" style="color:#4f46e5">...</span></h4>
+                <h4 style="margin:0 0 15px 0">Attività di <span id="adm-sel-user" style="color:#4f46e5">...</span></h4>
                 <div id="admin-lessons-list"></div>
             </div>
         </div>
@@ -137,7 +171,7 @@
                     <input type="date" id="data">
                 </div>
                 <div class="form-group">
-                    <label>Seleziona Corso</label>
+                    <label>Seleziona Corso (Livello - Giorno - Ora)</label>
                     <select id="corso"><option>Caricamento...</option></select>
                 </div>
                 
@@ -185,23 +219,12 @@
     <div class="modal-box">
         <h3 style="margin-top:0">✏️ Modifica Lezione</h3>
         <input type="hidden" id="edit-id">
-        
-        <div class="form-group">
-            <label>Data</label>
-            <input type="date" id="edit-data">
-        </div>
-        <div class="form-group">
-            <label>Obiettivo</label>
-            <input type="text" id="edit-obiettivo">
-        </div>
-        <div class="form-group">
-            <label>Attività</label>
-            <textarea id="edit-attivita" style="height:100px"></textarea>
-        </div>
-        
+        <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
+        <div class="form-group"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
+        <div class="form-group"><label>Attività</label><textarea id="edit-attivita" style="height:100px"></textarea></div>
         <div style="display:flex; gap:10px; margin-top:20px">
             <button onclick="closeEditModal()" style="flex:1; padding:10px; border:none; background:#e5e7eb; border-radius:8px; cursor:pointer">Annulla</button>
-            <button onclick="saveEdit()" style="flex:1; padding:10px; border:none; background:#4f46e5; color:white; border-radius:8px; font-weight:bold; cursor:pointer">Salva Modifiche</button>
+            <button onclick="saveEdit()" style="flex:1; padding:10px; border:none; background:#4f46e5; color:white; border-radius:8px; font-weight:bold; cursor:pointer">Salva</button>
         </div>
     </div>
 </div>
@@ -211,7 +234,7 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- CONFIGURAZIONE ---
+    // CONFIGURAZIONE
     const firebaseConfig = {
       apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA",
       authDomain: "gestioneore-3bf5f.firebaseapp.com",
@@ -293,16 +316,10 @@
             if(!groups[l.corso]) groups[l.corso] = [];
             groups[l.corso].push(l);
         });
-
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
         const courseNames = Object.keys(groups).sort();
-        
-        if(courseNames.length === 0) {
-            grid.innerHTML = "<p>Nessuna lezione salvata ancora.</p>";
-            return;
-        }
-
+        if(courseNames.length === 0) { grid.innerHTML = "<p>Nessuna lezione salvata ancora.</p>"; return; }
         courseNames.forEach(cName => {
             const count = groups[cName].length;
             const div = document.createElement('div');
@@ -342,24 +359,19 @@
                         </div>
                     </div>
                     <div style="font-weight:600; margin-bottom:5px; color:#333">🎯 ${l.obiettivo || '-'}</div>
-                    <div style="color:#555; font-size:0.95rem; line-height:1.4">${l.attivita}</div>
+                    <div style="color:#555; font-size:0.9rem; line-height:1.4">${l.attivita}</div>
                 </div>
             `;
         });
     };
-
     window.closeHistory = () => {
         currentOpenCourse = null;
         document.getElementById('course-history').classList.remove('active');
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
-    // --- FUNZIONI MODIFICA & ELIMINA (Comuni) ---
-    window.deleteLesson = async (id) => {
-        if(confirm("Sei sicuro di voler eliminare questa lezione?")) {
-            await deleteDoc(doc(db, "registro_didattico", id));
-        }
-    };
+    // --- FUNZIONI MODIFICA & ELIMINA ---
+    window.deleteLesson = async (id) => { if(confirm("Eliminare questa lezione?")) await deleteDoc(doc(db, "registro_didattico", id)); };
     window.openEditModal = (id) => {
         const lesson = myLessonsCache.find(l => l.id === id) || allLessonsCache.find(l => l.id === id);
         if(!lesson) return;
@@ -381,7 +393,6 @@
             closeEditModal();
         } catch(e) { alert(e.message); }
     };
-
     window.salvaLezione = async () => {
         try {
             await addDoc(collection(db, "registro_didattico"), {
@@ -399,15 +410,13 @@
         } catch(e){ alert(e.message); }
     };
 
-    // --- LOGICA ADMIN (RIPRISTINATA) ---
+    // --- LOGICA ADMIN ---
     function initAdmin() {
-        // 1. Carica Tutte le lezioni
         onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
             allLessonsCache = [];
             snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
             renderAdminDashboard();
         });
-        // 2. Carica Assegnazioni
         onSnapshot(collection(db, "corsi_assegnati"), (snap) => {
             allAssignmentsCache = [];
             snap.forEach(d => allAssignmentsCache.push({id:d.id, ...d.data()}));
@@ -415,26 +424,44 @@
         });
     }
 
-    window.renderAdminDashboard = (filterEmail = null) => {
-        // Costruiamo la lista istruttori incrociando i dati
-        const instructorsMap = {};
+    window.addCourseStructured = async () => {
+        const lvl = document.getElementById('new-level').value;
+        const day = document.getElementById('new-day').value;
+        const time = document.getElementById('new-time').value;
+        const email = document.getElementById('new-email').value.trim().toLowerCase();
+
+        if(!lvl || !day || !time || !email) return alert("Compila tutti i campi!");
         
-        // Da assegnazioni
+        const fullName = `${lvl} - ${day} ${time}`;
+
+        try {
+            await addDoc(collection(db, "corsi_assegnati"), { 
+                nome: fullName, // Questo è quello che vede l'istruttore
+                livello: lvl,   // Dati puri per macro-categorie future
+                giorno: day,
+                ora: time,
+                istruttore: email, 
+                created: new Date() 
+            });
+            alert("Corso Creato: " + fullName);
+            // Pulisci
+            document.getElementById('new-email').value = "";
+        } catch(e){ alert(e.message); }
+    };
+
+    window.renderAdminDashboard = (filterEmail = null) => {
+        const instructorsMap = {};
         allAssignmentsCache.forEach(a => {
             const e = a.istruttore;
             if(!instructorsMap[e]) instructorsMap[e] = { count: 0, lastDate: null };
         });
-        // Da lezioni
         allLessonsCache.forEach(l => {
             const e = l.email;
             if(!instructorsMap[e]) instructorsMap[e] = { count: 0, lastDate: null };
             instructorsMap[e].count++;
-            if(!instructorsMap[e].lastDate || l.data > instructorsMap[e].lastDate) {
-                instructorsMap[e].lastDate = l.data;
-            }
+            if(!instructorsMap[e].lastDate || l.data > instructorsMap[e].lastDate) instructorsMap[e].lastDate = l.data;
         });
 
-        // Render Griglia Istruttori
         const grid = document.getElementById('instructors-grid');
         grid.innerHTML = "";
         const emails = Object.keys(instructorsMap).sort();
@@ -460,7 +487,6 @@
             });
         }
 
-        // Render Dettaglio Lezioni (Se selezionato)
         const detailArea = document.getElementById('admin-detail-area');
         const listDiv = document.getElementById('admin-lessons-list');
         
@@ -468,10 +494,8 @@
             detailArea.classList.remove('hidden');
             document.getElementById('adm-sel-user').innerText = filterEmail;
             listDiv.innerHTML = "";
-            
             const filtered = allLessonsCache.filter(l => l.email === filterEmail);
             if(filtered.length === 0) listDiv.innerHTML = "<p>Nessuna lezione registrata.</p>";
-            
             filtered.forEach(l => {
                 listDiv.innerHTML += `
                     <div class="lezione-card">
@@ -487,19 +511,6 @@
         } else {
             detailArea.classList.add('hidden');
         }
-    };
-
-    window.addCourse = async () => {
-        try {
-            await addDoc(collection(db, "corsi_assegnati"), { 
-                nome: document.getElementById('new-course-name').value, 
-                istruttore: document.getElementById('new-course-email').value.trim().toLowerCase(), 
-                created: new Date() 
-            });
-            alert("Corso Creato!");
-            document.getElementById('new-course-name').value = "";
-            document.getElementById('new-course-email').value = "";
-        } catch(e){ alert(e.message); }
     };
 
 </script>
