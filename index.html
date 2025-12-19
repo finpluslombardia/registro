@@ -32,7 +32,7 @@
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 10px; align-items: end; }
         @media (max-width: 700px) { .create-grid { grid-template-columns: 1fr 1fr; } .create-grid button { grid-column: span 2; } }
 
-        /* Gestione Livelli (Tags) */
+        /* Gestione Livelli */
         .levels-manager { margin-bottom: 25px; border-bottom: 1px solid #fcd34d; padding-bottom: 20px; }
         .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .level-tag { background: white; border: 1px solid #d97706; color: #b45309; padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
@@ -149,7 +149,7 @@
             
             <div id="main-admin-grid" class="grid-courses"></div>
             
-            <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px">
+            <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px; min-height:200px">
                 <h4 style="margin:0 0 10px 0" id="detail-title">Dettagli...</h4>
                 
                 <div class="assigned-courses-box">
@@ -213,7 +213,6 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // CONFIGURAZIONE
     const firebaseConfig = {
       apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA",
       authDomain: "gestioneore-3bf5f.firebaseapp.com",
@@ -232,12 +231,11 @@
     let myAssignmentsCache = []; 
     let allLessonsCache = []; 
     let allAssignmentsCache = []; 
-    let allLevelsCache = []; // Cache livelli
+    let allLevelsCache = []; 
     let currentOpenCourse = null; 
-    let currentAdminView = 'team'; // 'team' o 'levels'
+    let currentAdminView = 'team'; 
     let currentSelectedDetail = null;
 
-    // IMPORTANTE: TUA EMAIL ADMIN
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
     // AUTH
@@ -278,57 +276,41 @@
         onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
             allLessonsCache = [];
             snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
-            refreshAdminView();
+            renderApp();
         });
         onSnapshot(collection(db, "corsi_assegnati"), (snap) => {
             allAssignmentsCache = [];
             snap.forEach(d => allAssignmentsCache.push({id:d.id, ...d.data()}));
-            refreshAdminView();
+            renderApp();
         });
     }
 
-    // Gestione Livelli
-    function initLevels() {
-        const levelsDiv = document.getElementById('levels-container');
-        const select = document.getElementById('new-level-select');
-        onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
-            allLevelsCache = []; // Aggiorna cache
-            levelsDiv.innerHTML = "";
-            select.innerHTML = '<option value="">Scegli...</option>';
-            if(snap.empty) levelsDiv.innerHTML = "<span style='font-size:0.8rem; color:#666'>Nessun livello. Aggiungine uno!</span>";
-            
-            snap.forEach(d => {
-                const lvl = d.data().nome;
-                allLevelsCache.push(lvl);
-                levelsDiv.innerHTML += `<div class="level-tag">${lvl}<button class="btn-del-level" onclick="deleteLevel('${d.id}')">✕</button></div>`;
-                select.innerHTML += `<option value="${lvl}">${lvl}</option>`;
-            });
-            // Se eravamo in vista livelli, aggiorna la griglia
-            if(currentAdminView === 'levels') renderLevelsGrid();
-        });
+    // NUOVO SISTEMA DI RENDER UNIFICATO (Evita loop)
+    function renderApp() {
+        if(currentAdminView === 'team') renderTeamGrid();
+        else renderLevelsGrid();
+        
+        if(currentSelectedDetail) {
+            renderDetails(currentSelectedDetail);
+        } else {
+            document.getElementById('admin-detail-area').classList.add('hidden');
+        }
     }
-
-    window.saveNewLevel = async () => {
-        const name = document.getElementById('new-level-input').value.trim();
-        if(!name) return;
-        try { await addDoc(collection(db, "elenco_livelli"), { nome: name }); document.getElementById('new-level-input').value = ""; } catch(e) { alert(e.message); }
-    };
-    window.deleteLevel = async (id) => { if(confirm("Eliminare questo livello?")) await deleteDoc(doc(db, "elenco_livelli", id)); };
 
     window.switchAdminView = (view) => {
         currentAdminView = view;
         currentSelectedDetail = null; 
         document.getElementById('btn-view-team').classList.toggle('active', view === 'team');
         document.getElementById('btn-view-levels').classList.toggle('active', view === 'levels');
-        document.getElementById('admin-detail-area').classList.add('hidden');
-        refreshAdminView();
+        renderApp();
     };
 
-    function refreshAdminView() {
-        if(currentAdminView === 'team') renderTeamGrid();
-        else renderLevelsGrid();
-        if(currentSelectedDetail) openAdminDetail(currentSelectedDetail);
-    }
+    window.selectItem = (id) => {
+        currentSelectedDetail = id;
+        renderApp();
+        // Scroll leggero verso il basso per mostrare che si è aperto qualcosa
+        setTimeout(() => document.getElementById('admin-detail-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    };
 
     // A. RENDER GRIGLIA TEAM
     function renderTeamGrid() {
@@ -352,7 +334,7 @@
             const lastDate = data.last ? new Date(data.last).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) : '--';
             
             grid.innerHTML += `
-                <div class="user-card ${isActive}" onclick="openAdminDetail('${email}')">
+                <div class="user-card ${isActive}" onclick="selectItem('${email}')">
                     <div class="uc-name">${name}</div>
                     <span class="uc-email">${email}</span>
                     <div class="uc-stats">
@@ -364,17 +346,14 @@
         });
     }
 
-    // B. RENDER GRIGLIA LIVELLI (Mostra tutti i livelli)
+    // B. RENDER GRIGLIA LIVELLI
     function renderLevelsGrid() {
-        const levelsMap = {}; // { "Polipetto": countCorsi }
-        // Pre-popola con tutti i livelli salvati (anche se 0 corsi)
+        const levelsMap = {};
         allLevelsCache.forEach(lvl => levelsMap[lvl] = 0);
-        
-        // Conta i corsi
         allAssignmentsCache.forEach(a => {
             const lvl = a.livello || "Altro";
             if(levelsMap[lvl] !== undefined) levelsMap[lvl]++;
-            else levelsMap[lvl] = 1; // Caso 'Altro' o livelli vecchi
+            else levelsMap[lvl] = 1;
         });
 
         const grid = document.getElementById('main-admin-grid');
@@ -386,7 +365,7 @@
             const count = levelsMap[l];
             const isActive = (l === currentSelectedDetail) ? 'active' : '';
             grid.innerHTML += `
-                <div class="level-card ${isActive}" onclick="openAdminDetail('${l}')">
+                <div class="level-card ${isActive}" onclick="selectItem('${l}')">
                     <div class="lc-title">${l}</div>
                     <div class="lc-count">${count} Corsi Attivi</div>
                 </div>
@@ -394,15 +373,10 @@
         });
     }
 
-    // C. DETTAGLIO
-    window.openAdminDetail = (id) => {
-        currentSelectedDetail = id;
-        refreshAdminView(); // Evidenzia card
-        
+    // C. RENDER DETTAGLI
+    function renderDetails(id) {
         const detailArea = document.getElementById('admin-detail-area');
         detailArea.classList.remove('hidden');
-        // Scroll automatico verso il dettaglio
-        setTimeout(() => detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
         
         const titleEl = document.getElementById('detail-title');
         const assignedListDiv = document.getElementById('admin-assigned-list');
@@ -414,38 +388,68 @@
         logsList.innerHTML = "";
 
         if (currentAdminView === 'team') {
+            // DETTAGLIO ISTRUTTORE
             titleEl.innerText = "Dettagli di " + id;
             assignedTitle.innerText = "📋 Corsi Assegnati a " + id.split('@')[0];
             logsContainer.classList.remove('hidden');
 
+            // 1. Corsi Assegnati
             const userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
-            if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem'>Nessun corso.</p>";
+            if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso assegnato.</p>";
             userCourses.forEach(c => {
                 assignedListDiv.innerHTML += `
                     <div class="ac-item"><span class="ac-title">${c.nome}</span><button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button></div>`;
             });
 
+            // 2. Storico Lezioni
             const userLessons = allLessonsCache.filter(l => l.email === id);
-            if(userLessons.length === 0) logsList.innerHTML = "<p>Nessuna lezione.</p>";
+            if(userLessons.length === 0) logsList.innerHTML = "<p style='color:#666; font-style:italic'>Nessuna lezione registrata.</p>";
             userLessons.forEach(l => {
                 logsList.innerHTML += `
                     <div class="lezione-card"><div class="card-top"><span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span><strong>${l.corso}</strong></div><div style="font-weight:600;color:#333">🎯 ${l.obiettivo||'-'}</div><div style="color:#555;font-size:0.9rem">${l.attivita}</div></div>`;
             });
 
         } else {
+            // DETTAGLIO LIVELLO
             titleEl.innerText = "Livello: " + id;
             assignedTitle.innerText = "📋 Corsi Attivi per " + id;
             logsContainer.classList.add('hidden');
 
+            // 1. Corsi Attivi di questo livello
             const lvlCourses = allAssignmentsCache.filter(a => a.livello === id);
-            if(lvlCourses.length === 0) assignedListDiv.innerHTML = "<p>Nessun corso attivo.</p>";
+            if(lvlCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso attivo per questo livello.</p>";
             lvlCourses.forEach(c => {
                 assignedListDiv.innerHTML += `
                     <div class="ac-item"><div><span class="ac-title">${c.giorno} ${c.ora}</span><span class="ac-sub">👤 ${c.istruttore}</span></div><button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button></div>`;
             });
         }
-    };
+    }
 
+    // Gestione Livelli
+    function initLevels() {
+        const levelsDiv = document.getElementById('levels-container');
+        const select = document.getElementById('new-level-select');
+        onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
+            allLevelsCache = []; 
+            levelsDiv.innerHTML = ""; select.innerHTML = '<option value="">Scegli...</option>';
+            if(snap.empty) levelsDiv.innerHTML = "<span style='font-size:0.8rem;color:#666'>Nessun livello.</span>";
+            snap.forEach(d => {
+                const lvl = d.data().nome;
+                allLevelsCache.push(lvl);
+                levelsDiv.innerHTML += `<div class="level-tag">${lvl}<button class="btn-del-level" onclick="deleteLevel('${d.id}')">✕</button></div>`;
+                select.innerHTML += `<option value="${lvl}">${lvl}</option>`;
+            });
+            // Aggiorna la vista livelli se siamo lì
+            if(currentAdminView === 'levels') renderApp();
+        });
+    }
+    window.saveNewLevel = async () => {
+        const n = document.getElementById('new-level-input').value.trim();
+        if(n) { await addDoc(collection(db, "elenco_livelli"), { nome: n }); document.getElementById('new-level-input').value = ""; }
+    };
+    window.deleteLevel = async (id) => { if(confirm("Eliminare livello?")) await deleteDoc(doc(db, "elenco_livelli", id)); };
+    
+    // Gestione Corsi Admin
     window.addCourseStructured = async () => {
         const lvl = document.getElementById('new-level-select').value;
         const day = document.getElementById('new-day').value;
@@ -528,6 +532,7 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
+    // --- CRUD ---
     window.deleteLesson = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "registro_didattico", id)); };
     window.openEditModal = (id) => {
         const l = myLessonsCache.find(x => x.id === id) || allLessonsCache.find(x => x.id === id);
