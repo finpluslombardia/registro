@@ -51,7 +51,13 @@
         .user-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
         .user-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); border-color: #4f46e5; }
         .user-card.active { border: 2px solid #4f46e5; background: #e0e7ff; }
-        .uc-name { font-weight: 700; font-size: 1.1rem; color: #111; margin-bottom: 2px; }
+        
+        /* Modifica per nome e pulsante edit */
+        .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 2px; }
+        .uc-name { font-weight: 700; font-size: 1.1rem; color: #111; line-height: 1.2; }
+        .btn-rename { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0 5px; opacity: 0.5; transition: opacity 0.2s; }
+        .btn-rename:hover { opacity: 1; transform: scale(1.1); }
+
         .uc-email { font-size: 0.75rem; color: #6b7280; margin-bottom: 15px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 10px; }
         .uc-val { display: block; font-weight: 800; font-size: 1.2rem; color: #4f46e5; }
@@ -211,7 +217,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA",
@@ -232,6 +238,7 @@
     let allLessonsCache = []; 
     let allAssignmentsCache = []; 
     let allLevelsCache = []; 
+    let allAnagraficaCache = {}; // Cache Nomi Reali
     let currentOpenCourse = null; 
     let currentAdminView = 'team'; 
     let currentSelectedDetail = null;
@@ -273,6 +280,13 @@
     // --- LOGICA ADMIN ---
     function initAdmin() {
         initLevels();
+        // Carica Anagrafica per i nomi
+        onSnapshot(collection(db, "anagrafica"), (snap) => {
+            allAnagraficaCache = {};
+            snap.forEach(d => { allAnagraficaCache[d.id] = d.data(); });
+            renderApp();
+        });
+
         onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
             allLessonsCache = [];
             snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
@@ -285,7 +299,6 @@
         });
     }
 
-    // NUOVO SISTEMA DI RENDER UNIFICATO (Evita loop)
     function renderApp() {
         if(currentAdminView === 'team') renderTeamGrid();
         else renderLevelsGrid();
@@ -308,8 +321,21 @@
     window.selectItem = (id) => {
         currentSelectedDetail = id;
         renderApp();
-        // Scroll leggero verso il basso per mostrare che si è aperto qualcosa
         setTimeout(() => document.getElementById('admin-detail-area').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    };
+
+    window.renameUser = async (email) => {
+        const currentName = allAnagraficaCache[email]?.nome || "";
+        const newName = prompt("Inserisci il nome reale per " + email, currentName);
+        if(newName && newName !== currentName) {
+            try {
+                // Salva in anagrafica (usiamo la mail come ID documento)
+                await setDoc(doc(db, "anagrafica", email), { nome: newName }, { merge: true });
+                // Il listener onSnapshot aggiornerà la vista automaticamente
+            } catch(e) { alert("Errore: " + e.message); }
+        }
+        // Evita che il click si propaghi alla card
+        event.stopPropagation();
     };
 
     // A. RENDER GRIGLIA TEAM
@@ -329,13 +355,19 @@
         if(emails.length === 0) grid.innerHTML = "<p>Nessun istruttore.</p>";
         emails.forEach(email => {
             const data = instructorsMap[email];
-            const name = email.split('@')[0].toUpperCase();
+            // Usa il nome reale se presente, altrimenti l'email troncata
+            const realName = allAnagraficaCache[email]?.nome;
+            const displayName = realName ? realName : email.split('@')[0].toUpperCase();
+            
             const isActive = (email === currentSelectedDetail) ? 'active' : '';
             const lastDate = data.last ? new Date(data.last).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) : '--';
             
             grid.innerHTML += `
                 <div class="user-card ${isActive}" onclick="selectItem('${email}')">
-                    <div class="uc-name">${name}</div>
+                    <div class="uc-header">
+                        <div class="uc-name">${displayName}</div>
+                        <button class="btn-rename" onclick="renameUser('${email}')" title="Rinomina">✏️</button>
+                    </div>
                     <span class="uc-email">${email}</span>
                     <div class="uc-stats">
                         <span class="uc-val">${data.count} <small style="font-size:0.7rem;color:#999;font-weight:400">LEZIONI</small></span>
@@ -389,11 +421,11 @@
 
         if (currentAdminView === 'team') {
             // DETTAGLIO ISTRUTTORE
-            titleEl.innerText = "Dettagli di " + id;
-            assignedTitle.innerText = "📋 Corsi Assegnati a " + id.split('@')[0];
+            const realName = allAnagraficaCache[id]?.nome || id.split('@')[0];
+            titleEl.innerText = "Dettagli di " + realName;
+            assignedTitle.innerText = "📋 Corsi Assegnati";
             logsContainer.classList.remove('hidden');
 
-            // 1. Corsi Assegnati
             const userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
             if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso assegnato.</p>";
             userCourses.forEach(c => {
@@ -401,7 +433,6 @@
                     <div class="ac-item"><span class="ac-title">${c.nome}</span><button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button></div>`;
             });
 
-            // 2. Storico Lezioni
             const userLessons = allLessonsCache.filter(l => l.email === id);
             if(userLessons.length === 0) logsList.innerHTML = "<p style='color:#666; font-style:italic'>Nessuna lezione registrata.</p>";
             userLessons.forEach(l => {
@@ -415,12 +446,15 @@
             assignedTitle.innerText = "📋 Corsi Attivi per " + id;
             logsContainer.classList.add('hidden');
 
-            // 1. Corsi Attivi di questo livello
             const lvlCourses = allAssignmentsCache.filter(a => a.livello === id);
             if(lvlCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso attivo per questo livello.</p>";
             lvlCourses.forEach(c => {
+                // Recupera nome reale istruttore anche qui
+                const instrEmail = c.istruttore;
+                const instrName = allAnagraficaCache[instrEmail]?.nome || instrEmail;
+                
                 assignedListDiv.innerHTML += `
-                    <div class="ac-item"><div><span class="ac-title">${c.giorno} ${c.ora}</span><span class="ac-sub">👤 ${c.istruttore}</span></div><button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button></div>`;
+                    <div class="ac-item"><div><span class="ac-title">${c.giorno} ${c.ora}</span><span class="ac-sub">👤 ${instrName}</span></div><button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button></div>`;
             });
         }
     }
