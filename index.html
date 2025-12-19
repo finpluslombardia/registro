@@ -51,13 +51,10 @@
         .user-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
         .user-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); border-color: #4f46e5; }
         .user-card.active { border: 2px solid #4f46e5; background: #e0e7ff; }
-        
-        /* Modifica per nome e pulsante edit */
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 2px; }
         .uc-name { font-weight: 700; font-size: 1.1rem; color: #111; line-height: 1.2; }
         .btn-rename { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0 5px; opacity: 0.5; transition: opacity 0.2s; }
         .btn-rename:hover { opacity: 1; transform: scale(1.1); }
-
         .uc-email { font-size: 0.75rem; color: #6b7280; margin-bottom: 15px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 10px; }
         .uc-val { display: block; font-weight: 800; font-size: 1.2rem; color: #4f46e5; }
@@ -71,7 +68,12 @@
         /* Admin Details */
         .assigned-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .ac-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; border: 1px solid #e0e7ff; }
+        
+        /* CORSI CLICCABILI (NUOVO) */
         .ac-title { font-weight: 600; color: #3730a3; font-size: 0.9rem; }
+        .clickable-course { color: #4f46e5; text-decoration: underline; cursor: pointer; }
+        .clickable-course:hover { color: #312e81; font-weight: 800; }
+        
         .ac-sub { font-size: 0.8rem; color: #666; margin-left: 10px; }
         .btn-del-assign { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
 
@@ -163,8 +165,10 @@
                     <div id="admin-assigned-list"></div>
                 </div>
 
-                <div id="lessons-log-container">
-                    <h5 style="margin:20px 0 10px 0">📝 Storico Lezioni</h5>
+                <div id="lessons-log-container" class="hidden">
+                    <h5 style="margin:20px 0 10px 0; color:#4f46e5">
+                        📝 Storico: <span id="admin-course-name-title" style="font-weight:800">...</span>
+                    </h5>
                     <div id="admin-lessons-list"></div>
                 </div>
             </div>
@@ -238,7 +242,7 @@
     let allLessonsCache = []; 
     let allAssignmentsCache = []; 
     let allLevelsCache = []; 
-    let allAnagraficaCache = {}; // Cache Nomi Reali
+    let allAnagraficaCache = {}; 
     let currentOpenCourse = null; 
     let currentAdminView = 'team'; 
     let currentSelectedDetail = null;
@@ -280,13 +284,11 @@
     // --- LOGICA ADMIN ---
     function initAdmin() {
         initLevels();
-        // Carica Anagrafica per i nomi
         onSnapshot(collection(db, "anagrafica"), (snap) => {
             allAnagraficaCache = {};
             snap.forEach(d => { allAnagraficaCache[d.id] = d.data(); });
             renderApp();
         });
-
         onSnapshot(query(collection(db, "registro_didattico"), orderBy("data", "desc")), (snap) => {
             allLessonsCache = [];
             snap.forEach(d => allLessonsCache.push({id:d.id, ...d.data()}));
@@ -329,12 +331,9 @@
         const newName = prompt("Inserisci il nome reale per " + email, currentName);
         if(newName && newName !== currentName) {
             try {
-                // Salva in anagrafica (usiamo la mail come ID documento)
                 await setDoc(doc(db, "anagrafica", email), { nome: newName }, { merge: true });
-                // Il listener onSnapshot aggiornerà la vista automaticamente
             } catch(e) { alert("Errore: " + e.message); }
         }
-        // Evita che il click si propaghi alla card
         event.stopPropagation();
     };
 
@@ -355,7 +354,6 @@
         if(emails.length === 0) grid.innerHTML = "<p>Nessun istruttore.</p>";
         emails.forEach(email => {
             const data = instructorsMap[email];
-            // Usa il nome reale se presente, altrimenti l'email troncata
             const realName = allAnagraficaCache[email]?.nome;
             const displayName = realName ? realName : email.split('@')[0].toUpperCase();
             
@@ -414,50 +412,84 @@
         const assignedListDiv = document.getElementById('admin-assigned-list');
         const assignedTitle = document.getElementById('assigned-title');
         const logsContainer = document.getElementById('lessons-log-container');
-        const logsList = document.getElementById('admin-lessons-list');
-
+        
+        // Reset view
         assignedListDiv.innerHTML = "";
-        logsList.innerHTML = "";
+        logsContainer.classList.add('hidden'); // Nascondi storico di base
 
         if (currentAdminView === 'team') {
             // DETTAGLIO ISTRUTTORE
             const realName = allAnagraficaCache[id]?.nome || id.split('@')[0];
             titleEl.innerText = "Dettagli di " + realName;
-            assignedTitle.innerText = "📋 Corsi Assegnati";
-            logsContainer.classList.remove('hidden');
+            assignedTitle.innerText = "📋 Seleziona un corso per vedere lo storico:";
 
+            // 1. Corsi Assegnati Cliccabili
             const userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
             if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso assegnato.</p>";
             userCourses.forEach(c => {
                 assignedListDiv.innerHTML += `
-                    <div class="ac-item"><span class="ac-title">${c.nome}</span><button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button></div>`;
-            });
-
-            const userLessons = allLessonsCache.filter(l => l.email === id);
-            if(userLessons.length === 0) logsList.innerHTML = "<p style='color:#666; font-style:italic'>Nessuna lezione registrata.</p>";
-            userLessons.forEach(l => {
-                logsList.innerHTML += `
-                    <div class="lezione-card"><div class="card-top"><span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span><strong>${l.corso}</strong></div><div style="font-weight:600;color:#333">🎯 ${l.obiettivo||'-'}</div><div style="color:#555;font-size:0.9rem">${l.attivita}</div></div>`;
+                    <div class="ac-item">
+                        <span class="ac-title clickable-course" onclick="openAdminCourseHistory('${c.nome}', '${id}')">📂 ${c.nome}</span>
+                        <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                    </div>`;
             });
 
         } else {
             // DETTAGLIO LIVELLO
             titleEl.innerText = "Livello: " + id;
             assignedTitle.innerText = "📋 Corsi Attivi per " + id;
-            logsContainer.classList.add('hidden');
-
+            
             const lvlCourses = allAssignmentsCache.filter(a => a.livello === id);
             if(lvlCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso attivo per questo livello.</p>";
             lvlCourses.forEach(c => {
-                // Recupera nome reale istruttore anche qui
                 const instrEmail = c.istruttore;
                 const instrName = allAnagraficaCache[instrEmail]?.nome || instrEmail;
-                
                 assignedListDiv.innerHTML += `
-                    <div class="ac-item"><div><span class="ac-title">${c.giorno} ${c.ora}</span><span class="ac-sub">👤 ${instrName}</span></div><button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button></div>`;
+                    <div class="ac-item">
+                        <div>
+                            <span class="ac-title">${c.giorno} ${c.ora}</span>
+                            <span class="ac-sub">👤 ${instrName}</span>
+                        </div>
+                        <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                    </div>`;
             });
         }
     }
+
+    // D. ADMIN: APRI STORICO SPECIFICO
+    window.openAdminCourseHistory = (courseName, email) => {
+        const logsContainer = document.getElementById('lessons-log-container');
+        const logsList = document.getElementById('admin-lessons-list');
+        const courseTitle = document.getElementById('admin-course-name-title');
+        
+        logsContainer.classList.remove('hidden');
+        courseTitle.innerText = courseName;
+        logsList.innerHTML = "";
+
+        const lessons = allLessonsCache.filter(l => l.corso === courseName && l.email === email);
+        
+        // Ordina per data decrescente
+        lessons.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+        if(lessons.length === 0) {
+            logsList.innerHTML = "<p style='color:#666; font-style:italic'>Nessuna lezione registrata per questo corso.</p>";
+            return;
+        }
+
+        lessons.forEach(l => {
+            logsList.innerHTML += `
+                <div class="lezione-card">
+                    <div class="card-top">
+                        <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span>
+                    </div>
+                    <div style="font-weight:600;color:#333">🎯 ${l.obiettivo||'-'}</div>
+                    <div style="color:#555;font-size:0.9rem; margin-top:5px; line-height:1.4">${l.attivita}</div>
+                </div>`;
+        });
+        
+        // Scroll to history
+        setTimeout(() => logsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    };
 
     // Gestione Livelli
     function initLevels() {
@@ -473,7 +505,6 @@
                 levelsDiv.innerHTML += `<div class="level-tag">${lvl}<button class="btn-del-level" onclick="deleteLevel('${d.id}')">✕</button></div>`;
                 select.innerHTML += `<option value="${lvl}">${lvl}</option>`;
             });
-            // Aggiorna la vista livelli se siamo lì
             if(currentAdminView === 'levels') renderApp();
         });
     }
@@ -499,7 +530,7 @@
     };
     window.deleteAssignment = async (id) => { if(confirm("Eliminare assegnazione?")) await deleteDoc(doc(db, "corsi_assegnati", id)); };
 
-    // --- ISTRUTTORE & FUNZIONI BASE ---
+    // --- ISTRUTTORE ---
     function initInstructor() {
         onSnapshot(query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase())), (snap) => {
             const sel = document.getElementById('corso');
@@ -566,7 +597,6 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
-    // --- CRUD ---
     window.deleteLesson = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "registro_didattico", id)); };
     window.openEditModal = (id) => {
         const l = myLessonsCache.find(x => x.id === id) || allLessonsCache.find(x => x.id === id);
