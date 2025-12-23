@@ -28,7 +28,7 @@
         .user-info { font-size: 0.95rem; color: #6b7280; font-weight: 500; margin-top: 2px; }
         button.logout-btn { background-color: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
         
-        /* Form & Inputs - MOBILE OPTIMIZED */
+        /* Form & Inputs - MOBILE & DESKTOP OPTIMIZED */
         .form-group { margin-bottom: 15px; width: 100%; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #374151; }
         
@@ -38,10 +38,12 @@
             padding: 12px; 
             border: 1px solid #d1d5db; 
             border-radius: 10px; 
+            /* FIX FONT: Forza Inter su tutti i campi input/date/textarea */
+            font-family: 'Inter', sans-serif; 
             font-size: 16px; /* Evita zoom su iPhone */
             background: #fff; 
             outline: none; 
-            appearance: none; /* Rimuove stile default browser */
+            appearance: none; 
             -webkit-appearance: none;
             color: #1f2937;
         }
@@ -237,7 +239,7 @@
                     <div><label style="color:#b45309">Giorno</label><select id="new-day"><option value="">Scegli...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select></div>
                     <div><label style="color:#b45309">Ora</label><input type="time" id="new-time"></div>
                     <div><label style="color:#b45309">Istruttore (Email)</label><input type="email" id="new-email" placeholder="email@istr.it"></div>
-                    <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px; margin-bottom:0">Crea</button>
+                    <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px">Crea</button>
                 </div>
             </div>
             
