@@ -69,13 +69,17 @@
         .assigned-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .ac-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; border: 1px solid #e0e7ff; }
         
-        /* CORSI CLICCABILI (NUOVO) */
         .ac-title { font-weight: 600; color: #3730a3; font-size: 0.9rem; }
         .clickable-course { color: #4f46e5; text-decoration: underline; cursor: pointer; }
         .clickable-course:hover { color: #312e81; font-weight: 800; }
         
         .ac-sub { font-size: 0.8rem; color: #666; margin-left: 10px; }
+        
+        /* Bottoni Azione */
+        .btn-group { display: flex; gap: 5px; }
         .btn-del-assign { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
+        .btn-reassign { background: #fef08a; color: #854d0e; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
+        .btn-reassign:hover { background: #fde047; }
 
         /* Istruttore Elements */
         .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5; }
@@ -430,7 +434,10 @@
                 assignedListDiv.innerHTML += `
                     <div class="ac-item">
                         <span class="ac-title clickable-course" onclick="openAdminCourseHistory('${c.nome}', '${id}')">📂 ${c.nome}</span>
-                        <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                        <div class="btn-group">
+                            <button class="btn-reassign" onclick="reassignInstructor('${c.id}', '${c.istruttore}')">👤 Cambia</button>
+                            <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                        </div>
                     </div>`;
             });
 
@@ -447,17 +454,20 @@
                 assignedListDiv.innerHTML += `
                     <div class="ac-item">
                         <div>
-                            <span class="ac-title">${c.giorno} ${c.ora}</span>
+                            <span class="ac-title clickable-course" onclick="openAdminCourseHistory('${c.nome}', null)">${c.giorno} ${c.ora}</span>
                             <span class="ac-sub">👤 ${instrName}</span>
                         </div>
-                        <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                        <div class="btn-group">
+                            <button class="btn-reassign" onclick="reassignInstructor('${c.id}', '${c.istruttore}')">👤 Cambia</button>
+                            <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
+                        </div>
                     </div>`;
             });
         }
     }
 
     // D. ADMIN: APRI STORICO SPECIFICO
-    window.openAdminCourseHistory = (courseName, email) => {
+    window.openAdminCourseHistory = (courseName, emailFilter) => {
         const logsContainer = document.getElementById('lessons-log-container');
         const logsList = document.getElementById('admin-lessons-list');
         const courseTitle = document.getElementById('admin-course-name-title');
@@ -466,7 +476,12 @@
         courseTitle.innerText = courseName;
         logsList.innerHTML = "";
 
-        const lessons = allLessonsCache.filter(l => l.corso === courseName && l.email === email);
+        // Se emailFilter è null (vista livello), mostra tutte le lezioni di quel corso
+        // Se emailFilter c'è (vista team), mostra solo le lezioni di quell'istruttore per quel corso
+        let lessons = allLessonsCache.filter(l => l.corso === courseName);
+        if (emailFilter) {
+            lessons = lessons.filter(l => l.email === emailFilter);
+        }
         
         // Ordina per data decrescente
         lessons.sort((a,b) => new Date(b.data) - new Date(a.data));
@@ -477,12 +492,14 @@
         }
 
         lessons.forEach(l => {
+            const writer = allAnagraficaCache[l.email]?.nome || l.email.split('@')[0];
             logsList.innerHTML += `
                 <div class="lezione-card">
                     <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span>
+                        <span style="font-size:0.75rem; background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-weight:bold">👤 ${writer}</span>
                     </div>
-                    <div style="font-weight:600;color:#333">🎯 ${l.obiettivo||'-'}</div>
+                    <div style="font-weight:600;color:#333; margin-top:5px">🎯 ${l.obiettivo||'-'}</div>
                     <div style="color:#555;font-size:0.9rem; margin-top:5px; line-height:1.4">${l.attivita}</div>
                 </div>`;
         });
@@ -530,7 +547,22 @@
     };
     window.deleteAssignment = async (id) => { if(confirm("Eliminare assegnazione?")) await deleteDoc(doc(db, "corsi_assegnati", id)); };
 
-    // --- ISTRUTTORE ---
+    // NUOVA FUNZIONE RIASSEGNAZIONE
+    window.reassignInstructor = async (docId, oldEmail) => {
+        const newEmail = prompt("Inserisci la mail del nuovo istruttore per questo corso:", oldEmail);
+        if (newEmail && newEmail !== oldEmail) {
+            try {
+                await updateDoc(doc(db, "corsi_assegnati", docId), {
+                    istruttore: newEmail.trim().toLowerCase()
+                });
+                alert("Istruttore aggiornato!");
+            } catch (e) {
+                alert("Errore: " + e.message);
+            }
+        }
+    };
+
+    // --- ISTRUTTORE & FUNZIONI BASE ---
     function initInstructor() {
         onSnapshot(query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase())), (snap) => {
             const sel = document.getElementById('corso');
@@ -597,6 +629,7 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
+    // --- CRUD ---
     window.deleteLesson = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "registro_didattico", id)); };
     window.openEditModal = (id) => {
         const l = myLessonsCache.find(x => x.id === id) || allLessonsCache.find(x => x.id === id);
