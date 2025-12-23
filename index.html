@@ -21,10 +21,10 @@
         /* Form & Inputs */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #374151; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; background: #fff; }
-        input:focus, select:focus, textarea:focus { border-color: #4f46e5; outline: 3px solid #e0e7ff; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; background: #fff; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         textarea { height: 80px; resize: vertical; }
-        button.primary-btn { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        button.primary-btn { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         button.primary-btn:hover { background-color: #4338ca; }
 
         /* --- ADMIN TOOLS --- */
@@ -68,18 +68,14 @@
         /* Admin Details */
         .assigned-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .ac-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; border: 1px solid #e0e7ff; }
-        
         .ac-title { font-weight: 600; color: #3730a3; font-size: 0.9rem; }
         .clickable-course { color: #4f46e5; text-decoration: underline; cursor: pointer; }
         .clickable-course:hover { color: #312e81; font-weight: 800; }
-        
         .ac-sub { font-size: 0.8rem; color: #666; margin-left: 10px; }
         
-        /* Bottoni Azione */
         .btn-group { display: flex; gap: 5px; }
         .btn-del-assign { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
         .btn-reassign { background: #fef08a; color: #854d0e; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
-        .btn-reassign:hover { background: #fde047; }
 
         /* Istruttore Elements */
         .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5; }
@@ -99,18 +95,69 @@
         .icon-btn:hover { transform: scale(1.2); }
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
 
-        /* Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; display: none; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-
+        /* --- NOTIFICHE & MODAL CUSTOM --- */
         .hidden { display: none !important; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* TOAST */
+        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* MODAL OVERLAY GENERICO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popUp 0.3s ease; }
+        @keyframes popUp { from {transform: scale(0.9); opacity:0} to {transform: scale(1); opacity:1} }
+        
+        .modal-title { margin-top: 0; font-size: 1.2rem; color: #111; }
+        .modal-msg { color: #666; margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { flex: 1; padding: 12px; border: none; background: #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151; }
+        .btn-confirm { flex: 1; padding: 12px; border: none; background: #4f46e5; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
 
+<div id="toast">Notifica</div>
+
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="modal-title" id="confirm-title">Titolo</h3>
+        <p class="modal-msg" id="confirm-msg">Messaggio...</p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeConfirm()">Annulla</button>
+            <button class="btn-confirm" id="confirm-btn-action">Conferma</button>
+        </div>
+    </div>
+</div>
+
+<div id="prompt-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="modal-title" id="prompt-title">Inserisci</h3>
+        <p class="modal-msg" id="prompt-msg" style="margin-bottom:10px"></p>
+        <input type="text" id="prompt-input" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closePrompt()">Annulla</button>
+            <button class="btn-confirm" id="prompt-btn-action">Salva</button>
+        </div>
+    </div>
+</div>
+
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="modal-title">✏️ Modifica Lezione</h3>
+        <input type="hidden" id="edit-id">
+        <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
+        <div class="form-group"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
+        <div class="form-group"><label>Attività</label><textarea id="edit-attivita" style="height:100px"></textarea></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="document.getElementById('edit-modal').style.display='none'">Annulla</button>
+            <button class="btn-confirm" onclick="saveEdit()">Salva</button>
+        </div>
+    </div>
+</div>
+
 <div class="container">
-    
     <div class="app-header">
         <div>
             <h2>Registro Didattico</h2>
@@ -131,12 +178,11 @@
     <div id="dashboard-section" class="hidden">
         
         <div id="admin-view" class="hidden">
-            
             <div class="admin-tools">
                 <div class="levels-manager">
                     <h3 style="margin-top:0; color:#b45309">🎚 Gestione Etichette Livelli</h3>
                     <div id="levels-container" class="levels-container">
-                        <span style="font-size:0.8rem; color:#b45309; opacity:0.7">Caricamento livelli...</span>
+                        <span style="font-size:0.8rem; color:#b45309; opacity:0.7">Caricamento...</span>
                     </div>
                     <div class="add-level-box">
                         <input type="text" id="new-level-input" placeholder="Nuovo livello (es. Master)" style="padding:8px; font-size:0.9rem">
@@ -208,20 +254,6 @@
     </div>
 </div>
 
-<div id="edit-modal" class="modal-overlay">
-    <div class="modal-box">
-        <h3 style="margin-top:0">✏️ Modifica Lezione</h3>
-        <input type="hidden" id="edit-id">
-        <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
-        <div class="form-group"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
-        <div class="form-group"><label>Attività</label><textarea id="edit-attivita" style="height:100px"></textarea></div>
-        <div style="display:flex; gap:10px; margin-top:20px">
-            <button onclick="closeEditModal()" style="flex:1; padding:10px; border:none; background:#e5e7eb; border-radius:8px; cursor:pointer">Annulla</button>
-            <button onclick="saveEdit()" style="flex:1; padding:10px; border:none; background:#4f46e5; color:white; border-radius:8px; font-weight:bold; cursor:pointer">Salva</button>
-        </div>
-    </div>
-</div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -253,10 +285,47 @@
 
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
+    // --- UI HELPERS (TOAST & MODALS) ---
+    window.toast = (msg) => {
+        const t = document.getElementById("toast");
+        t.innerText = msg; t.className = "show";
+        setTimeout(() => t.className = t.className.replace("show", ""), 3000);
+    };
+
+    window.modalConfirm = (title, msg, onConfirm) => {
+        document.getElementById('confirm-title').innerText = title;
+        document.getElementById('confirm-msg').innerText = msg;
+        const btn = document.getElementById('confirm-btn-action');
+        // Rimuovi listener vecchi clonando il bottone
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.onclick = () => { onConfirm(); closeConfirm(); };
+        document.getElementById('confirm-modal').style.display = 'flex';
+    };
+    window.closeConfirm = () => document.getElementById('confirm-modal').style.display = 'none';
+
+    window.modalPrompt = (title, msg, defaultVal, onConfirm) => {
+        document.getElementById('prompt-title').innerText = title;
+        document.getElementById('prompt-msg').innerText = msg;
+        const input = document.getElementById('prompt-input');
+        input.value = defaultVal || "";
+        
+        const btn = document.getElementById('prompt-btn-action');
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.onclick = () => { if(input.value) { onConfirm(input.value); closePrompt(); } };
+        document.getElementById('prompt-modal').style.display = 'flex';
+        input.focus();
+    };
+    window.closePrompt = () => document.getElementById('prompt-modal').style.display = 'none';
+
+
     // AUTH
     document.getElementById('btn-login').addEventListener('click', async () => {
         try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } 
-        catch (e) { alert(e.message); }
+        catch (e) { toast("Errore Login: " + e.message); }
     });
     window.logout = async () => { await signOut(auth); window.location.reload(); };
 
@@ -332,12 +401,12 @@
 
     window.renameUser = async (email) => {
         const currentName = allAnagraficaCache[email]?.nome || "";
-        const newName = prompt("Inserisci il nome reale per " + email, currentName);
-        if(newName && newName !== currentName) {
+        modalPrompt("Rinomina Utente", "Inserisci il nome reale per " + email, currentName, async (newName) => {
             try {
                 await setDoc(doc(db, "anagrafica", email), { nome: newName }, { merge: true });
-            } catch(e) { alert("Errore: " + e.message); }
-        }
+                toast("Utente rinominato");
+            } catch(e) { toast("Errore: " + e.message); }
+        });
         event.stopPropagation();
     };
 
@@ -417,9 +486,8 @@
         const assignedTitle = document.getElementById('assigned-title');
         const logsContainer = document.getElementById('lessons-log-container');
         
-        // Reset view
         assignedListDiv.innerHTML = "";
-        logsContainer.classList.add('hidden'); // Nascondi storico di base
+        logsContainer.classList.add('hidden'); 
 
         if (currentAdminView === 'team') {
             // DETTAGLIO ISTRUTTORE
@@ -427,7 +495,6 @@
             titleEl.innerText = "Dettagli di " + realName;
             assignedTitle.innerText = "📋 Seleziona un corso per vedere lo storico:";
 
-            // 1. Corsi Assegnati Cliccabili
             const userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
             if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso assegnato.</p>";
             userCourses.forEach(c => {
@@ -476,14 +543,11 @@
         courseTitle.innerText = courseName;
         logsList.innerHTML = "";
 
-        // Se emailFilter è null (vista livello), mostra tutte le lezioni di quel corso
-        // Se emailFilter c'è (vista team), mostra solo le lezioni di quell'istruttore per quel corso
         let lessons = allLessonsCache.filter(l => l.corso === courseName);
         if (emailFilter) {
             lessons = lessons.filter(l => l.email === emailFilter);
         }
         
-        // Ordina per data decrescente
         lessons.sort((a,b) => new Date(b.data) - new Date(a.data));
 
         if(lessons.length === 0) {
@@ -504,7 +568,6 @@
                 </div>`;
         });
         
-        // Scroll to history
         setTimeout(() => logsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     };
 
@@ -527,9 +590,13 @@
     }
     window.saveNewLevel = async () => {
         const n = document.getElementById('new-level-input').value.trim();
-        if(n) { await addDoc(collection(db, "elenco_livelli"), { nome: n }); document.getElementById('new-level-input').value = ""; }
+        if(n) { await addDoc(collection(db, "elenco_livelli"), { nome: n }); document.getElementById('new-level-input').value = ""; toast("Livello aggiunto"); }
     };
-    window.deleteLevel = async (id) => { if(confirm("Eliminare livello?")) await deleteDoc(doc(db, "elenco_livelli", id)); };
+    window.deleteLevel = async (id) => { 
+        modalConfirm("Eliminare Livello?", "Confermi la cancellazione?", async () => {
+            await deleteDoc(doc(db, "elenco_livelli", id)); toast("Livello eliminato");
+        });
+    };
     
     // Gestione Corsi Admin
     window.addCourseStructured = async () => {
@@ -537,29 +604,29 @@
         const day = document.getElementById('new-day').value;
         const time = document.getElementById('new-time').value;
         const email = document.getElementById('new-email').value.trim().toLowerCase();
-        if(!lvl || !day || !time || !email) return alert("Compila tutto");
+        if(!lvl || !day || !time || !email) return toast("Compila tutti i campi");
         try {
             await addDoc(collection(db, "corsi_assegnati"), { 
                 nome: `${lvl} - ${day} ${time}`, livello: lvl, giorno: day, ora: time, istruttore: email, created: new Date() 
             });
-            alert("Corso Creato"); document.getElementById('new-email').value = "";
-        } catch(e){ alert(e.message); }
+            toast("Corso Creato!"); document.getElementById('new-email').value = "";
+        } catch(e){ toast("Errore: " + e.message); }
     };
-    window.deleteAssignment = async (id) => { if(confirm("Eliminare assegnazione?")) await deleteDoc(doc(db, "corsi_assegnati", id)); };
+    window.deleteAssignment = async (id) => { 
+        modalConfirm("Eliminare Assegnazione?", "Vuoi rimuovere questo corso?", async () => {
+            await deleteDoc(doc(db, "corsi_assegnati", id)); toast("Assegnazione rimossa");
+        });
+    };
 
-    // NUOVA FUNZIONE RIASSEGNAZIONE
     window.reassignInstructor = async (docId, oldEmail) => {
-        const newEmail = prompt("Inserisci la mail del nuovo istruttore per questo corso:", oldEmail);
-        if (newEmail && newEmail !== oldEmail) {
-            try {
-                await updateDoc(doc(db, "corsi_assegnati", docId), {
-                    istruttore: newEmail.trim().toLowerCase()
-                });
-                alert("Istruttore aggiornato!");
-            } catch (e) {
-                alert("Errore: " + e.message);
+        modalPrompt("Cambia Istruttore", "Nuova email istruttore:", oldEmail, async (newEmail) => {
+            if (newEmail && newEmail !== oldEmail) {
+                try {
+                    await updateDoc(doc(db, "corsi_assegnati", docId), { istruttore: newEmail.trim().toLowerCase() });
+                    toast("Istruttore aggiornato!");
+                } catch (e) { toast("Errore: " + e.message); }
             }
-        }
+        });
     };
 
     // --- ISTRUTTORE & FUNZIONI BASE ---
@@ -630,7 +697,12 @@
     };
 
     // --- CRUD ---
-    window.deleteLesson = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "registro_didattico", id)); };
+    window.deleteLesson = async (id) => { 
+        modalConfirm("Eliminare Lezione?", "L'azione è irreversibile.", async () => {
+            await deleteDoc(doc(db, "registro_didattico", id)); toast("Lezione eliminata");
+        });
+    };
+    
     window.openEditModal = (id) => {
         const l = myLessonsCache.find(x => x.id === id) || allLessonsCache.find(x => x.id === id);
         if(!l) return;
@@ -640,7 +712,7 @@
         document.getElementById('edit-attivita').value = l.attivita;
         document.getElementById('edit-modal').style.display = 'flex';
     };
-    window.closeEditModal = () => document.getElementById('edit-modal').style.display = 'none';
+    
     window.saveEdit = async () => {
         try {
             await updateDoc(doc(db, "registro_didattico", document.getElementById('edit-id').value), {
@@ -648,9 +720,11 @@
                 obiettivo: document.getElementById('edit-obiettivo').value,
                 attivita: document.getElementById('edit-attivita').value
             });
-            closeEditModal();
-        } catch(e) { alert(e.message); }
+            document.getElementById('edit-modal').style.display = 'none';
+            toast("Modifiche salvate");
+        } catch(e) { toast(e.message); }
     };
+    
     window.salvaLezione = async () => {
         try {
             await addDoc(collection(db, "registro_didattico"), {
@@ -661,9 +735,9 @@
                 attivita: document.getElementById('attivita').value,
                 timestamp: new Date()
             });
-            alert("Salvato! ✅");
+            toast("Salvato! ✅");
             document.getElementById('attivita').value = ""; document.getElementById('obiettivo').value = "";
-        } catch(e){ alert(e.message); }
+        } catch(e){ toast(e.message); }
     };
 </script>
 </body>
