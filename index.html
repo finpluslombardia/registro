@@ -2,118 +2,159 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro Didattico</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* --- CSS BASE --- */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 20px; margin: 0; }
-        .container { max-width: 950px; margin: 0 auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); min-height: 85vh; position: relative; }
+        *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 15px; margin: 0; }
+        
+        .container { 
+            max-width: 950px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            min-height: 85vh; 
+            position: relative; 
+        }
         
         /* Header */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #e5e7eb; padding-bottom: 15px; }
-        h2 { margin: 0; color: #4f46e5; font-weight: 800; font-size: 1.5rem; }
-        .user-info { font-size: 0.9rem; color: #6b7280; font-weight: 500; }
-        button.logout-btn { background-color: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        h2 { margin: 0; color: #4f46e5; font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .user-info { font-size: 0.95rem; color: #6b7280; font-weight: 500; margin-top: 2px; }
+        button.logout-btn { background-color: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
         
-        /* Form & Inputs */
-        .form-group { margin-bottom: 15px; }
+        /* Form & Inputs - MOBILE OPTIMIZED */
+        .form-group { margin-bottom: 15px; width: 100%; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #374151; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; background: #fff; outline: none; }
+        
+        input, select, textarea { 
+            width: 100%; 
+            max-width: 100%;
+            padding: 12px; 
+            border: 1px solid #d1d5db; 
+            border-radius: 10px; 
+            font-size: 16px; /* Evita zoom su iPhone */
+            background: #fff; 
+            outline: none; 
+            appearance: none; /* Rimuove stile default browser */
+            -webkit-appearance: none;
+            color: #1f2937;
+        }
+        
+        /* Icona per le select */
+        select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px top 50%;
+            background-size: 10px auto;
+            padding-right: 30px;
+        }
+
         input:focus, select:focus, textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        textarea { height: 80px; resize: vertical; }
-        button.primary-btn { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        button.primary-btn:hover { background-color: #4338ca; }
+        textarea { height: 90px; resize: vertical; }
+        
+        button.primary-btn { 
+            width: 100%; 
+            padding: 14px; 
+            background-color: #4f46e5; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: background 0.2s; 
+            margin-top: 5px;
+        }
+        button.primary-btn:active { transform: scale(0.98); }
 
         /* --- ADMIN TOOLS --- */
-        .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
+        .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 25px; }
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 10px; align-items: end; }
-        @media (max-width: 700px) { .create-grid { grid-template-columns: 1fr 1fr; } .create-grid button { grid-column: span 2; } }
+        @media (max-width: 768px) { 
+            .create-grid { grid-template-columns: 1fr; gap: 15px; } 
+            .create-grid button { width: 100%; margin-top: 5px; }
+        }
 
         /* Gestione Livelli */
         .levels-manager { margin-bottom: 25px; border-bottom: 1px solid #fcd34d; padding-bottom: 20px; }
         .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .level-tag { background: white; border: 1px solid #d97706; color: #b45309; padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-        .btn-del-level { background: #fee2e2; color: #ef4444; border: none; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
-        .add-level-box { display: flex; gap: 10px; margin-top: 10px; max-width: 400px; }
+        .level-tag { background: white; border: 1px solid #d97706; color: #b45309; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .btn-del-level { background: #fee2e2; color: #ef4444; border: none; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
+        .add-level-box { display: flex; gap: 10px; margin-top: 10px; width: 100%; }
 
         /* SWITCH BUTTONS */
         .view-switch-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 15px; }
-        .switch-btn { flex: 1; padding: 12px; border: none; background: #e5e7eb; border-radius: 10px; font-weight: 600; color: #6b7280; cursor: pointer; transition: all 0.2s; font-size: 1rem; display: flex; justify-content: center; gap: 8px; }
+        .switch-btn { flex: 1; padding: 12px; border: none; background: #e5e7eb; border-radius: 10px; font-weight: 600; color: #6b7280; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
         .switch-btn.active { background: #4f46e5; color: white; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); }
-        .switch-btn:hover:not(.active) { background: #d1d5db; }
 
         /* GRID & CARDS */
-        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
+        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         
-        .user-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
-        .user-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); border-color: #4f46e5; }
+        .user-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .user-card:active { transform: scale(0.98); background: #f3f4f6; }
         .user-card.active { border: 2px solid #4f46e5; background: #e0e7ff; }
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 2px; }
         .uc-name { font-weight: 700; font-size: 1.1rem; color: #111; line-height: 1.2; }
-        .btn-rename { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0 5px; opacity: 0.5; transition: opacity 0.2s; }
-        .btn-rename:hover { opacity: 1; transform: scale(1.1); }
-        .uc-email { font-size: 0.75rem; color: #6b7280; margin-bottom: 15px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .btn-rename { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; opacity: 0.6; }
+        .uc-email { font-size: 0.8rem; color: #6b7280; margin-bottom: 12px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid #f3f4f6; padding-top: 10px; }
-        .uc-val { display: block; font-weight: 800; font-size: 1.2rem; color: #4f46e5; }
+        .uc-val { display: block; font-weight: 800; font-size: 1.1rem; color: #4f46e5; }
 
-        .level-card { background: white; border: 1px solid #fcd34d; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; border-left: 5px solid #fcd34d; }
-        .level-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(252, 211, 77, 0.2); }
+        .level-card { background: white; border: 1px solid #fcd34d; border-radius: 12px; padding: 15px; cursor: pointer; border-left: 5px solid #fcd34d; }
         .level-card.active { background: #fffbeb; border: 2px solid #b45309; }
-        .lc-title { font-weight: 800; font-size: 1.2rem; color: #b45309; margin-bottom: 5px; }
-        .lc-count { font-size: 0.9rem; color: #92400e; font-weight: 600; }
+        .lc-title { font-weight: 800; font-size: 1.1rem; color: #b45309; margin-bottom: 5px; }
 
         /* Admin Details */
         .assigned-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .ac-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; border: 1px solid #e0e7ff; }
-        .ac-title { font-weight: 600; color: #3730a3; font-size: 0.9rem; }
-        .clickable-course { color: #4f46e5; text-decoration: underline; cursor: pointer; }
-        .clickable-course:hover { color: #312e81; font-weight: 800; }
-        .ac-sub { font-size: 0.8rem; color: #666; margin-left: 10px; }
+        .ac-item { display: flex; flex-direction: column; gap: 8px; background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e0e7ff; }
         
-        .btn-group { display: flex; gap: 5px; }
-        .btn-del-assign { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
-        .btn-reassign { background: #fef08a; color: #854d0e; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
+        .ac-title { font-weight: 700; color: #3730a3; font-size: 0.95rem; }
+        .clickable-course { color: #4f46e5; text-decoration: underline; cursor: pointer; }
+        
+        .btn-group { display: flex; gap: 8px; width: 100%; margin-top: 5px; }
+        .btn-del-assign, .btn-reassign { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-align: center; }
+        .btn-del-assign { background: #fee2e2; color: #ef4444; }
+        .btn-reassign { background: #fef08a; color: #854d0e; }
 
         /* Istruttore Elements */
-        .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; border-bottom: 4px solid #4f46e5; }
-        .course-folder:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.08); }
+        .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; cursor: pointer; border-bottom: 4px solid #4f46e5; }
         .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
-        .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+        .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; }
 
         /* Storico & Lezioni */
         .history-container { display: none; animation: fadeIn 0.3s ease; }
         .history-container.active { display: block; }
         .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
-        .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; position: relative; }
+        .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; }
         .card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
-        .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #6b7280; }
-        .actions-div { display: flex; gap: 8px; }
-        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 2px; transition: transform 0.2s; }
-        .icon-btn:hover { transform: scale(1.2); }
+        .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #6b7280; }
+        .actions-div { display: flex; gap: 15px; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; }
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
 
         /* --- NOTIFICHE & MODAL CUSTOM --- */
         .hidden { display: none !important; }
         
-        /* TOAST */
-        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #1f2937; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* MODAL OVERLAY GENERICO */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 2000; display: none; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popUp 0.3s ease; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popUp 0.3s ease; }
         @keyframes popUp { from {transform: scale(0.9); opacity:0} to {transform: scale(1); opacity:1} }
         
-        .modal-title { margin-top: 0; font-size: 1.2rem; color: #111; }
+        .modal-title { margin-top: 0; font-size: 1.3rem; color: #111; margin-bottom: 10px; }
         .modal-msg { color: #666; margin-bottom: 20px; line-height: 1.5; }
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { flex: 1; padding: 12px; border: none; background: #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151; }
-        .btn-confirm { flex: 1; padding: 12px; border: none; background: #4f46e5; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; }
+        .btn-cancel { flex: 1; padding: 14px; border: none; background: #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151; font-size: 1rem; }
+        .btn-confirm { flex: 1; padding: 14px; border: none; background: #4f46e5; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -135,7 +176,7 @@
     <div class="modal-box">
         <h3 class="modal-title" id="prompt-title">Inserisci</h3>
         <p class="modal-msg" id="prompt-msg" style="margin-bottom:10px"></p>
-        <input type="text" id="prompt-input" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">
+        <input type="text" id="prompt-input" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px; font-size:16px;">
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closePrompt()">Annulla</button>
             <button class="btn-confirm" id="prompt-btn-action">Salva</button>
@@ -149,7 +190,7 @@
         <input type="hidden" id="edit-id">
         <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
         <div class="form-group"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
-        <div class="form-group"><label>Attività</label><textarea id="edit-attivita" style="height:100px"></textarea></div>
+        <div class="form-group"><label>Attività</label><textarea id="edit-attivita"></textarea></div>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="document.getElementById('edit-modal').style.display='none'">Annulla</button>
             <button class="btn-confirm" onclick="saveEdit()">Salva</button>
@@ -180,29 +221,29 @@
         <div id="admin-view" class="hidden">
             <div class="admin-tools">
                 <div class="levels-manager">
-                    <h3 style="margin-top:0; color:#b45309">🎚 Gestione Etichette Livelli</h3>
+                    <h3 style="margin-top:0; color:#b45309">🎚 Gestione Etichette</h3>
                     <div id="levels-container" class="levels-container">
                         <span style="font-size:0.8rem; color:#b45309; opacity:0.7">Caricamento...</span>
                     </div>
                     <div class="add-level-box">
-                        <input type="text" id="new-level-input" placeholder="Nuovo livello (es. Master)" style="padding:8px; font-size:0.9rem">
+                        <input type="text" id="new-level-input" placeholder="Nuovo livello (es. Master)" style="padding:10px; font-size:16px">
                         <button onclick="saveNewLevel()" style="background:#b45309; color:white; border:none; padding:0 15px; border-radius:8px; cursor:pointer; font-weight:bold">+</button>
                     </div>
                 </div>
 
-                <h3 style="margin-top:20px; color:#b45309">🛠 Nuova Assegnazione Corso</h3>
+                <h3 style="margin-top:20px; color:#b45309">🛠 Nuova Assegnazione</h3>
                 <div class="create-grid">
-                    <div><label style="color:#b45309">Livello</label><select id="new-level-select"><option value="">-- Caricamento --</option></select></div>
+                    <div><label style="color:#b45309">Livello</label><select id="new-level-select"><option value="">--</option></select></div>
                     <div><label style="color:#b45309">Giorno</label><select id="new-day"><option value="">Scegli...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select></div>
                     <div><label style="color:#b45309">Ora</label><input type="time" id="new-time"></div>
                     <div><label style="color:#b45309">Istruttore (Email)</label><input type="email" id="new-email" placeholder="email@istr.it"></div>
-                    <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px">Crea</button>
+                    <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px; margin-bottom:0">Crea</button>
                 </div>
             </div>
             
             <div class="view-switch-container">
-                <button id="btn-view-team" class="switch-btn active" onclick="switchAdminView('team')">👥 Vista Istruttori</button>
-                <button id="btn-view-levels" class="switch-btn" onclick="switchAdminView('levels')">🎚 Vista Per Livelli</button>
+                <button id="btn-view-team" class="switch-btn active" onclick="switchAdminView('team')">👥 Istruttori</button>
+                <button id="btn-view-levels" class="switch-btn" onclick="switchAdminView('levels')">🎚 Livelli</button>
             </div>
             
             <div id="main-admin-grid" class="grid-courses"></div>
@@ -257,7 +298,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA",
@@ -285,7 +326,7 @@
 
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
-    // --- UI HELPERS (TOAST & MODALS) ---
+    // --- UI HELPERS ---
     window.toast = (msg) => {
         const t = document.getElementById("toast");
         t.innerText = msg; t.className = "show";
@@ -296,10 +337,8 @@
         document.getElementById('confirm-title').innerText = title;
         document.getElementById('confirm-msg').innerText = msg;
         const btn = document.getElementById('confirm-btn-action');
-        // Rimuovi listener vecchi clonando il bottone
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
-        
         newBtn.onclick = () => { onConfirm(); closeConfirm(); };
         document.getElementById('confirm-modal').style.display = 'flex';
     };
@@ -310,11 +349,9 @@
         document.getElementById('prompt-msg').innerText = msg;
         const input = document.getElementById('prompt-input');
         input.value = defaultVal || "";
-        
         const btn = document.getElementById('prompt-btn-action');
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
-        
         newBtn.onclick = () => { if(input.value) { onConfirm(input.value); closePrompt(); } };
         document.getElementById('prompt-modal').style.display = 'flex';
         input.focus();
@@ -329,7 +366,7 @@
     });
     window.logout = async () => { await signOut(auth); window.location.reload(); };
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
             const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -337,7 +374,18 @@
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
-            document.getElementById('user-display').innerText = user.email;
+            
+            // CARICAMENTO NOME REALE UTENTE
+            const userRef = doc(db, "anagrafica", user.email.toLowerCase());
+            try {
+                const snap = await getDoc(userRef);
+                if (snap.exists() && snap.data().nome) {
+                    document.getElementById('user-display').innerHTML = `Ciao <strong>${snap.data().nome}</strong>`;
+                } else {
+                    document.getElementById('user-display').innerText = user.email;
+                }
+            } catch (e) { document.getElementById('user-display').innerText = user.email; }
+
             document.getElementById('data').valueAsDate = new Date();
 
             if(isAdmin) {
@@ -377,12 +425,8 @@
     function renderApp() {
         if(currentAdminView === 'team') renderTeamGrid();
         else renderLevelsGrid();
-        
-        if(currentSelectedDetail) {
-            renderDetails(currentSelectedDetail);
-        } else {
-            document.getElementById('admin-detail-area').classList.add('hidden');
-        }
+        if(currentSelectedDetail) renderDetails(currentSelectedDetail);
+        else document.getElementById('admin-detail-area').classList.add('hidden');
     }
 
     window.switchAdminView = (view) => {
@@ -429,7 +473,6 @@
             const data = instructorsMap[email];
             const realName = allAnagraficaCache[email]?.nome;
             const displayName = realName ? realName : email.split('@')[0].toUpperCase();
-            
             const isActive = (email === currentSelectedDetail) ? 'active' : '';
             const lastDate = data.last ? new Date(data.last).toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}) : '--';
             
@@ -490,7 +533,6 @@
         logsContainer.classList.add('hidden'); 
 
         if (currentAdminView === 'team') {
-            // DETTAGLIO ISTRUTTORE
             const realName = allAnagraficaCache[id]?.nome || id.split('@')[0];
             titleEl.innerText = "Dettagli di " + realName;
             assignedTitle.innerText = "📋 Seleziona un corso per vedere lo storico:";
@@ -509,7 +551,6 @@
             });
 
         } else {
-            // DETTAGLIO LIVELLO
             titleEl.innerText = "Livello: " + id;
             assignedTitle.innerText = "📋 Corsi Attivi per " + id;
             
@@ -551,7 +592,7 @@
         lessons.sort((a,b) => new Date(b.data) - new Date(a.data));
 
         if(lessons.length === 0) {
-            logsList.innerHTML = "<p style='color:#666; font-style:italic'>Nessuna lezione registrata per questo corso.</p>";
+            logsList.innerHTML = "<p style='color:#666; font-style:italic'>Nessuna lezione registrata.</p>";
             return;
         }
 
@@ -696,7 +737,6 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
-    // --- CRUD ---
     window.deleteLesson = async (id) => { 
         modalConfirm("Eliminare Lezione?", "L'azione è irreversibile.", async () => {
             await deleteDoc(doc(db, "registro_didattico", id)); toast("Lezione eliminata");
