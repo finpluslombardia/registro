@@ -28,27 +28,22 @@
         .user-info { font-size: 0.95rem; color: #6b7280; font-weight: 500; margin-top: 2px; }
         button.logout-btn { background-color: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
         
-        /* Form & Inputs - MOBILE & DESKTOP OPTIMIZED */
+        /* Form & Inputs */
         .form-group { margin-bottom: 15px; width: 100%; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #374151; }
         
         input, select, textarea { 
-            width: 100%; 
-            max-width: 100%;
-            padding: 12px; 
+            width: 100%; padding: 12px; 
             border: 1px solid #d1d5db; 
             border-radius: 10px; 
-            /* FIX FONT: Forza Inter su tutti i campi input/date/textarea */
             font-family: 'Inter', sans-serif; 
-            font-size: 16px; /* Evita zoom su iPhone */
+            font-size: 16px; 
             background: #fff; 
             outline: none; 
             appearance: none; 
             -webkit-appearance: none;
             color: #1f2937;
         }
-        
-        /* Icona per le select */
         select {
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
@@ -56,32 +51,22 @@
             background-size: 10px auto;
             padding-right: 30px;
         }
-
         input:focus, select:focus, textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         textarea { height: 90px; resize: vertical; }
         
         button.primary-btn { 
-            width: 100%; 
-            padding: 14px; 
-            background-color: #4f46e5; 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: background 0.2s; 
-            margin-top: 5px;
+            width: 100%; padding: 14px; background-color: #4f46e5; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 5px;
         }
         button.primary-btn:active { transform: scale(0.98); }
+
+        /* FILTER BAR (NUOVA) */
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .filter-bar select { flex: 1; min-width: 130px; padding: 10px; font-size: 0.9rem; }
 
         /* --- ADMIN TOOLS --- */
         .admin-tools { background: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 25px; }
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 10px; align-items: end; }
-        @media (max-width: 768px) { 
-            .create-grid { grid-template-columns: 1fr; gap: 15px; } 
-            .create-grid button { width: 100%; margin-top: 5px; }
-        }
+        @media (max-width: 768px) { .create-grid { grid-template-columns: 1fr; gap: 15px; } .create-grid button { width: 100%; margin-top: 5px; } }
 
         /* Gestione Livelli */
         .levels-manager { margin-bottom: 25px; border-bottom: 1px solid #fcd34d; padding-bottom: 20px; }
@@ -97,7 +82,6 @@
 
         /* GRID & CARDS */
         .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        
         .user-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
         .user-card:active { transform: scale(0.98); background: #f3f4f6; }
         .user-card.active { border: 2px solid #4f46e5; background: #e0e7ff; }
@@ -115,10 +99,8 @@
         /* Admin Details */
         .assigned-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .ac-item { display: flex; flex-direction: column; gap: 8px; background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e0e7ff; }
-        
         .ac-title { font-weight: 700; color: #3730a3; font-size: 0.95rem; }
         .clickable-course { color: #4f46e5; text-decoration: underline; cursor: pointer; }
-        
         .btn-group { display: flex; gap: 8px; width: 100%; margin-top: 5px; }
         .btn-del-assign, .btn-reassign { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-align: center; }
         .btn-del-assign { background: #fee2e2; color: #ef4444; }
@@ -279,6 +261,25 @@
 
             <div id="courses-overview">
                 <h3 style="margin-top:40px; border-bottom:1px solid #ddd; padding-bottom:10px">I Tuoi Corsi</h3>
+                
+                <div class="filter-bar">
+                    <select id="instr-sort" onchange="renderCourseFolders()">
+                        <option value="name">Ordine Alfabetico</option>
+                        <option value="day">Per Giorno (Lun-Dom)</option>
+                        <option value="recent">Attività Recente</option>
+                    </select>
+                    <select id="instr-filter-level" onchange="renderCourseFolders()">
+                        <option value="all">Tutti i Livelli</option>
+                        </select>
+                    <select id="instr-filter-day" onchange="renderCourseFolders()">
+                        <option value="all">Tutti i Giorni</option>
+                        <option value="Lunedì">Lunedì</option><option value="Martedì">Martedì</option>
+                        <option value="Mercoledì">Mercoledì</option><option value="Giovedì">Giovedì</option>
+                        <option value="Venerdì">Venerdì</option><option value="Sabato">Sabato</option>
+                        <option value="Domenica">Domenica</option>
+                    </select>
+                </div>
+
                 <div id="my-courses-grid" class="grid-courses"><p style="color:#666">Caricamento corsi...</p></div>
             </div>
 
@@ -317,7 +318,7 @@
     
     let currentUser = null;
     let myLessonsCache = []; 
-    let myAssignmentsCache = []; 
+    let myAssignmentsCache = []; // [{ id, nome, livello, giorno, ora, ... }]
     let allLessonsCache = []; 
     let allAssignmentsCache = []; 
     let allLevelsCache = []; 
@@ -377,7 +378,6 @@
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
             
-            // CARICAMENTO NOME REALE UTENTE
             const userRef = doc(db, "anagrafica", user.email.toLowerCase());
             try {
                 const snap = await getDoc(userRef);
@@ -456,7 +456,6 @@
         event.stopPropagation();
     };
 
-    // A. RENDER GRIGLIA TEAM
     function renderTeamGrid() {
         const instructorsMap = {};
         allAssignmentsCache.forEach(a => { if(!instructorsMap[a.istruttore]) instructorsMap[a.istruttore] = {count:0, last:null}; });
@@ -494,7 +493,6 @@
         });
     }
 
-    // B. RENDER GRIGLIA LIVELLI
     function renderLevelsGrid() {
         const levelsMap = {};
         allLevelsCache.forEach(lvl => levelsMap[lvl] = 0);
@@ -521,11 +519,9 @@
         });
     }
 
-    // C. RENDER DETTAGLI
     function renderDetails(id) {
         const detailArea = document.getElementById('admin-detail-area');
         detailArea.classList.remove('hidden');
-        
         const titleEl = document.getElementById('detail-title');
         const assignedListDiv = document.getElementById('admin-assigned-list');
         const assignedTitle = document.getElementById('assigned-title');
@@ -555,7 +551,6 @@
         } else {
             titleEl.innerText = "Livello: " + id;
             assignedTitle.innerText = "📋 Corsi Attivi per " + id;
-            
             const lvlCourses = allAssignmentsCache.filter(a => a.livello === id);
             if(lvlCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso attivo per questo livello.</p>";
             lvlCourses.forEach(c => {
@@ -576,7 +571,6 @@
         }
     }
 
-    // D. ADMIN: APRI STORICO SPECIFICO
     window.openAdminCourseHistory = (courseName, emailFilter) => {
         const logsContainer = document.getElementById('lessons-log-container');
         const logsList = document.getElementById('admin-lessons-list');
@@ -590,7 +584,6 @@
         if (emailFilter) {
             lessons = lessons.filter(l => l.email === emailFilter);
         }
-        
         lessons.sort((a,b) => new Date(b.data) - new Date(a.data));
 
         if(lessons.length === 0) {
@@ -610,11 +603,9 @@
                     <div style="color:#555;font-size:0.9rem; margin-top:5px; line-height:1.4">${l.attivita}</div>
                 </div>`;
         });
-        
         setTimeout(() => logsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     };
 
-    // Gestione Livelli
     function initLevels() {
         const levelsDiv = document.getElementById('levels-container');
         const select = document.getElementById('new-level-select');
@@ -640,8 +631,6 @@
             await deleteDoc(doc(db, "elenco_livelli", id)); toast("Livello eliminato");
         });
     };
-    
-    // Gestione Corsi Admin
     window.addCourseStructured = async () => {
         const lvl = document.getElementById('new-level-select').value;
         const day = document.getElementById('new-day').value;
@@ -660,7 +649,6 @@
             await deleteDoc(doc(db, "corsi_assegnati", id)); toast("Assegnazione rimossa");
         });
     };
-
     window.reassignInstructor = async (docId, oldEmail) => {
         modalPrompt("Cambia Istruttore", "Nuova email istruttore:", oldEmail, async (newEmail) => {
             if (newEmail && newEmail !== oldEmail) {
@@ -672,20 +660,29 @@
         });
     };
 
-    // --- ISTRUTTORE & FUNZIONI BASE ---
+    // --- ISTRUTTORE ---
     function initInstructor() {
+        onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
+            const filterLevel = document.getElementById('instr-filter-level');
+            filterLevel.innerHTML = '<option value="all">Tutti i Livelli</option>';
+            snap.forEach(d => {
+                filterLevel.innerHTML += `<option value="${d.data().nome}">${d.data().nome}</option>`;
+            });
+        });
+
         onSnapshot(query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase())), (snap) => {
             const sel = document.getElementById('corso');
             sel.innerHTML = "";
             myAssignmentsCache = []; 
             snap.forEach(d => {
-                const c = d.data();
-                myAssignmentsCache.push(c.nome);
+                const c = { id: d.id, ...d.data() }; // Save full object
+                myAssignmentsCache.push(c);
                 sel.innerHTML += `<option>${c.nome}</option>`;
             });
             if(myAssignmentsCache.length===0) sel.innerHTML="<option>Nessun corso assegnato</option>";
             renderCourseFolders();
         });
+
         onSnapshot(query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid)), (snap) => {
             myLessonsCache = [];
             snap.forEach(d => myLessonsCache.push({id:d.id, ...d.data()}));
@@ -694,20 +691,61 @@
         });
     }
 
-    function renderCourseFolders() {
+    // NUOVO RENDER CON FILTRI
+    window.renderCourseFolders = () => {
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
-        const allCourseNames = new Set(myAssignmentsCache);
-        myLessonsCache.forEach(l => allCourseNames.add(l.corso));
-        const sortedCourses = Array.from(allCourseNames).sort();
+        
+        // 1. Get Filters
+        const sort = document.getElementById('instr-sort').value;
+        const levelFilter = document.getElementById('instr-filter-level').value;
+        const dayFilter = document.getElementById('instr-filter-day').value;
 
-        if(sortedCourses.length === 0) { grid.innerHTML = "<p>Nessun corso.</p>"; return; }
-        sortedCourses.forEach(cName => {
-            const count = myLessonsCache.filter(l => l.corso === cName).length;
+        // 2. Identify Courses to Show (Assigned + History)
+        let coursesToShow = [...myAssignmentsCache]; 
+        
+        // Add historic courses if not present (legacy support)
+        const assignedNames = new Set(coursesToShow.map(c => c.nome));
+        myLessonsCache.forEach(l => {
+            if(!assignedNames.has(l.corso)) {
+                coursesToShow.push({ nome: l.corso, livello: "", giorno: "", ora: "" }); 
+                assignedNames.add(l.corso);
+            }
+        });
+
+        // 3. Apply Filters
+        if (levelFilter !== 'all') {
+            coursesToShow = coursesToShow.filter(c => c.livello === levelFilter || c.nome.startsWith(levelFilter));
+        }
+        if (dayFilter !== 'all') {
+            coursesToShow = coursesToShow.filter(c => c.giorno === dayFilter || c.nome.includes(dayFilter));
+        }
+
+        // 4. Apply Sort
+        if (sort === 'name') {
+            coursesToShow.sort((a,b) => a.nome.localeCompare(b.nome));
+        } else if (sort === 'day') {
+            const daysOrder = { "Lunedì":1, "Martedì":2, "Mercoledì":3, "Giovedì":4, "Venerdì":5, "Sabato":6, "Domenica":7 };
+            coursesToShow.sort((a,b) => (daysOrder[a.giorno]||99) - (daysOrder[b.giorno]||99));
+        } else if (sort === 'recent') {
+            // Find last lesson date for each course
+            const getLastDate = (cName) => {
+                const lessons = myLessonsCache.filter(l => l.corso === cName);
+                if (lessons.length === 0) return 0;
+                return Math.max(...lessons.map(l => new Date(l.data).getTime()));
+            };
+            coursesToShow.sort((a,b) => getLastDate(b.nome) - getLastDate(a.nome));
+        }
+
+        // 5. Render
+        if(coursesToShow.length === 0) { grid.innerHTML = "<p>Nessun corso trovato.</p>"; return; }
+
+        coursesToShow.forEach(c => {
+            const count = myLessonsCache.filter(l => l.corso === c.nome).length;
             const div = document.createElement('div');
             div.className = 'course-folder';
-            div.innerHTML = `<div class="cf-title">${cName}</div><div class="cf-count">${count} Schede</div>`;
-            div.onclick = () => openHistory(cName);
+            div.innerHTML = `<div class="cf-title">${c.nome}</div><div class="cf-count">${count} Schede</div>`;
+            div.onclick = () => openHistory(c.nome);
             grid.appendChild(div);
         });
     }
