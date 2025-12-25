@@ -88,10 +88,13 @@
         .ac-item { display: flex; flex-direction: column; gap: 8px; background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e0e7ff; }
         .ac-title { font-weight: 700; color: #3730a3; font-size: 0.95rem; }
         .clickable-course { color: #4f46e5; text-decoration: underline; cursor: pointer; }
+        
         .btn-group { display: flex; gap: 8px; width: 100%; margin-top: 5px; }
-        .btn-del-assign, .btn-reassign { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-align: center; }
+        .btn-del-assign, .btn-reassign, .btn-info-course { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-align: center; }
         .btn-del-assign { background: #fee2e2; color: #ef4444; }
         .btn-reassign { background: #fef08a; color: #854d0e; }
+        .btn-info-course { background: #e5e7eb; color: #374151; }
+        .btn-info-course:hover { background: #d1d5db; }
 
         /* Istruttore Elements */
         .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; cursor: pointer; border-bottom: 4px solid #4f46e5; position: relative; }
@@ -267,7 +270,7 @@
                     </select>
                     <select id="adm-filter-level" onchange="renderDetails(currentSelectedDetail)">
                         <option value="all">Tutti i Livelli</option>
-                        </select>
+                    </select>
                     <select id="adm-filter-day" onchange="renderDetails(currentSelectedDetail)">
                         <option value="all">Tutti i Giorni</option>
                         <option value="Lunedì">Lunedì</option><option value="Martedì">Martedì</option>
@@ -602,18 +605,16 @@
             titleEl.innerText = "Dettagli di " + realName;
             assignedTitle.innerText = "📋 Seleziona un corso per vedere lo storico:";
 
-            // --- FILTRI ADMIN SU CORSI ISTRUTTORE ---
+            // FILTRI ADMIN
             const sort = document.getElementById('adm-sort').value;
             const levelFilter = document.getElementById('adm-filter-level').value;
             const dayFilter = document.getElementById('adm-filter-day').value;
 
             let userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
 
-            // Applica Filtri
             if (levelFilter !== 'all') userCourses = userCourses.filter(c => c.livello === levelFilter || c.nome.startsWith(levelFilter));
             if (dayFilter !== 'all') userCourses = userCourses.filter(c => c.giorno === dayFilter || c.nome.includes(dayFilter));
 
-            // Applica Ordinamento
             if (sort === 'name') {
                 userCourses.sort((a,b) => a.nome.localeCompare(b.nome));
             } else if (sort === 'day') {
@@ -628,7 +629,7 @@
                 userCourses.sort((a,b) => getLastDate(b.nome) - getLastDate(a.nome));
             }
 
-            if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso trovato con questi filtri.</p>";
+            if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso trovato.</p>";
             
             userCourses.forEach(c => {
                 const noteCorso = c.note_corso ? `<br><small style="color:#666">📌 ${c.note_corso}</small>` : '';
@@ -639,6 +640,7 @@
                         <span class="ac-title clickable-course" onclick="openAdminCourseHistory('${c.nome}', '${id}')">📂 ${c.nome}</span>
                         <div style="margin-bottom:5px">${iscrittiLabel}${noteCorso}</div>
                         <div class="btn-group">
+                            <button class="btn-info-course" onclick="openCourseSettings('${c.id}')">⚙️ Info</button>
                             <button class="btn-reassign" onclick="reassignInstructor('${c.id}', '${c.istruttore}')">👤 Cambia</button>
                             <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
                         </div>
@@ -646,7 +648,6 @@
             });
 
         } else {
-            // DETTAGLIO LIVELLO (Non ha bisogno di filtri complessi, sono già raggruppati)
             titleEl.innerText = "Livello: " + id;
             assignedTitle.innerText = "📋 Corsi Attivi per " + id;
             const lvlCourses = allAssignmentsCache.filter(a => a.livello === id);
@@ -665,6 +666,7 @@
                             <div style="margin-top:2px">${iscrittiLabel}${noteCorso}</div>
                         </div>
                         <div class="btn-group">
+                            <button class="btn-info-course" onclick="openCourseSettings('${c.id}')">⚙️ Info</button>
                             <button class="btn-reassign" onclick="reassignInstructor('${c.id}', '${c.istruttore}')">👤 Cambia</button>
                             <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
                         </div>
@@ -725,7 +727,6 @@
             const selectOptions = '<option value="">Scegli...</option>';
             document.getElementById('new-level-select').innerHTML = selectOptions;
             
-            // Popola filtri Admin e Istruttore
             const admFilter = document.getElementById('adm-filter-level');
             if(admFilter) admFilter.innerHTML = '<option value="all">Tutti i Livelli</option>';
             
@@ -810,15 +811,16 @@
     }
 
     // MODIFICA INFO CORSO
-    window.openCourseSettings = (courseName) => {
-        const course = myAssignmentsCache.find(c => c.nome === courseName);
-        if(!course) return toast("Impossibile modificare un corso non assegnato o vecchio.");
+    window.openCourseSettings = (id) => {
+        // Cerca in entrambe le cache (Admin o Istruttore)
+        let course = allAssignmentsCache.find(c => c.id === id) || myAssignmentsCache.find(c => c.id === id);
+        
+        if(!course) return toast("Errore: Corso non trovato.");
         
         document.getElementById('cs-id').value = course.id;
         document.getElementById('cs-iscritti').value = course.iscritti || "";
         document.getElementById('cs-note').value = course.note_corso || "";
         document.getElementById('course-settings-modal').style.display = 'flex';
-        if(window.event) window.event.stopPropagation();
     };
 
     window.saveCourseSettings = async () => {
@@ -879,7 +881,7 @@
 
         coursesToShow.forEach(c => {
             const count = myLessonsCache.filter(l => l.corso === c.nome).length;
-            const settingsBtn = c.id ? `<button class="cf-settings-btn" onclick="openCourseSettings('${c.nome}')">⚙️</button>` : '';
+            const settingsBtn = c.id ? `<button class="cf-settings-btn" onclick="event.stopPropagation(); openCourseSettings('${c.id}')">⚙️</button>` : '';
             const iscrittiLabel = c.iscritti ? `<div class="cf-tag">👥 ${c.iscritti} Iscritti</div>` : '';
             const noteCorso = c.note_corso ? `<div class="cf-note">📌 ${c.note_corso.substring(0, 30)}${c.note_corso.length>30?'...':''}</div>` : '';
 
@@ -896,9 +898,7 @@
                 </div>
                 ${noteCorso}
             `;
-            div.onclick = (e) => {
-                if(!e.target.classList.contains('cf-settings-btn')) openHistory(c.nome);
-            };
+            div.onclick = () => openHistory(c.nome);
             grid.appendChild(div);
         });
     }
@@ -929,13 +929,13 @@
                 <div class="lezione-card">
                     <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
+                        <div style="flex:1"></div>
+                        ${periodBadge}
+                        ${presenzeHtml}
                         <div class="actions-div">
                             <button class="icon-btn" onclick="openEditModal('${l.id}')">✏️</button>
                             <button class="icon-btn" onclick="deleteLesson('${l.id}')" style="color:#ef4444">🗑️</button>
                         </div>
-                        <div style="flex:1"></div>
-                        ${periodBadge}
-                        ${presenzeHtml}
                     </div>
                     <div style="font-weight:600;margin-bottom:5px;color:#333">🎯 ${l.obiettivo||'-'}</div>
                     <div style="color:#555;font-size:0.9rem;line-height:1.4">${l.attivita}</div>
