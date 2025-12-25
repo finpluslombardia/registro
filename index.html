@@ -102,13 +102,17 @@
         .cf-tag { background: #f3f4f6; padding: 2px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
         .cf-note { font-size: 0.75rem; color: #6b7280; font-style: italic; background: #fffbeb; padding: 5px; border-radius: 4px; border: 1px solid #fcd34d; }
 
-        /* Storico */
+        /* Storico & Lezioni */
         .history-container { display: none; animation: fadeIn 0.3s ease; }
         .history-container.active { display: block; }
         .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
         .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; }
-        .card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #6b7280; }
+        .period-badge { font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto; margin-right: 8px; text-transform: uppercase; }
+        .p1 { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; } /* Blu */
+        .p2 { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; } /* Arancio */
+        
         .presenze-badge { background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-left: 8px; }
         .actions-div { display: flex; gap: 15px; }
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; }
@@ -163,7 +167,14 @@
     <div class="modal-box">
         <h3 class="modal-title">✏️ Modifica Lezione</h3>
         <input type="hidden" id="edit-id">
-        <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
+        <div class="form-group"><label>Data</label><input type="date" id="edit-data" onchange="autoSetPeriod('edit-data','edit-periodo')"></div>
+        <div class="form-group">
+            <label>Periodo</label>
+            <select id="edit-periodo">
+                <option value="1° Periodo">1° Periodo</option>
+                <option value="2° Periodo">2° Periodo</option>
+            </select>
+        </div>
         <div style="display:flex; gap:10px">
             <div class="form-group" style="flex:1"><label>Presenti</label><input type="number" id="edit-presenze" placeholder="0"></div>
             <div class="form-group" style="flex:2"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
@@ -264,8 +275,17 @@
         <div id="instructor-view" class="hidden">
             <h3 style="margin-bottom:15px">Nuova Lezione</h3>
             <div style="background:#f9fafb; padding:20px; border-radius:12px; border:1px solid #e5e7eb;">
-                <div class="form-group"><label>Data</label><input type="date" id="data"></div>
+                <div class="form-group"><label>Data</label><input type="date" id="data" onchange="autoSetPeriod('data','periodo')"></div>
                 <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
+                
+                <div class="form-group">
+                    <label>Periodo Didattico</label>
+                    <select id="periodo">
+                        <option value="1° Periodo">1° Periodo</option>
+                        <option value="2° Periodo">2° Periodo</option>
+                    </select>
+                </div>
+
                 <div style="display:flex; gap:10px">
                     <div class="form-group" style="flex:1"><label>Presenti Oggi</label><input type="number" id="presenze" placeholder="0"></div>
                     <div class="form-group" style="flex:3"><label>Obiettivo</label><input type="text" id="obiettivo" placeholder="Es. Dorso"></div>
@@ -373,6 +393,18 @@
     };
     window.closePrompt = () => document.getElementById('prompt-modal').style.display = 'none';
 
+    // AUTO-SET PERIODO
+    window.autoSetPeriod = (dateId, periodId) => {
+        const val = document.getElementById(dateId).value;
+        if(!val) return;
+        const d = new Date(val);
+        const month = d.getMonth() + 1; // 1-12
+        const pSelect = document.getElementById(periodId);
+        // Regola: Settembre(9) - Gennaio(1) -> 1° Periodo | Febbraio(2) - Luglio(7) -> 2° Periodo
+        if(month >= 9 || month <= 1) pSelect.value = "1° Periodo";
+        else pSelect.value = "2° Periodo";
+    };
+
     // AUTH
     const loginBtn = document.getElementById('btn-login');
     loginBtn.addEventListener('click', async () => {
@@ -404,7 +436,9 @@
                 else document.getElementById('user-display').innerText = user.email;
             } catch(e) { document.getElementById('user-display').innerText = user.email; }
 
-            document.getElementById('data').valueAsDate = new Date();
+            const today = new Date();
+            document.getElementById('data').valueAsDate = today;
+            autoSetPeriod('data', 'periodo');
 
             if(isAdmin) {
                 document.getElementById('admin-view').classList.remove('hidden');
@@ -617,13 +651,16 @@
         lessons.forEach(l => {
             const writer = allAnagraficaCache[l.email]?.nome || l.email.split('@')[0];
             const presenzeHtml = l.presenze ? `<span class="presenze-badge">👥 ${l.presenze}</span>` : '';
+            const pClass = l.periodo === '1° Periodo' ? 'p1' : 'p2';
+            const periodBadge = l.periodo ? `<span class="period-badge ${pClass}">${l.periodo}</span>` : '';
             const noteHtml = l.note ? `<div style="background:#fffbeb; color:#92400e; font-size:0.85rem; padding:8px; border-radius:6px; margin-top:8px">📌 ${l.note}</div>` : '';
 
             logsList.innerHTML += `
                 <div class="lezione-card">
                     <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span>
-                        <span style="font-size:0.75rem; background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-weight:bold">👤 ${writer}</span>
+                        <span style="font-size:0.75rem; background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:5px">👤 ${writer}</span>
+                        ${periodBadge}
                         ${presenzeHtml}
                     </div>
                     <div style="font-weight:600;color:#333; margin-top:5px">🎯 ${l.obiettivo||'-'}</div>
@@ -831,17 +868,21 @@
         if(filtered.length === 0) { list.innerHTML = "<p>Nessuna lezione.</p>"; return; }
         filtered.forEach(l => {
             const presenzeHtml = l.presenze ? `<span class="presenze-badge">👥 ${l.presenze}</span>` : '';
+            const pClass = l.periodo === '1° Periodo' ? 'p1' : 'p2';
+            const periodBadge = l.periodo ? `<span class="period-badge ${pClass}">${l.periodo}</span>` : '';
             const noteHtml = l.note ? `<div style="background:#fffbeb; color:#92400e; font-size:0.85rem; padding:8px; border-radius:6px; margin-top:8px">📌 ${l.note}</div>` : '';
 
             list.innerHTML += `
                 <div class="lezione-card">
                     <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
+                        <div style="flex:1"></div>
+                        ${periodBadge}
+                        ${presenzeHtml}
                         <div class="actions-div">
                             <button class="icon-btn" onclick="openEditModal('${l.id}')">✏️</button>
                             <button class="icon-btn" onclick="deleteLesson('${l.id}')" style="color:#ef4444">🗑️</button>
                         </div>
-                        ${presenzeHtml}
                     </div>
                     <div style="font-weight:600;margin-bottom:5px;color:#333">🎯 ${l.obiettivo||'-'}</div>
                     <div style="color:#555;font-size:0.9rem;line-height:1.4">${l.attivita}</div>
@@ -866,46 +907,6 @@
         if(!l) return;
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-data').value = l.data;
+        document.getElementById('edit-periodo').value = l.periodo || "1° Periodo";
         document.getElementById('edit-obiettivo').value = l.obiettivo;
-        document.getElementById('edit-attivita').value = l.attivita;
-        document.getElementById('edit-presenze').value = l.presenze || ""; 
-        document.getElementById('edit-note').value = l.note || ""; 
-        document.getElementById('edit-modal').style.display = 'flex';
-    };
-    
-    window.saveEdit = async () => {
-        try {
-            await updateDoc(doc(db, "registro_didattico", document.getElementById('edit-id').value), {
-                data: document.getElementById('edit-data').value,
-                obiettivo: document.getElementById('edit-obiettivo').value,
-                attivita: document.getElementById('edit-attivita').value,
-                presenze: document.getElementById('edit-presenze').value, 
-                note: document.getElementById('edit-note').value 
-            });
-            document.getElementById('edit-modal').style.display = 'none';
-            toast("Modifiche salvate");
-        } catch(e) { toast(e.message); }
-    };
-    
-    window.salvaLezione = async () => {
-        try {
-            await addDoc(collection(db, "registro_didattico"), {
-                uid: currentUser.uid, email: currentUser.email,
-                data: document.getElementById('data').value,
-                corso: document.getElementById('corso').value,
-                obiettivo: document.getElementById('obiettivo').value,
-                attivita: document.getElementById('attivita').value,
-                presenze: document.getElementById('presenze').value, 
-                note: document.getElementById('note').value, 
-                timestamp: new Date()
-            });
-            toast("Salvato! ✅");
-            document.getElementById('attivita').value = ""; 
-            document.getElementById('obiettivo').value = "";
-            document.getElementById('presenze').value = ""; 
-            document.getElementById('note').value = "";
-        } catch(e){ toast(e.message); }
-    };
-</script>
-</body>
-</html>
+        document
