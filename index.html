@@ -59,7 +59,7 @@
         }
         button.primary-btn:active { transform: scale(0.98); }
 
-        /* FILTER BAR (NUOVA) */
+        /* FILTER BAR */
         .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
         .filter-bar select { flex: 1; min-width: 130px; padding: 10px; font-size: 0.9rem; }
 
@@ -118,6 +118,8 @@
         .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; }
         .card-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #6b7280; }
+        .presenze-badge { background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-left: 8px; }
+        
         .actions-div { display: flex; gap: 15px; }
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; }
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
@@ -173,8 +175,21 @@
         <h3 class="modal-title">✏️ Modifica Lezione</h3>
         <input type="hidden" id="edit-id">
         <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
-        <div class="form-group"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
+        
+        <div style="display:flex; gap:10px">
+            <div class="form-group" style="flex:1">
+                <label>Presenti</label>
+                <input type="number" id="edit-presenze" placeholder="0">
+            </div>
+            <div class="form-group" style="flex:2">
+                <label>Obiettivo</label>
+                <input type="text" id="edit-obiettivo">
+            </div>
+        </div>
+
         <div class="form-group"><label>Attività</label><textarea id="edit-attivita"></textarea></div>
+        <div class="form-group"><label>Note</label><textarea id="edit-note" style="height:60px"></textarea></div>
+        
         <div class="modal-actions">
             <button class="btn-cancel" onclick="document.getElementById('edit-modal').style.display='none'">Annulla</button>
             <button class="btn-confirm" onclick="saveEdit()">Salva</button>
@@ -254,8 +269,22 @@
             <div style="background:#f9fafb; padding:20px; border-radius:12px; border:1px solid #e5e7eb;">
                 <div class="form-group"><label>Data</label><input type="date" id="data"></div>
                 <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
-                <div class="form-group"><label>Obiettivo</label><input type="text" id="obiettivo" placeholder="Es. Dorso"></div>
-                <div class="form-group"><label>Attività Svolta</label><textarea id="attivita" placeholder="Descrizione..."></textarea></div>
+                
+                <div style="display:flex; gap:10px">
+                    <div class="form-group" style="flex:1">
+                        <label>Presenti</label>
+                        <input type="number" id="presenze" placeholder="0">
+                    </div>
+                    <div class="form-group" style="flex:3">
+                        <label>Obiettivo</label>
+                        <input type="text" id="obiettivo" placeholder="Es. Dorso">
+                    </div>
+                </div>
+
+                <div class="form-group"><label>Attività Svolta</label><textarea id="attivita" placeholder="Descrizione esercizi..."></textarea></div>
+                
+                <div class="form-group"><label>Note Generiche</label><textarea id="note" placeholder="Annotazioni extra (es. materiale, disciplina...)" style="height:60px"></textarea></div>
+
                 <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             </div>
 
@@ -270,7 +299,7 @@
                     </select>
                     <select id="instr-filter-level" onchange="renderCourseFolders()">
                         <option value="all">Tutti i Livelli</option>
-                        </select>
+                    </select>
                     <select id="instr-filter-day" onchange="renderCourseFolders()">
                         <option value="all">Tutti i Giorni</option>
                         <option value="Lunedì">Lunedì</option><option value="Martedì">Martedì</option>
@@ -318,7 +347,7 @@
     
     let currentUser = null;
     let myLessonsCache = []; 
-    let myAssignmentsCache = []; // [{ id, nome, livello, giorno, ora, ... }]
+    let myAssignmentsCache = []; 
     let allLessonsCache = []; 
     let allAssignmentsCache = []; 
     let allLevelsCache = []; 
@@ -593,14 +622,19 @@
 
         lessons.forEach(l => {
             const writer = allAnagraficaCache[l.email]?.nome || l.email.split('@')[0];
+            const presenzeHtml = l.presenze ? `<span class="presenze-badge">👥 ${l.presenze}</span>` : '';
+            const noteHtml = l.note ? `<div style="background:#fef3c7; color:#92400e; font-size:0.85rem; padding:8px; border-radius:6px; margin-top:8px">📌 ${l.note}</div>` : '';
+
             logsList.innerHTML += `
                 <div class="lezione-card">
                     <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString()}</span>
                         <span style="font-size:0.75rem; background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-weight:bold">👤 ${writer}</span>
+                        ${presenzeHtml}
                     </div>
                     <div style="font-weight:600;color:#333; margin-top:5px">🎯 ${l.obiettivo||'-'}</div>
                     <div style="color:#555;font-size:0.9rem; margin-top:5px; line-height:1.4">${l.attivita}</div>
+                    ${noteHtml}
                 </div>`;
         });
         setTimeout(() => logsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
@@ -675,7 +709,7 @@
             sel.innerHTML = "";
             myAssignmentsCache = []; 
             snap.forEach(d => {
-                const c = { id: d.id, ...d.data() }; // Save full object
+                const c = { id: d.id, ...d.data() }; 
                 myAssignmentsCache.push(c);
                 sel.innerHTML += `<option>${c.nome}</option>`;
             });
@@ -691,20 +725,17 @@
         });
     }
 
-    // NUOVO RENDER CON FILTRI
+    // RENDER ISTRUTTORE
     window.renderCourseFolders = () => {
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
         
-        // 1. Get Filters
         const sort = document.getElementById('instr-sort').value;
         const levelFilter = document.getElementById('instr-filter-level').value;
         const dayFilter = document.getElementById('instr-filter-day').value;
 
-        // 2. Identify Courses to Show (Assigned + History)
         let coursesToShow = [...myAssignmentsCache]; 
         
-        // Add historic courses if not present (legacy support)
         const assignedNames = new Set(coursesToShow.map(c => c.nome));
         myLessonsCache.forEach(l => {
             if(!assignedNames.has(l.corso)) {
@@ -713,7 +744,6 @@
             }
         });
 
-        // 3. Apply Filters
         if (levelFilter !== 'all') {
             coursesToShow = coursesToShow.filter(c => c.livello === levelFilter || c.nome.startsWith(levelFilter));
         }
@@ -721,14 +751,12 @@
             coursesToShow = coursesToShow.filter(c => c.giorno === dayFilter || c.nome.includes(dayFilter));
         }
 
-        // 4. Apply Sort
         if (sort === 'name') {
             coursesToShow.sort((a,b) => a.nome.localeCompare(b.nome));
         } else if (sort === 'day') {
             const daysOrder = { "Lunedì":1, "Martedì":2, "Mercoledì":3, "Giovedì":4, "Venerdì":5, "Sabato":6, "Domenica":7 };
             coursesToShow.sort((a,b) => (daysOrder[a.giorno]||99) - (daysOrder[b.giorno]||99));
         } else if (sort === 'recent') {
-            // Find last lesson date for each course
             const getLastDate = (cName) => {
                 const lessons = myLessonsCache.filter(l => l.corso === cName);
                 if (lessons.length === 0) return 0;
@@ -737,7 +765,6 @@
             coursesToShow.sort((a,b) => getLastDate(b.nome) - getLastDate(a.nome));
         }
 
-        // 5. Render
         if(coursesToShow.length === 0) { grid.innerHTML = "<p>Nessun corso trovato.</p>"; return; }
 
         coursesToShow.forEach(c => {
@@ -767,8 +794,23 @@
         filtered.sort((a,b) => sortOrder === 'desc' ? new Date(b.data) - new Date(a.data) : new Date(a.data) - new Date(b.data));
         if(filtered.length === 0) { list.innerHTML = "<p>Nessuna lezione.</p>"; return; }
         filtered.forEach(l => {
+            const presenzeHtml = l.presenze ? `<span class="presenze-badge">👥 ${l.presenze}</span>` : '';
+            const noteHtml = l.note ? `<div style="background:#fffbeb; color:#92400e; font-size:0.85rem; padding:8px; border-radius:6px; margin-top:8px">📌 ${l.note}</div>` : '';
+
             list.innerHTML += `
-                <div class="lezione-card"><div class="card-top"><span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span><div class="actions-div"><button class="icon-btn" onclick="openEditModal('${l.id}')">✏️</button><button class="icon-btn" onclick="deleteLesson('${l.id}')" style="color:#ef4444">🗑️</button></div></div><div style="font-weight:600;margin-bottom:5px;color:#333">🎯 ${l.obiettivo||'-'}</div><div style="color:#555;font-size:0.9rem;line-height:1.4">${l.attivita}</div></div>`;
+                <div class="lezione-card">
+                    <div class="card-top">
+                        <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
+                        ${presenzeHtml}
+                        <div class="actions-div">
+                            <button class="icon-btn" onclick="openEditModal('${l.id}')">✏️</button>
+                            <button class="icon-btn" onclick="deleteLesson('${l.id}')" style="color:#ef4444">🗑️</button>
+                        </div>
+                    </div>
+                    <div style="font-weight:600;margin-bottom:5px;color:#333">🎯 ${l.obiettivo||'-'}</div>
+                    <div style="color:#555;font-size:0.9rem;line-height:1.4">${l.attivita}</div>
+                    ${noteHtml}
+                </div>`;
         });
     };
     window.closeHistory = () => {
@@ -790,6 +832,8 @@
         document.getElementById('edit-data').value = l.data;
         document.getElementById('edit-obiettivo').value = l.obiettivo;
         document.getElementById('edit-attivita').value = l.attivita;
+        document.getElementById('edit-presenze').value = l.presenze || ""; // New
+        document.getElementById('edit-note').value = l.note || ""; // New
         document.getElementById('edit-modal').style.display = 'flex';
     };
     
@@ -798,7 +842,9 @@
             await updateDoc(doc(db, "registro_didattico", document.getElementById('edit-id').value), {
                 data: document.getElementById('edit-data').value,
                 obiettivo: document.getElementById('edit-obiettivo').value,
-                attivita: document.getElementById('edit-attivita').value
+                attivita: document.getElementById('edit-attivita').value,
+                presenze: document.getElementById('edit-presenze').value, // Save new
+                note: document.getElementById('edit-note').value // Save new
             });
             document.getElementById('edit-modal').style.display = 'none';
             toast("Modifiche salvate");
@@ -813,10 +859,15 @@
                 corso: document.getElementById('corso').value,
                 obiettivo: document.getElementById('obiettivo').value,
                 attivita: document.getElementById('attivita').value,
+                presenze: document.getElementById('presenze').value, // Save
+                note: document.getElementById('note').value, // Save
                 timestamp: new Date()
             });
             toast("Salvato! ✅");
-            document.getElementById('attivita').value = ""; document.getElementById('obiettivo').value = "";
+            document.getElementById('attivita').value = ""; 
+            document.getElementById('obiettivo').value = "";
+            document.getElementById('presenze').value = ""; 
+            document.getElementById('note').value = "";
         } catch(e){ toast(e.message); }
     };
 </script>
