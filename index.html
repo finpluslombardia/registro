@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro Didattico</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         /* --- CSS BASE --- */
@@ -101,7 +104,7 @@
         .cf-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
         .cf-title { font-weight: 700; font-size: 1rem; color: #111; line-height: 1.3; }
         .cf-settings-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0 0 5px 5px; color: #6b7280; }
-        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: #4b5563; font-weight: 500; margin-bottom: 8px; }
+        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: #4b5563; font-weight: 500; margin-bottom: 8px; flex-wrap: wrap; }
         .cf-tag { background: #f3f4f6; padding: 2px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
         .cf-note { font-size: 0.75rem; color: #6b7280; font-style: italic; background: #fffbeb; padding: 5px; border-radius: 4px; border: 1px solid #fcd34d; }
 
@@ -109,14 +112,17 @@
         .history-container { display: none; animation: fadeIn 0.3s ease; }
         .history-container.active { display: block; }
         .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px; }
+        .btn-pdf { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; }
+        .btn-pdf:hover { background: #dc2626; }
+
         .lezione-card { background: #fff; border: 1px solid #e5e7eb; border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; }
-        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 5px; }
         .date-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #6b7280; }
-        .period-badge { font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto; margin-right: 8px; text-transform: uppercase; }
+        .period-badge { font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-right: 5px; text-transform: uppercase; }
         .p1 { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; } /* Blu */
         .p2 { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; } /* Arancio */
-        .presenze-badge { background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-left: 8px; }
-        .actions-div { display: flex; gap: 15px; }
+        .presenze-badge { background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
+        .actions-div { display: flex; gap: 15px; margin-left: auto; }
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; }
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
 
@@ -341,7 +347,13 @@
                     <button class="back-btn" onclick="closeHistory()">⬅ Torna ai Corsi</button>
                     <div class="history-toolbar">
                         <h3 style="margin:0; color:#4f46e5; font-size:1.1rem"><span id="hist-title">...</span></h3>
-                        <select id="sort-order" class="sort-select" onchange="renderHistoryList()"><option value="desc">Più Recenti</option><option value="asc">Più Vecchi</option></select>
+                        <div style="display:flex; gap:5px; align-items:center">
+                            <button onclick="downloadCoursePDF()" class="btn-pdf">📥 PDF</button>
+                            <select id="sort-order" class="sort-select" onchange="renderHistoryList()" style="padding:6px; font-size:0.8rem">
+                                <option value="desc">Recenti</option>
+                                <option value="asc">Vecchi</option>
+                            </select>
+                        </div>
                     </div>
                     <div id="history-list"></div>
                 </div>
@@ -414,19 +426,17 @@
     };
     window.closePrompt = () => document.getElementById('prompt-modal').style.display = 'none';
 
-    // AUTO-SET PERIODO
     window.autoSetPeriod = (dateId, periodId) => {
         const val = document.getElementById(dateId).value;
         if(!val) return;
         const d = new Date(val);
-        const month = d.getMonth() + 1; // 1-12
+        const month = d.getMonth() + 1; 
         const pSelect = document.getElementById(periodId);
-        // Regola: Settembre(9) - Gennaio(1) -> 1° Periodo | Febbraio(2) - Luglio(7) -> 2° Periodo
         if(month >= 9 || month <= 1) pSelect.value = "1° Periodo";
         else pSelect.value = "2° Periodo";
     };
 
-    // AUTH (PROTETTA)
+    // AUTH
     const loginBtn = document.getElementById('btn-login');
     async function performLogin() {
         const e = document.getElementById('email').value;
@@ -605,7 +615,6 @@
             titleEl.innerText = "Dettagli di " + realName;
             assignedTitle.innerText = "📋 Seleziona un corso per vedere lo storico:";
 
-            // FILTRI ADMIN
             const sort = document.getElementById('adm-sort').value;
             const levelFilter = document.getElementById('adm-filter-level').value;
             const dayFilter = document.getElementById('adm-filter-day').value;
@@ -632,8 +641,13 @@
             if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso trovato.</p>";
             
             userCourses.forEach(c => {
+                const courseLessons = allLessonsCache.filter(l => l.corso === c.nome);
+                const avgPres = courseLessons.length > 0 
+                    ? (courseLessons.reduce((acc,curr) => acc + (parseInt(curr.presenze)||0), 0) / courseLessons.filter(l=>l.presenze).length).toFixed(1) 
+                    : "0.0";
+                
                 const noteCorso = c.note_corso ? `<br><small style="color:#666">📌 ${c.note_corso}</small>` : '';
-                const iscrittiLabel = c.iscritti ? `<span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-size:0.75rem">👥 ${c.iscritti} Iscritti</span>` : '';
+                const iscrittiLabel = c.iscritti ? `<span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-size:0.75rem">👥 ${c.iscritti} Iscritti (Media: ${avgPres})</span>` : '';
 
                 assignedListDiv.innerHTML += `
                     <div class="ac-item">
@@ -676,6 +690,7 @@
     }
 
     window.openAdminCourseHistory = (courseName, emailFilter) => {
+        currentOpenCourse = courseName; // For PDF Export
         const logsContainer = document.getElementById('lessons-log-container');
         const logsList = document.getElementById('admin-lessons-list');
         const courseTitle = document.getElementById('admin-course-name-title');
@@ -812,9 +827,7 @@
 
     // MODIFICA INFO CORSO
     window.openCourseSettings = (id) => {
-        // Cerca in entrambe le cache (Admin o Istruttore)
         let course = allAssignmentsCache.find(c => c.id === id) || myAssignmentsCache.find(c => c.id === id);
-        
         if(!course) return toast("Errore: Corso non trovato.");
         
         document.getElementById('cs-id').value = course.id;
@@ -881,8 +894,13 @@
 
         coursesToShow.forEach(c => {
             const count = myLessonsCache.filter(l => l.corso === c.nome).length;
+            const lessons = myLessonsCache.filter(l => l.corso === c.nome);
+            const avgPres = lessons.length > 0 
+                ? (lessons.reduce((acc,curr) => acc + (parseInt(curr.presenze)||0), 0) / lessons.filter(l=>l.presenze).length).toFixed(1) 
+                : "0.0";
+            
             const settingsBtn = c.id ? `<button class="cf-settings-btn" onclick="event.stopPropagation(); openCourseSettings('${c.id}')">⚙️</button>` : '';
-            const iscrittiLabel = c.iscritti ? `<div class="cf-tag">👥 ${c.iscritti} Iscritti</div>` : '';
+            const iscrittiLabel = c.iscritti ? `<div class="cf-tag" style="${avgPres<c.iscritti*0.5 ? 'color:#ef4444; border:1px solid #fecaca' : ''}">👥 ${c.iscritti} Iscritti (Media: ${avgPres})</div>` : '';
             const noteCorso = c.note_corso ? `<div class="cf-note">📌 ${c.note_corso.substring(0, 30)}${c.note_corso.length>30?'...':''}</div>` : '';
 
             const div = document.createElement('div');
@@ -916,9 +934,13 @@
         const sortOrder = document.getElementById('sort-order').value;
         const list = document.getElementById('history-list');
         list.innerHTML = "";
-        let filtered = myLessonsCache.filter(l => l.corso === currentOpenCourse);
+        
+        let pool = (currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) ? allLessonsCache : myLessonsCache;
+        let filtered = pool.filter(l => l.corso === currentOpenCourse);
+        
         filtered.sort((a,b) => sortOrder === 'desc' ? new Date(b.data) - new Date(a.data) : new Date(a.data) - new Date(b.data));
         if(filtered.length === 0) { list.innerHTML = "<p>Nessuna lezione.</p>"; return; }
+        
         filtered.forEach(l => {
             const presenzeHtml = l.presenze ? `<span class="presenze-badge">👥 ${l.presenze}</span>` : '';
             const pClass = l.periodo === '1° Periodo' ? 'p1' : 'p2';
@@ -949,6 +971,48 @@
         document.getElementById('courses-overview').classList.remove('hidden');
     };
 
+    window.downloadCoursePDF = () => {
+        if (!window.jspdf) return alert("Errore libreria PDF");
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Dati Corso
+        const pool = (currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) ? allLessonsCache : myLessonsCache;
+        const lessons = pool.filter(l => l.corso === currentOpenCourse);
+        lessons.sort((a,b) => new Date(a.data) - new Date(b.data));
+        
+        let courseInfo = myAssignmentsCache.find(c => c.nome === currentOpenCourse) || allAssignmentsCache.find(c => c.nome === currentOpenCourse) || {};
+        
+        // Header
+        doc.setFontSize(16); doc.setTextColor(40);
+        doc.text(`REGISTRO: ${currentOpenCourse}`, 14, 20);
+        
+        doc.setFontSize(10); doc.setTextColor(100);
+        doc.text(`Istruttore: ${lessons[0]?.email || currentUser.email}`, 14, 28);
+        if(courseInfo.iscritti) doc.text(`Iscritti Totali: ${courseInfo.iscritti}`, 14, 34);
+        
+        // Tabella
+        const tableBody = lessons.map(l => [
+            new Date(l.data).toLocaleDateString('it-IT'),
+            l.periodo || "-",
+            l.obiettivo || "-",
+            l.attivita || "-",
+            l.presenze || "0",
+            l.note || ""
+        ]);
+
+        doc.autoTable({
+            head: [['Data', 'Periodo', 'Obiettivo', 'Attività', 'Pres.', 'Note']],
+            body: tableBody,
+            startY: 40,
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            columnStyles: { 0: {cellWidth: 20}, 4: {cellWidth: 10} }
+        });
+
+        doc.save(`${currentOpenCourse}_Registro.pdf`);
+    };
+
     window.deleteLesson = async (id) => { 
         modalConfirm("Eliminare Lezione?", "L'azione è irreversibile.", async () => {
             await deleteDoc(doc(db, "registro_didattico", id)); toast("Lezione eliminata");
@@ -956,7 +1020,8 @@
     };
     
     window.openEditModal = (id) => {
-        const l = myLessonsCache.find(x => x.id === id) || allLessonsCache.find(x => x.id === id);
+        let pool = (currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) ? allLessonsCache : myLessonsCache;
+        const l = pool.find(x => x.id === id);
         if(!l) return;
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-data').value = l.data;
