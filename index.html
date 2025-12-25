@@ -106,10 +106,18 @@
         .btn-del-assign { background: #fee2e2; color: #ef4444; }
         .btn-reassign { background: #fef08a; color: #854d0e; }
 
-        /* Istruttore Elements */
-        .course-folder { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; cursor: pointer; border-bottom: 4px solid #4f46e5; }
-        .cf-title { font-weight: 700; font-size: 1rem; color: #111; margin-bottom: 5px; }
-        .cf-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 10px; }
+        /* Istruttore Elements - MODIFICATO */
+        .course-folder { 
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; 
+            cursor: pointer; border-bottom: 4px solid #4f46e5; position: relative;
+        }
+        .cf-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .cf-title { font-weight: 700; font-size: 1rem; color: #111; line-height: 1.3; }
+        .cf-settings-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0 0 5px 5px; color: #6b7280; }
+        
+        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: #4b5563; font-weight: 500; margin-bottom: 8px; }
+        .cf-tag { background: #f3f4f6; padding: 2px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+        .cf-note { font-size: 0.75rem; color: #6b7280; font-style: italic; background: #fffbeb; padding: 5px; border-radius: 4px; border: 1px solid #fcd34d; }
 
         /* Storico & Lezioni */
         .history-container { display: none; animation: fadeIn 0.3s ease; }
@@ -197,6 +205,25 @@
     </div>
 </div>
 
+<div id="course-settings-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="modal-title">⚙️ Dettagli Corso</h3>
+        <input type="hidden" id="cs-id">
+        <div class="form-group">
+            <label>Totale Iscritti</label>
+            <input type="number" id="cs-iscritti" placeholder="Numero totale iscritti">
+        </div>
+        <div class="form-group">
+            <label>Note Generali Corso</label>
+            <textarea id="cs-note" placeholder="Es. Gruppo vivace, livello disomogeneo..." style="height:80px"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="document.getElementById('course-settings-modal').style.display='none'">Annulla</button>
+            <button class="btn-confirm" onclick="saveCourseSettings()">Salva Info</button>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <div class="app-header">
         <div>
@@ -272,7 +299,7 @@
                 
                 <div style="display:flex; gap:10px">
                     <div class="form-group" style="flex:1">
-                        <label>Presenti</label>
+                        <label>Presenti Oggi</label>
                         <input type="number" id="presenze" placeholder="0">
                     </div>
                     <div class="form-group" style="flex:3">
@@ -283,7 +310,7 @@
 
                 <div class="form-group"><label>Attività Svolta</label><textarea id="attivita" placeholder="Descrizione esercizi..."></textarea></div>
                 
-                <div class="form-group"><label>Note Generiche</label><textarea id="note" placeholder="Annotazioni extra (es. materiale, disciplina...)" style="height:60px"></textarea></div>
+                <div class="form-group"><label>Note Lezione</label><textarea id="note" placeholder="Annotazioni extra (es. materiale, disciplina...)" style="height:60px"></textarea></div>
 
                 <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             </div>
@@ -567,9 +594,14 @@
             const userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
             if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso assegnato.</p>";
             userCourses.forEach(c => {
+                // ADMIN VEDE ANCHE I DATI CORSO AGGIORNATI
+                const noteCorso = c.note_corso ? `<br><small style="color:#666">📌 ${c.note_corso}</small>` : '';
+                const iscrittiLabel = c.iscritti ? `<span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-size:0.75rem">👥 ${c.iscritti} Iscritti</span>` : '';
+
                 assignedListDiv.innerHTML += `
                     <div class="ac-item">
                         <span class="ac-title clickable-course" onclick="openAdminCourseHistory('${c.nome}', '${id}')">📂 ${c.nome}</span>
+                        <div style="margin-bottom:5px">${iscrittiLabel}${noteCorso}</div>
                         <div class="btn-group">
                             <button class="btn-reassign" onclick="reassignInstructor('${c.id}', '${c.istruttore}')">👤 Cambia</button>
                             <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">Elimina</button>
@@ -585,11 +617,15 @@
             lvlCourses.forEach(c => {
                 const instrEmail = c.istruttore;
                 const instrName = allAnagraficaCache[instrEmail]?.nome || instrEmail;
+                const noteCorso = c.note_corso ? `<br><small style="color:#666">📌 ${c.note_corso}</small>` : '';
+                const iscrittiLabel = c.iscritti ? `<span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-right:5px">👥 ${c.iscritti}</span>` : '';
+
                 assignedListDiv.innerHTML += `
                     <div class="ac-item">
                         <div>
                             <span class="ac-title clickable-course" onclick="openAdminCourseHistory('${c.nome}', null)">${c.giorno} ${c.ora}</span>
                             <span class="ac-sub">👤 ${instrName}</span>
+                            <div style="margin-top:2px">${iscrittiLabel}${noteCorso}</div>
                         </div>
                         <div class="btn-group">
                             <button class="btn-reassign" onclick="reassignInstructor('${c.id}', '${c.istruttore}')">👤 Cambia</button>
@@ -623,7 +659,7 @@
         lessons.forEach(l => {
             const writer = allAnagraficaCache[l.email]?.nome || l.email.split('@')[0];
             const presenzeHtml = l.presenze ? `<span class="presenze-badge">👥 ${l.presenze}</span>` : '';
-            const noteHtml = l.note ? `<div style="background:#fef3c7; color:#92400e; font-size:0.85rem; padding:8px; border-radius:6px; margin-top:8px">📌 ${l.note}</div>` : '';
+            const noteHtml = l.note ? `<div style="background:#fffbeb; color:#92400e; font-size:0.85rem; padding:8px; border-radius:6px; margin-top:8px">📌 ${l.note}</div>` : '';
 
             logsList.innerHTML += `
                 <div class="lezione-card">
@@ -725,7 +761,35 @@
         });
     }
 
-    // RENDER ISTRUTTORE
+    // MODIFICA INFO CORSO
+    window.openCourseSettings = (courseName) => {
+        // Cerca il corso assegnato (deve avere un ID)
+        const course = myAssignmentsCache.find(c => c.nome === courseName);
+        if(!course) return toast("Impossibile modificare un corso non assegnato o vecchio.");
+        
+        document.getElementById('cs-id').value = course.id;
+        document.getElementById('cs-iscritti').value = course.iscritti || "";
+        document.getElementById('cs-note').value = course.note_corso || "";
+        document.getElementById('course-settings-modal').style.display = 'flex';
+        // Evita che si apra anche lo storico
+        if(window.event) window.event.stopPropagation();
+    };
+
+    window.saveCourseSettings = async () => {
+        const id = document.getElementById('cs-id').value;
+        const iscritti = document.getElementById('cs-iscritti').value;
+        const note = document.getElementById('cs-note').value;
+        try {
+            await updateDoc(doc(db, "corsi_assegnati", id), {
+                iscritti: iscritti ? parseInt(iscritti) : 0,
+                note_corso: note
+            });
+            toast("Info Corso Aggiornate!");
+            document.getElementById('course-settings-modal').style.display = 'none';
+        } catch(e) { toast("Errore: " + e.message); }
+    };
+
+    // RENDER ISTRUTTORE (AGGIORNATO CON INFO CORSO)
     window.renderCourseFolders = () => {
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
@@ -766,110 +830,3 @@
         }
 
         if(coursesToShow.length === 0) { grid.innerHTML = "<p>Nessun corso trovato.</p>"; return; }
-
-        coursesToShow.forEach(c => {
-            const count = myLessonsCache.filter(l => l.corso === c.nome).length;
-            const div = document.createElement('div');
-            div.className = 'course-folder';
-            div.innerHTML = `<div class="cf-title">${c.nome}</div><div class="cf-count">${count} Schede</div>`;
-            div.onclick = () => openHistory(c.nome);
-            grid.appendChild(div);
-        });
-    }
-
-    window.openHistory = (courseName) => {
-        currentOpenCourse = courseName;
-        document.getElementById('courses-overview').classList.add('hidden');
-        document.getElementById('course-history').classList.add('active');
-        document.getElementById('hist-title').innerText = courseName;
-        renderHistoryList();
-    };
-
-    window.renderHistoryList = () => {
-        if(!currentOpenCourse) return;
-        const sortOrder = document.getElementById('sort-order').value;
-        const list = document.getElementById('history-list');
-        list.innerHTML = "";
-        let filtered = myLessonsCache.filter(l => l.corso === currentOpenCourse);
-        filtered.sort((a,b) => sortOrder === 'desc' ? new Date(b.data) - new Date(a.data) : new Date(a.data) - new Date(b.data));
-        if(filtered.length === 0) { list.innerHTML = "<p>Nessuna lezione.</p>"; return; }
-        filtered.forEach(l => {
-            const presenzeHtml = l.presenze ? `<span class="presenze-badge">👥 ${l.presenze}</span>` : '';
-            const noteHtml = l.note ? `<div style="background:#fffbeb; color:#92400e; font-size:0.85rem; padding:8px; border-radius:6px; margin-top:8px">📌 ${l.note}</div>` : '';
-
-            list.innerHTML += `
-                <div class="lezione-card">
-                    <div class="card-top">
-                        <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
-                        ${presenzeHtml}
-                        <div class="actions-div">
-                            <button class="icon-btn" onclick="openEditModal('${l.id}')">✏️</button>
-                            <button class="icon-btn" onclick="deleteLesson('${l.id}')" style="color:#ef4444">🗑️</button>
-                        </div>
-                    </div>
-                    <div style="font-weight:600;margin-bottom:5px;color:#333">🎯 ${l.obiettivo||'-'}</div>
-                    <div style="color:#555;font-size:0.9rem;line-height:1.4">${l.attivita}</div>
-                    ${noteHtml}
-                </div>`;
-        });
-    };
-    window.closeHistory = () => {
-        currentOpenCourse = null;
-        document.getElementById('course-history').classList.remove('active');
-        document.getElementById('courses-overview').classList.remove('hidden');
-    };
-
-    window.deleteLesson = async (id) => { 
-        modalConfirm("Eliminare Lezione?", "L'azione è irreversibile.", async () => {
-            await deleteDoc(doc(db, "registro_didattico", id)); toast("Lezione eliminata");
-        });
-    };
-    
-    window.openEditModal = (id) => {
-        const l = myLessonsCache.find(x => x.id === id) || allLessonsCache.find(x => x.id === id);
-        if(!l) return;
-        document.getElementById('edit-id').value = id;
-        document.getElementById('edit-data').value = l.data;
-        document.getElementById('edit-obiettivo').value = l.obiettivo;
-        document.getElementById('edit-attivita').value = l.attivita;
-        document.getElementById('edit-presenze').value = l.presenze || ""; // New
-        document.getElementById('edit-note').value = l.note || ""; // New
-        document.getElementById('edit-modal').style.display = 'flex';
-    };
-    
-    window.saveEdit = async () => {
-        try {
-            await updateDoc(doc(db, "registro_didattico", document.getElementById('edit-id').value), {
-                data: document.getElementById('edit-data').value,
-                obiettivo: document.getElementById('edit-obiettivo').value,
-                attivita: document.getElementById('edit-attivita').value,
-                presenze: document.getElementById('edit-presenze').value, // Save new
-                note: document.getElementById('edit-note').value // Save new
-            });
-            document.getElementById('edit-modal').style.display = 'none';
-            toast("Modifiche salvate");
-        } catch(e) { toast(e.message); }
-    };
-    
-    window.salvaLezione = async () => {
-        try {
-            await addDoc(collection(db, "registro_didattico"), {
-                uid: currentUser.uid, email: currentUser.email,
-                data: document.getElementById('data').value,
-                corso: document.getElementById('corso').value,
-                obiettivo: document.getElementById('obiettivo').value,
-                attivita: document.getElementById('attivita').value,
-                presenze: document.getElementById('presenze').value, // Save
-                note: document.getElementById('note').value, // Save
-                timestamp: new Date()
-            });
-            toast("Salvato! ✅");
-            document.getElementById('attivita').value = ""; 
-            document.getElementById('obiettivo').value = "";
-            document.getElementById('presenze').value = ""; 
-            document.getElementById('note').value = "";
-        } catch(e){ toast(e.message); }
-    };
-</script>
-</body>
-</html>
