@@ -45,7 +45,7 @@
             font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 5px;
         }
         button.primary-btn:active { transform: scale(0.98); }
-        button.primary-btn:disabled { background-color: #a5a3e0; cursor: not-allowed; }
+        button.primary-btn:disabled { background-color: #a5a3e0; cursor: not-allowed; opacity: 0.7; }
 
         /* FILTER BAR */
         .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
@@ -112,13 +112,12 @@
         .period-badge { font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto; margin-right: 8px; text-transform: uppercase; }
         .p1 { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; } /* Blu */
         .p2 { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; } /* Arancio */
-        
         .presenze-badge { background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-left: 8px; }
         .actions-div { display: flex; gap: 15px; }
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; }
         .back-btn { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
 
-        /* --- NOTIFICHE & MODAL --- */
+        /* --- NOTIFICHE & MODAL CUSTOM --- */
         .hidden { display: none !important; }
         #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #1f2937; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -405,9 +404,11 @@
         else pSelect.value = "2° Periodo";
     };
 
-    // AUTH
+    // AUTH (PROTETTA)
     const loginBtn = document.getElementById('btn-login');
-    loginBtn.addEventListener('click', async () => {
+    
+    // Funzione Login Separata
+    async function performLogin() {
         const e = document.getElementById('email').value;
         const p = document.getElementById('password').value;
         if(!e || !p) return toast("Inserisci email e password");
@@ -416,7 +417,18 @@
         loginBtn.disabled = true;
         
         try { await signInWithEmailAndPassword(auth, e, p); } 
-        catch (err) { toast("Errore: " + err.message); loginBtn.innerText = "Accedi"; loginBtn.disabled = false; }
+        catch (err) { 
+            toast("Errore: " + err.message); 
+            loginBtn.innerText = "Accedi"; 
+            loginBtn.disabled = false; 
+        }
+    }
+
+    loginBtn.addEventListener('click', performLogin);
+    
+    // Aggiunto listener per tasto INVIO
+    document.getElementById('password').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performLogin();
     });
     
     window.logout = async () => { await signOut(auth); window.location.reload(); };
@@ -448,10 +460,12 @@
                 initInstructor();
             }
         } else {
+            // RESET STATO LOGIN QUANDO DISCONNESSO
             document.getElementById('login-section').classList.remove('hidden');
             document.getElementById('dashboard-section').classList.add('hidden');
             document.getElementById('logout-btn').classList.add('hidden');
-            loginBtn.innerText = "Accedi"; loginBtn.disabled = false;
+            loginBtn.innerText = "Accedi"; 
+            loginBtn.disabled = false;
         }
     });
 
@@ -909,4 +923,47 @@
         document.getElementById('edit-data').value = l.data;
         document.getElementById('edit-periodo').value = l.periodo || "1° Periodo";
         document.getElementById('edit-obiettivo').value = l.obiettivo;
-        document
+        document.getElementById('edit-attivita').value = l.attivita;
+        document.getElementById('edit-presenze').value = l.presenze || ""; 
+        document.getElementById('edit-note').value = l.note || ""; 
+        document.getElementById('edit-modal').style.display = 'flex';
+    };
+    
+    window.saveEdit = async () => {
+        try {
+            await updateDoc(doc(db, "registro_didattico", document.getElementById('edit-id').value), {
+                data: document.getElementById('edit-data').value,
+                periodo: document.getElementById('edit-periodo').value,
+                obiettivo: document.getElementById('edit-obiettivo').value,
+                attivita: document.getElementById('edit-attivita').value,
+                presenze: document.getElementById('edit-presenze').value, 
+                note: document.getElementById('edit-note').value 
+            });
+            document.getElementById('edit-modal').style.display = 'none';
+            toast("Modifiche salvate");
+        } catch(e) { toast(e.message); }
+    };
+    
+    window.salvaLezione = async () => {
+        try {
+            await addDoc(collection(db, "registro_didattico"), {
+                uid: currentUser.uid, email: currentUser.email,
+                data: document.getElementById('data').value,
+                periodo: document.getElementById('periodo').value,
+                corso: document.getElementById('corso').value,
+                obiettivo: document.getElementById('obiettivo').value,
+                attivita: document.getElementById('attivita').value,
+                presenze: document.getElementById('presenze').value, 
+                note: document.getElementById('note').value, 
+                timestamp: new Date()
+            });
+            toast("Salvato! ✅");
+            document.getElementById('attivita').value = ""; 
+            document.getElementById('obiettivo').value = "";
+            document.getElementById('presenze').value = ""; 
+            document.getElementById('note').value = "";
+        } catch(e){ toast(e.message); }
+    };
+</script>
+</body>
+</html>
