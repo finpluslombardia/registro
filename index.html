@@ -258,6 +258,25 @@
             
             <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px; min-height:200px">
                 <h4 style="margin:0 0 10px 0" id="detail-title">Dettagli...</h4>
+                
+                <div class="filter-bar" style="margin-bottom:10px">
+                    <select id="adm-sort" onchange="renderDetails(currentSelectedDetail)">
+                        <option value="name">Ordine Alfabetico</option>
+                        <option value="day">Per Giorno (Lun-Dom)</option>
+                        <option value="recent">Attività Recente</option>
+                    </select>
+                    <select id="adm-filter-level" onchange="renderDetails(currentSelectedDetail)">
+                        <option value="all">Tutti i Livelli</option>
+                        </select>
+                    <select id="adm-filter-day" onchange="renderDetails(currentSelectedDetail)">
+                        <option value="all">Tutti i Giorni</option>
+                        <option value="Lunedì">Lunedì</option><option value="Martedì">Martedì</option>
+                        <option value="Mercoledì">Mercoledì</option><option value="Giovedì">Giovedì</option>
+                        <option value="Venerdì">Venerdì</option><option value="Sabato">Sabato</option>
+                        <option value="Domenica">Domenica</option>
+                    </select>
+                </div>
+
                 <div class="assigned-courses-box">
                     <h5 style="margin:0 0 10px 0; color:#3730a3" id="assigned-title">📋 Corsi Assegnati</h5>
                     <div id="admin-assigned-list"></div>
@@ -406,30 +425,17 @@
 
     // AUTH (PROTETTA)
     const loginBtn = document.getElementById('btn-login');
-    
-    // Funzione Login Separata
     async function performLogin() {
         const e = document.getElementById('email').value;
         const p = document.getElementById('password').value;
         if(!e || !p) return toast("Inserisci email e password");
-        
         loginBtn.innerText = "Attendere...";
         loginBtn.disabled = true;
-        
         try { await signInWithEmailAndPassword(auth, e, p); } 
-        catch (err) { 
-            toast("Errore: " + err.message); 
-            loginBtn.innerText = "Accedi"; 
-            loginBtn.disabled = false; 
-        }
+        catch (err) { toast("Errore: " + err.message); loginBtn.innerText = "Accedi"; loginBtn.disabled = false; }
     }
-
     loginBtn.addEventListener('click', performLogin);
-    
-    // Aggiunto listener per tasto INVIO
-    document.getElementById('password').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') performLogin();
-    });
+    document.getElementById('password').addEventListener('keypress', (e) => { if (e.key === 'Enter') performLogin(); });
     
     window.logout = async () => { await signOut(auth); window.location.reload(); };
 
@@ -460,12 +466,10 @@
                 initInstructor();
             }
         } else {
-            // RESET STATO LOGIN QUANDO DISCONNESSO
             document.getElementById('login-section').classList.remove('hidden');
             document.getElementById('dashboard-section').classList.add('hidden');
             document.getElementById('logout-btn').classList.add('hidden');
-            loginBtn.innerText = "Accedi"; 
-            loginBtn.disabled = false;
+            loginBtn.innerText = "Accedi"; loginBtn.disabled = false;
         }
     });
 
@@ -598,8 +602,34 @@
             titleEl.innerText = "Dettagli di " + realName;
             assignedTitle.innerText = "📋 Seleziona un corso per vedere lo storico:";
 
-            const userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
-            if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso assegnato.</p>";
+            // --- FILTRI ADMIN SU CORSI ISTRUTTORE ---
+            const sort = document.getElementById('adm-sort').value;
+            const levelFilter = document.getElementById('adm-filter-level').value;
+            const dayFilter = document.getElementById('adm-filter-day').value;
+
+            let userCourses = allAssignmentsCache.filter(a => a.istruttore === id);
+
+            // Applica Filtri
+            if (levelFilter !== 'all') userCourses = userCourses.filter(c => c.livello === levelFilter || c.nome.startsWith(levelFilter));
+            if (dayFilter !== 'all') userCourses = userCourses.filter(c => c.giorno === dayFilter || c.nome.includes(dayFilter));
+
+            // Applica Ordinamento
+            if (sort === 'name') {
+                userCourses.sort((a,b) => a.nome.localeCompare(b.nome));
+            } else if (sort === 'day') {
+                const daysOrder = { "Lunedì":1, "Martedì":2, "Mercoledì":3, "Giovedì":4, "Venerdì":5, "Sabato":6, "Domenica":7 };
+                userCourses.sort((a,b) => (daysOrder[a.giorno]||99) - (daysOrder[b.giorno]||99));
+            } else if (sort === 'recent') {
+                const getLastDate = (cName) => {
+                    const lessons = allLessonsCache.filter(l => l.corso === cName);
+                    if (lessons.length === 0) return 0;
+                    return Math.max(...lessons.map(l => new Date(l.data).getTime()));
+                };
+                userCourses.sort((a,b) => getLastDate(b.nome) - getLastDate(a.nome));
+            }
+
+            if(userCourses.length === 0) assignedListDiv.innerHTML = "<p style='color:#666;font-size:0.9rem; padding:10px; background:white; border-radius:6px'>Nessun corso trovato con questi filtri.</p>";
+            
             userCourses.forEach(c => {
                 const noteCorso = c.note_corso ? `<br><small style="color:#666">📌 ${c.note_corso}</small>` : '';
                 const iscrittiLabel = c.iscritti ? `<span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-size:0.75rem">👥 ${c.iscritti} Iscritti</span>` : '';
@@ -616,6 +646,7 @@
             });
 
         } else {
+            // DETTAGLIO LIVELLO (Non ha bisogno di filtri complessi, sono già raggruppati)
             titleEl.innerText = "Livello: " + id;
             assignedTitle.innerText = "📋 Corsi Attivi per " + id;
             const lvlCourses = allAssignmentsCache.filter(a => a.livello === id);
@@ -690,13 +721,21 @@
         const select = document.getElementById('new-level-select');
         onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
             allLevelsCache = []; 
-            levelsDiv.innerHTML = ""; select.innerHTML = '<option value="">Scegli...</option>';
+            levelsDiv.innerHTML = ""; 
+            const selectOptions = '<option value="">Scegli...</option>';
+            document.getElementById('new-level-select').innerHTML = selectOptions;
+            
+            // Popola filtri Admin e Istruttore
+            const admFilter = document.getElementById('adm-filter-level');
+            if(admFilter) admFilter.innerHTML = '<option value="all">Tutti i Livelli</option>';
+            
             if(snap.empty) levelsDiv.innerHTML = "<span style='font-size:0.8rem;color:#666'>Nessun livello.</span>";
             snap.forEach(d => {
                 const lvl = d.data().nome;
                 allLevelsCache.push(lvl);
                 levelsDiv.innerHTML += `<div class="level-tag">${lvl}<button class="btn-del-level" onclick="deleteLevel('${d.id}')">✕</button></div>`;
-                select.innerHTML += `<option value="${lvl}">${lvl}</option>`;
+                document.getElementById('new-level-select').innerHTML += `<option value="${lvl}">${lvl}</option>`;
+                if(admFilter) admFilter.innerHTML += `<option value="${lvl}">${lvl}</option>`;
             });
             if(currentAdminView === 'levels') renderApp();
         });
@@ -890,13 +929,13 @@
                 <div class="lezione-card">
                     <div class="card-top">
                         <span class="date-badge">📅 ${new Date(l.data).toLocaleDateString('it-IT')}</span>
-                        <div style="flex:1"></div>
-                        ${periodBadge}
-                        ${presenzeHtml}
                         <div class="actions-div">
                             <button class="icon-btn" onclick="openEditModal('${l.id}')">✏️</button>
                             <button class="icon-btn" onclick="deleteLesson('${l.id}')" style="color:#ef4444">🗑️</button>
                         </div>
+                        <div style="flex:1"></div>
+                        ${periodBadge}
+                        ${presenzeHtml}
                     </div>
                     <div style="font-weight:600;margin-bottom:5px;color:#333">🎯 ${l.obiettivo||'-'}</div>
                     <div style="color:#555;font-size:0.9rem;line-height:1.4">${l.attivita}</div>
