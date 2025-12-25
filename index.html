@@ -50,6 +50,20 @@
         button.primary-btn:active { transform: scale(0.98); }
         button.primary-btn:disabled { background-color: #a5a3e0; cursor: not-allowed; opacity: 0.7; }
 
+        /* NUOVO: Box Promemoria Ultima Lezione */
+        .last-lesson-box {
+            background-color: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            animation: fadeIn 0.4s ease;
+        }
+        .ll-header { color: #b45309; font-weight: 700; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .ll-content { color: #78350f; line-height: 1.4; }
+        .ll-label { font-weight: 600; color: #92400e; }
+
         /* FILTER BAR */
         .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
         .filter-bar select { flex: 1; min-width: 130px; padding: 10px; font-size: 0.9rem; }
@@ -317,6 +331,17 @@
                 <div class="form-group"><label>Data</label><input type="date" id="data" onchange="autoSetPeriod('data','periodo')"></div>
                 <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
                 
+                <div id="last-lesson-info" class="last-lesson-box hidden">
+                    <div class="ll-header">
+                        <span>⏪ Ultima Lezione</span>
+                        <span id="ll-date">--/--/----</span>
+                    </div>
+                    <div class="ll-content">
+                        <div style="margin-bottom:4px"><span class="ll-label">Obiettivo:</span> <span id="ll-obj"></span></div>
+                        <div><span class="ll-label">Attività:</span> <span id="ll-act" style="font-style:italic"></span></div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Periodo Didattico</label>
                     <select id="periodo">
@@ -408,8 +433,7 @@
     let currentOpenCourse = null; 
     let currentAdminView = 'team'; 
     let currentSelectedDetail = null;
-
-    let currentDayView = null; // NUOVO: Tiene traccia del giorno aperto
+    let currentDayView = null; 
 
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
@@ -505,7 +529,7 @@
         }
     });
 
-    // ADMIN LOGIC (INVARIATO)
+    // ADMIN LOGIC
     function initAdmin() {
         initLevels();
         onSnapshot(collection(db, "anagrafica"), (snap) => {
@@ -815,6 +839,9 @@
 
     // --- ISTRUTTORE ---
     function initInstructor() {
+        // Listener per cambio corso (Trigger Promemoria)
+        document.getElementById('corso').addEventListener('change', updateLastLessonPreview);
+
         onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
             const filterLevel = document.getElementById('instr-filter-level');
             filterLevel.innerHTML = '<option value="all">Tutti i Livelli</option>';
@@ -830,23 +857,59 @@
             snap.forEach(d => {
                 const c = { id: d.id, ...d.data() }; 
                 myAssignmentsCache.push(c);
-                sel.innerHTML += `<option>${c.nome}</option>`;
+                sel.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
             });
             if(myAssignmentsCache.length===0) sel.innerHTML="<option>Nessun corso assegnato</option>";
-            renderDayCards(); // Chiama prima la vista giorni
+            
+            renderDayCards(); 
+            updateLastLessonPreview(); // Aggiorna box subito
         });
 
         onSnapshot(query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid)), (snap) => {
             myLessonsCache = [];
             snap.forEach(d => myLessonsCache.push({id:d.id, ...d.data()}));
-            renderDayCards(); // Aggiorna se cambiano le lezioni
+            
+            renderDayCards(); 
+            updateLastLessonPreview(); // Aggiorna se cambiano i dati in tempo reale
             if(currentOpenCourse) renderHistoryList();
         });
     }
 
+    // FUNZIONE PER MOSTRARE L'ULTIMA LEZIONE (Punto 3)
+    function updateLastLessonPreview() {
+        const selectedCourse = document.getElementById('corso').value;
+        const infoBox = document.getElementById('last-lesson-info');
+        
+        if (!selectedCourse || selectedCourse === "Caricamento..." || selectedCourse === "Nessun corso assegnato") {
+            infoBox.classList.add('hidden');
+            return;
+        }
+
+        // Filtra le lezioni di questo corso
+        const lessons = myLessonsCache.filter(l => l.corso === selectedCourse);
+        
+        if(lessons.length === 0) {
+            infoBox.classList.add('hidden');
+            return;
+        }
+
+        // Ordina per data (più recente prima)
+        lessons.sort((a,b) => new Date(b.data) - new Date(a.data));
+        const last = lessons[0];
+
+        // Popola il box
+        document.getElementById('ll-date').innerText = new Date(last.data).toLocaleDateString('it-IT');
+        document.getElementById('ll-obj').innerText = last.obiettivo || "-";
+        
+        const act = last.attivita ? last.attivita.substring(0, 80) + (last.attivita.length > 80 ? '...' : '') : "-";
+        document.getElementById('ll-act').innerText = `"${act}"`;
+
+        // Mostra
+        infoBox.classList.remove('hidden');
+    }
+
     // NUOVO: RENDER DEI GIORNI
     window.renderDayCards = () => {
-        // Se c'è un giorno selezionato, non sovrascrivere la griglia dei corsi
         if(currentDayView) {
             renderCourseFolders();
             return;
@@ -855,12 +918,9 @@
         const grid = document.getElementById('days-overview-grid');
         grid.innerHTML = "";
 
-        // Calcola i corsi per giorno
         const daysMap = {};
         
-        // Uniamo corsi assegnati e storico lezioni per trovare tutti i giorni
         let allCourses = [...myAssignmentsCache];
-        // Aggiungi lezioni non assegnate ma presenti in storico (casi rari)
         const assignedNames = new Set(allCourses.map(c => c.nome));
         myLessonsCache.forEach(l => {
             if(!assignedNames.has(l.corso)) {
@@ -875,7 +935,6 @@
             daysMap[d]++;
         });
 
-        // Ordine giorni
         const daysOrder = { "Lunedì":1, "Martedì":2, "Mercoledì":3, "Giovedì":4, "Venerdì":5, "Sabato":6, "Domenica":7, "Altro":8 };
         const sortedDays = Object.keys(daysMap).sort((a,b) => (daysOrder[a]||99) - (daysOrder[b]||99));
 
@@ -901,7 +960,7 @@
         document.getElementById('days-overview-grid').classList.add('hidden');
         document.getElementById('courses-list-wrapper').classList.remove('hidden');
         document.getElementById('day-title-display').innerText = day;
-        renderCourseFolders(); // Filtra per quel giorno
+        renderCourseFolders(); 
     };
 
     window.closeDayView = () => {
@@ -937,14 +996,13 @@
         } catch(e) { toast("Errore: " + e.message); }
     };
 
-    // RENDER ISTRUTTORE (MODIFICATO PER FILTRARE PER GIORNO)
+    // RENDER ISTRUTTORE
     window.renderCourseFolders = () => {
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
         
         const sort = document.getElementById('instr-sort').value;
         const levelFilter = document.getElementById('instr-filter-level').value;
-        // const dayFilter non serve più perché filtriamo per currentDayView
 
         let coursesToShow = [...myAssignmentsCache]; 
         
@@ -956,20 +1014,16 @@
             }
         });
 
-        // 1. FILTRO PER GIORNO CORRENTE (SE APERTO)
         if (currentDayView) {
             coursesToShow = coursesToShow.filter(c => (c.giorno || "Altro") === currentDayView);
         } else {
-            // Se non c'è una view giorno attiva, non renderizzare nulla qui (caso limite)
             return;
         }
 
-        // 2. FILTRO LIVELLO
         if (levelFilter !== 'all') {
             coursesToShow = coursesToShow.filter(c => c.livello === levelFilter || c.nome.startsWith(levelFilter));
         }
 
-        // 3. ORDINAMENTO
         if (sort === 'name') {
             coursesToShow.sort((a,b) => a.nome.localeCompare(b.nome));
         } else if (sort === 'recent') {
@@ -1014,7 +1068,6 @@
 
     window.openHistory = (courseName) => {
         currentOpenCourse = courseName;
-        // Nascondi il contenitore "wrapper" della lista corsi
         document.getElementById('courses-list-wrapper').classList.add('hidden');
         document.getElementById('course-history').classList.add('active');
         document.getElementById('hist-title').innerText = courseName;
@@ -1060,7 +1113,6 @@
     window.closeHistory = () => {
         currentOpenCourse = null;
         document.getElementById('course-history').classList.remove('active');
-        // Riattiva il wrapper della lista corsi (perché eravamo dentro un giorno specifico)
         document.getElementById('courses-list-wrapper').classList.remove('hidden');
     };
 
@@ -1159,6 +1211,7 @@
             document.getElementById('obiettivo').value = "";
             document.getElementById('presenze').value = ""; 
             document.getElementById('note').value = "";
+            updateLastLessonPreview(); // Aggiorna box subito dopo salvataggio
         } catch(e){ toast(e.message); }
     };
 </script>
