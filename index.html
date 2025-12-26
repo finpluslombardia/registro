@@ -50,7 +50,18 @@
         button.primary-btn:active { transform: scale(0.98); }
         button.primary-btn:disabled { background-color: #a5a3e0; cursor: not-allowed; opacity: 0.7; }
 
-        /* NUOVO: Box Promemoria Ultima Lezione */
+        /* NUOVO: Checkbox Sostituzione Custom */
+        .sub-checkbox-wrapper {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+            background: #fff; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px;
+        }
+        .sub-checkbox-wrapper input[type="checkbox"] { width: 20px; height: 20px; margin: 0; }
+        .sub-checkbox-wrapper label { margin: 0; cursor: pointer; color: #555; }
+        
+        /* Stile quando sostituzione è attiva */
+        .sub-active select#corso { border: 2px solid #f59e0b; background-color: #fffbeb; }
+
+        /* Box Promemoria Ultima Lezione */
         .last-lesson-box {
             background-color: #fffbeb;
             border: 1px solid #fcd34d;
@@ -100,7 +111,7 @@
         .level-card.active { background: #fffbeb; border: 2px solid #b45309; }
         .lc-title { font-weight: 800; font-size: 1.1rem; color: #b45309; margin-bottom: 5px; }
 
-        /* NUOVO STILE CARD GIORNO */
+        /* CARD GIORNO */
         .day-card { 
             background: white; border: 1px solid #e5e7eb; border-radius: 12px; 
             padding: 20px; cursor: pointer; text-align: center; 
@@ -110,7 +121,6 @@
         .day-card:active { transform: scale(0.97); background-color: #f9fafb; }
         .dc-name { font-size: 1.2rem; font-weight: 700; color: #374151; display: block; margin-bottom: 5px; }
         .dc-count { font-size: 0.9rem; color: #6b7280; background: #f3f4f6; padding: 3px 10px; border-radius: 20px; }
-
 
         /* Admin Details */
         .assigned-courses-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
@@ -329,7 +339,16 @@
             <h3 style="margin-bottom:15px">Nuova Lezione</h3>
             <div style="background:#f9fafb; padding:20px; border-radius:12px; border:1px solid #e5e7eb;">
                 <div class="form-group"><label>Data</label><input type="date" id="data" onchange="autoSetPeriod('data','periodo')"></div>
-                <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
+                
+                <div class="sub-checkbox-wrapper">
+                    <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
+                    <label for="is-substitution">🔄 Sto sostituendo un collega</label>
+                </div>
+
+                <div class="form-group">
+                    <label>Seleziona Corso</label>
+                    <select id="corso"><option>Caricamento...</option></select>
+                </div>
                 
                 <div id="last-lesson-info" class="last-lesson-box hidden">
                     <div class="ll-header">
@@ -425,7 +444,8 @@
     
     let currentUser = null;
     let myLessonsCache = []; 
-    let myAssignmentsCache = []; 
+    let myAssignmentsCache = []; // Solo i MIEI corsi
+    let allActiveAssignmentsCache = []; // TUTTI i corsi attivi (anche colleghi)
     let allLessonsCache = []; 
     let allAssignmentsCache = []; 
     let allLevelsCache = []; 
@@ -529,7 +549,7 @@
         }
     });
 
-    // ADMIN LOGIC
+    // ADMIN LOGIC (INVARIATO)
     function initAdmin() {
         initLevels();
         onSnapshot(collection(db, "anagrafica"), (snap) => {
@@ -839,7 +859,6 @@
 
     // --- ISTRUTTORE ---
     function initInstructor() {
-        // Listener per cambio corso (Trigger Promemoria)
         document.getElementById('corso').addEventListener('change', updateLastLessonPreview);
 
         onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), (snap) => {
@@ -850,19 +869,19 @@
             });
         });
 
-        onSnapshot(query(collection(db, "corsi_assegnati"), where("istruttore", "==", currentUser.email.toLowerCase())), (snap) => {
-            const sel = document.getElementById('corso');
-            sel.innerHTML = "";
-            myAssignmentsCache = []; 
-            snap.forEach(d => {
-                const c = { id: d.id, ...d.data() }; 
-                myAssignmentsCache.push(c);
-                sel.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
-            });
-            if(myAssignmentsCache.length===0) sel.innerHTML="<option>Nessun corso assegnato</option>";
+        // NOTA: Qui scarico TUTTI i corsi attivi per permettere la sostituzione
+        onSnapshot(collection(db, "corsi_assegnati"), (snap) => {
+            allActiveAssignmentsCache = []; 
+            snap.forEach(d => { allActiveAssignmentsCache.push({ id: d.id, ...d.data() }); });
+            
+            // Filtro quelli MIEI
+            myAssignmentsCache = allActiveAssignmentsCache.filter(c => c.istruttore === currentUser.email.toLowerCase());
+            
+            // Render iniziale (no sostituzione)
+            window.toggleSubstitutionMode(); 
             
             renderDayCards(); 
-            updateLastLessonPreview(); // Aggiorna box subito
+            updateLastLessonPreview();
         });
 
         onSnapshot(query(collection(db, "registro_didattico"), where("uid", "==", currentUser.uid)), (snap) => {
@@ -870,22 +889,65 @@
             snap.forEach(d => myLessonsCache.push({id:d.id, ...d.data()}));
             
             renderDayCards(); 
-            updateLastLessonPreview(); // Aggiorna se cambiano i dati in tempo reale
+            updateLastLessonPreview(); 
             if(currentOpenCourse) renderHistoryList();
         });
     }
 
-    // FUNZIONE PER MOSTRARE L'ULTIMA LEZIONE (Punto 3)
+    // NUOVA FUNZIONE PER GESTIRE LA SOSTITUZIONE
+    window.toggleSubstitutionMode = () => {
+        const isSub = document.getElementById('is-substitution').checked;
+        const sel = document.getElementById('corso');
+        const container = sel.parentElement;
+
+        if (isSub) {
+            container.classList.add('sub-active');
+            
+            // Mostra TUTTI i corsi tranne i miei, ordinati per istruttore
+            const otherCourses = allActiveAssignmentsCache.filter(c => c.istruttore !== currentUser.email.toLowerCase());
+            
+            // Ordina per Istruttore -> Nome Corso
+            otherCourses.sort((a,b) => a.istruttore.localeCompare(b.istruttore) || a.nome.localeCompare(b.nome));
+
+            sel.innerHTML = '<option value="">-- Seleziona Corso Collega --</option>';
+            otherCourses.forEach(c => {
+                // Cerchiamo di rendere carino il nome istruttore
+                const instrName = c.istruttore.split('@')[0]; 
+                sel.innerHTML += `<option value="${c.nome}">${c.nome} (${instrName})</option>`;
+            });
+
+            if (otherCourses.length === 0) sel.innerHTML = '<option>Nessun altro corso disponibile</option>';
+
+        } else {
+            container.classList.remove('sub-active');
+            
+            // Mostra SOLO i miei corsi
+            sel.innerHTML = '';
+            myAssignmentsCache.forEach(c => {
+                sel.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
+            });
+
+            if(myAssignmentsCache.length === 0) sel.innerHTML = '<option>Nessun corso assegnato</option>';
+        }
+
+        // Resetta il box anteprima
+        updateLastLessonPreview();
+    };
+
+
     function updateLastLessonPreview() {
         const selectedCourse = document.getElementById('corso').value;
         const infoBox = document.getElementById('last-lesson-info');
         
-        if (!selectedCourse || selectedCourse === "Caricamento..." || selectedCourse === "Nessun corso assegnato") {
+        if (!selectedCourse || selectedCourse.includes("Caricamento") || selectedCourse.includes("Nessun") || selectedCourse === "") {
             infoBox.classList.add('hidden');
             return;
         }
 
-        // Filtra le lezioni di questo corso
+        // Se sono in sostituzione, potrei non avere le lezioni in cache (myLessonsCache ha solo le mie).
+        // Per ora la preview funziona solo se ho già fatto lezione io in quel corso, 
+        // oppure bisognerebbe scaricare TUTTE le lezioni (pesante). 
+        // Lasciamo che cerchi in myLessonsCache (quindi vedi l'ultima volta che TU hai fatto quel corso).
         const lessons = myLessonsCache.filter(l => l.corso === selectedCourse);
         
         if(lessons.length === 0) {
@@ -893,18 +955,14 @@
             return;
         }
 
-        // Ordina per data (più recente prima)
         lessons.sort((a,b) => new Date(b.data) - new Date(a.data));
         const last = lessons[0];
 
-        // Popola il box
         document.getElementById('ll-date').innerText = new Date(last.data).toLocaleDateString('it-IT');
         document.getElementById('ll-obj').innerText = last.obiettivo || "-";
-        
         const act = last.attivita ? last.attivita.substring(0, 80) + (last.attivita.length > 80 ? '...' : '') : "-";
         document.getElementById('ll-act').innerText = `"${act}"`;
 
-        // Mostra
         infoBox.classList.remove('hidden');
     }
 
@@ -971,7 +1029,6 @@
     };
 
 
-    // MODIFICA INFO CORSO
     window.openCourseSettings = (id) => {
         let course = allAssignmentsCache.find(c => c.id === id) || myAssignmentsCache.find(c => c.id === id);
         if(!course) return toast("Errore: Corso non trovato.");
@@ -996,7 +1053,6 @@
         } catch(e) { toast("Errore: " + e.message); }
     };
 
-    // RENDER ISTRUTTORE
     window.renderCourseFolders = () => {
         const grid = document.getElementById('my-courses-grid');
         grid.innerHTML = "";
@@ -1194,16 +1250,23 @@
     };
     
     window.salvaLezione = async () => {
+        const corso = document.getElementById('corso').value;
+        const isSub = document.getElementById('is-substitution').checked;
+
+        if (!corso || corso === "") return toast("Seleziona un corso");
+
         try {
             await addDoc(collection(db, "registro_didattico"), {
-                uid: currentUser.uid, email: currentUser.email,
+                uid: currentUser.uid, 
+                email: currentUser.email,
                 data: document.getElementById('data').value,
                 periodo: document.getElementById('periodo').value,
-                corso: document.getElementById('corso').value,
+                corso: corso,
                 obiettivo: document.getElementById('obiettivo').value,
                 attivita: document.getElementById('attivita').value,
                 presenze: document.getElementById('presenze').value, 
                 note: document.getElementById('note').value, 
+                is_sostituzione: isSub, // Salviamo che era una sostituzione
                 timestamp: new Date()
             });
             toast("Salvato! ✅");
@@ -1211,7 +1274,15 @@
             document.getElementById('obiettivo').value = "";
             document.getElementById('presenze').value = ""; 
             document.getElementById('note').value = "";
-            updateLastLessonPreview(); // Aggiorna box subito dopo salvataggio
+            
+            // Se era una sostituzione, resetta la checkbox per sicurezza
+            if(isSub) {
+                document.getElementById('is-substitution').checked = false;
+                window.toggleSubstitutionMode(); 
+            } else {
+                updateLastLessonPreview(); 
+            }
+            
         } catch(e){ toast(e.message); }
     };
 </script>
