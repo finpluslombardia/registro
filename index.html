@@ -457,6 +457,31 @@
 
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
+    // --- AUTO LOGOUT LOGIC (30 Minuti) ---
+    let logoutTimer;
+    const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minuti in millisecondi
+
+    function setupAutoLogout() {
+        // Resetta il timer ad ogni interazione
+        const resetTimer = () => {
+            if (currentUser) {
+                clearTimeout(logoutTimer);
+                logoutTimer = setTimeout(() => {
+                    toast("Sessione scaduta per inattività");
+                    window.logout();
+                }, INACTIVITY_LIMIT);
+            }
+        };
+
+        // Eventi da monitorare
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+        events.forEach(event => {
+            document.addEventListener(event, resetTimer, true);
+        });
+
+        resetTimer(); // Avvia il timer appena fatto il login
+    }
+
     // UI UTILS
     window.toast = (msg) => {
         const t = document.getElementById("toast");
@@ -519,6 +544,8 @@
         if (user) {
             currentUser = user;
             const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+            setupAutoLogout(); // AVVIA IL TIMER DI INATTIVITÀ
 
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
