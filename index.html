@@ -83,33 +83,45 @@
         .btn-cancel { flex: 1; padding: 14px; background: var(--border); border: none; border-radius: 10px; cursor: pointer; color: var(--text-main); font-weight: 700; font-size: 1rem; }
         .btn-confirm { flex: 1; padding: 14px; background: var(--primary); border: none; border-radius: 10px; cursor: pointer; color: white; font-weight: 700; font-size: 1rem; }
 
-        /* TRAFFIC LIGHTS SYSTEM (Double Level) */
+        /* TRAFFIC LIGHTS SYSTEM (Double Level - Mobile Optimized) */
         .obj-container {
-            background: var(--bg-body); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border);
+            background: var(--bg-body); border-radius: 12px; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border);
         }
         .obj-level-header {
-            font-weight: 800; color: var(--primary); margin-bottom: 10px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;
+            font-weight: 800; color: var(--primary); margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
             border-bottom: 1px solid var(--border); padding-bottom: 5px;
         }
-        .obj-item { display: flex; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .obj-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .obj-item:last-child { border-bottom: none; }
-        .obj-label { font-size: 0.95rem; flex: 1; line-height: 1.3; }
+        .obj-label { font-size: 0.9rem; flex: 1; line-height: 1.25; }
         
-        .traffic-light { width: 28px; height: 28px; border-radius: 50%; border: 3px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0; transition: transform 0.1s, box-shadow 0.2s; }
+        /* Semafori un po' più piccoli su mobile per salvare spazio */
+        .traffic-light { width: 26px; height: 26px; border-radius: 50%; border: 3px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0; transition: transform 0.1s, box-shadow 0.2s; }
         .traffic-light:active { transform: scale(0.9); }
+        @media (max-width: 768px) {
+            .traffic-light { width: 22px; height: 22px; border-width: 2px; }
+            .obj-label { font-size: 0.85rem; }
+            .obj-container { padding: 10px; }
+        }
+
         .tl-gray { background: var(--tl-gray); }
         .tl-red { background: var(--tl-red); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
         .tl-yellow { background: var(--tl-yellow); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
         .tl-green { background: var(--tl-green); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
         .readonly .traffic-light { cursor: default; pointer-events: none; opacity: 0.9; }
 
-        /* CARDS & GRID (Restored Full Size) */
+        /* CARDS & GRID */
         .grid-courses { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Ripristinato 280px */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
             gap: 20px; 
             margin-bottom: 25px;
         }
+        /* Mobile adjustment for grid items */
+        @media (max-width: 480px) {
+            .grid-courses { grid-template-columns: 1fr; } 
+        }
+
         .overview-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; }
         .overview-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.06); }
         .oc-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; display: block; }
@@ -147,7 +159,7 @@
         .sub-checkbox-wrapper input { width: 24px; height: 24px; margin: 0; appearance: auto !important; -webkit-appearance: checkbox !important; accent-color: #f59e0b; }
         .sub-checkbox-wrapper label { font-weight: 600; font-size: 1rem; cursor: pointer; }
 
-        .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 12px; padding: 15px; margin-bottom: 25px; font-size: 0.95rem; }
+        .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; }
         body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
 
         /* SWITCH BUTTONS */
@@ -460,7 +472,7 @@
     window.switchAdminView = (v) => { currentAdminView=v; currentSelectedDetail=null; document.querySelectorAll('.view-switch-container .switch-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-view-'+v).classList.add('active'); renderApp(); };
     window.selectItem = (id) => { currentSelectedDetail=id; renderApp(); setTimeout(()=>document.getElementById('admin-detail-area').scrollIntoView({behavior:'smooth'}),100); };
     
-    // Grid Renders
+    // Grid Renders (Team, Levels, Days)
     function renderTeamGrid() { const m={}; allAssignmentsCache.forEach(a=>{if(!m[a.istruttore])m[a.istruttore]={c:0};}); allLessonsCache.forEach(l=>{if(!m[l.email])m[l.email]={c:0};m[l.email].c++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(e=>{ g.innerHTML+=`<div class="user-card ${e===currentSelectedDetail?'active':''}" onclick="selectItem('${e}')"><div class="uc-header"><div class="uc-name">${allAnagraficaCache[e]?.nome||e.split('@')[0]}</div><button class="action-btn" style="width:25px;height:25px;font-size:0.8rem" onclick="event.stopPropagation();renameUser('${e}')">✏️</button></div><span class="uc-email">${e}</span><div class="uc-stats"><span class="uc-val">${m[e].c} <small>LEZ</small></span></div></div>`; }); }
     function renderLevelsGrid() { const m={}; allLevelsCache.forEach(l=>m[l]=0); allAssignmentsCache.forEach(a=>{if(m[a.livello]!==undefined)m[a.livello]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(l=>{ g.innerHTML+=`<div class="overview-card ${l===currentSelectedDetail?'active':''}" onclick="selectItem('${l}')"><div class="oc-name">${l}</div><div class="oc-count">${m[l]} Corsi</div></div>`; }); }
     function renderDaysGrid() { const m={}; allAssignmentsCache.forEach(a=>{const d=a.giorno||'Altro';if(!m[d])m[d]=0;m[d]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; const ord={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7}; Object.keys(m).sort((a,b)=>(ord[a]||9)-(ord[b]||9)).forEach(d=>{ g.innerHTML+=`<div class="overview-card ${d===currentSelectedDetail?'active':''}" onclick="selectItem('${d}')"><div class="oc-name">${d}</div><div class="oc-count">${m[d]} Corsi</div></div>`; }); }
@@ -475,11 +487,12 @@
         else if(currentAdminView==='levels') pool=pool.filter(a=>a.livello===id);
         else pool=pool.filter(a=>a.giorno===id);
 
+        // Apply filters
         const lvlFil=document.getElementById('adm-filter-level').value; const dayFil=document.getElementById('adm-filter-day').value;
         if(currentAdminView!=='levels' && lvlFil!=='all') pool=pool.filter(c=>c.livello===lvlFil);
         if(currentAdminView!=='days' && dayFil!=='all') pool=pool.filter(c=>c.giorno===dayFil);
 
-        if(pool.length===0) list.innerHTML="<p style='color:var(--text-sub);padding:10px'>Nessun corso.</p>";
+        if(pool.length===0) list.innerHTML="<p>Nessun corso.</p>";
         else pool.forEach(c => {
             const instr = allAnagraficaCache[c.istruttore]?.nome || c.istruttore;
             list.innerHTML += `
