@@ -10,267 +10,498 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* --- CSS VARIABLES --- */
+        /* --- CSS BASE --- */
         :root {
-            --bg-body: #f3f4f6; --bg-card: #ffffff; --text-main: #1f2937; --text-sub: #6b7280;
-            --border: #e5e7eb; --input-bg: #ffffff; --primary: #4f46e5; --danger: #ef4444;
-            /* Semafori */
-            --tl-gray: #e5e7eb; --tl-red: #ef4444; --tl-yellow: #f59e0b; --tl-green: #10b981;
-        }
-        body.dark-mode {
-            --bg-body: #111827; --bg-card: #1f2937; --text-main: #f9fafb; --text-sub: #9ca3af;
-            --border: #374151; --input-bg: #374151; --primary: #6366f1;
-            --tl-gray: #4b5563;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --border: #e5e7eb;
+            --input-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-fg: #ffffff;
+            --danger: #ef4444;
+            /* Traffic Lights */
+            --light-red: #ef4444;
+            --light-yellow: #f59e0b;
+            --light-green: #10b981;
+            --light-gray: #d1d5db;
         }
 
-        /* --- BASE STYLES --- */
+        /* DARK MODE VARIABLES */
+        body.dark-mode {
+            --bg-body: #111827;
+            --bg-card: #1f2937;
+            --text-main: #f9fafb;
+            --text-sub: #9ca3af;
+            --border: #374151;
+            --input-bg: #374151;
+            --primary: #6366f1;
+        }
+
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 15px; margin: 0; transition: 0.3s; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            padding: 15px; margin: 0; 
+            transition: background-color 0.3s, color 0.3s;
+        }
         
         .container { 
             max-width: 950px; margin: 0 auto; background: var(--bg-card); 
-            padding: 20px; border-radius: 16px; min-height: 85vh; 
-            border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            overflow: hidden; /* Fix overflow orizzontale */
+            padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            min-height: 85vh; position: relative; 
+            border: 1px solid var(--border);
+            overflow: hidden; 
         }
         
-        /* HEADER */
+        /* Header */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        h2 { margin: 0; color: var(--primary); font-weight: 800; font-size: 1.4rem; }
-        .user-info { font-size: 0.95rem; color: var(--text-sub); margin-top: 2px; }
+        h2 { margin: 0; color: var(--primary); font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .user-info { font-size: 0.95rem; color: var(--text-sub); font-weight: 500; margin-top: 2px; }
+        
         .header-actions { display: flex; gap: 8px; align-items: center; }
         
-        button.action-btn { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border); padding: 0; border-radius: 8px; cursor: pointer; font-size: 1.2rem; width: 40px; height: 40px; display:flex; align-items:center; justify-content:center; position: relative;}
-        button.logout-btn { background: var(--danger); color: white; border: none; padding: 0 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.8rem; height: 40px; }
-        
-        /* NOTIFICHE */
-        .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; border: 2px solid var(--bg-card); }
-        .notif-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; padding-top: 60px; backdrop-filter: blur(3px); }
-        .notif-box { background: var(--bg-card); width: 450px; max-width: 95%; border-radius: 16px; display: flex; flex-direction: column; max-height: 80vh; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        @media (max-width: 768px) { .notif-overlay { padding: 0; align-items: flex-end; } .notif-box { width: 100%; height: 85%; max-height: 85%; border-radius: 20px 20px 0 0; } }
-        .notif-header { padding: 15px; border-bottom: 1px solid var(--border); font-weight: bold; display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); color: var(--text-main); border-radius: 16px 16px 0 0;}
+        button.action-btn { 
+            background: var(--input-bg); color: var(--text-main); 
+            border: 1px solid var(--border); padding: 8px; border-radius: 8px; 
+            cursor: pointer; font-size: 1.2rem; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        button.action-btn:active { transform: scale(0.95); }
+        button.logout-btn { background-color: var(--danger); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.8rem; height: 40px; }
+
+        /* NOTIFICATIONS */
+        .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); animation: bounceIn 0.3s ease; }
+        @keyframes bounceIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+        .notif-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; align-items: flex-start; padding-top: 60px; backdrop-filter: blur(3px); }
+        .notif-box { background: var(--bg-card); width: 450px; max-width: 95%; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; display: flex; flex-direction: column; max-height: 80vh; border: 1px solid var(--border); animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @media (max-width: 768px) { .notif-overlay { padding: 0; align-items: flex-end; } .notif-box { width: 100%; height: 90%; max-width: 100%; max-height: 90%; border-radius: 20px 20px 0 0; border: none; animation: slideUp 0.3s ease; } @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } } }
+
+        .notif-header { padding: 15px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); }
+        .btn-close-modal { background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; padding: 0 10px; }
         .notif-list { flex: 1; overflow-y: auto; padding: 0; }
-        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); border-left: 4px solid var(--primary); background: rgba(79, 70, 229, 0.03); display: flex; justify-content: space-between; align-items: start;}
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); position: relative; display: flex; gap: 10px; align-items: flex-start; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item.board-msg { border-left: 4px solid var(--primary); background: rgba(79, 70, 229, 0.03); }
+        .notif-icon { font-size: 1.4rem; padding-top: 2px; }
+        .notif-content { flex: 1; }
+        .notif-time { font-size: 0.75rem; color: var(--text-sub); display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        .notif-text { font-size: 0.95rem; line-height: 1.4; color: var(--text-main); }
+
+        /* TRAFFIC LIGHT SYSTEM (OBIETTIVI) */
+        .objectives-card { margin-top: 20px; background: var(--bg-body); border-radius: 12px; padding: 15px; border: 1px solid var(--border); }
+        .obj-title { font-weight: 700; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .obj-list { list-style: none; padding: 0; margin: 0; }
+        .obj-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .obj-item:last-child { border-bottom: none; }
         
-        /* INPUTS & FORMS */
+        .traffic-light { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; transition: transform 0.1s; flex-shrink: 0; }
+        .traffic-light:active { transform: scale(0.9); }
+        
+        /* Stati */
+        .tl-red { background-color: var(--light-red); border-color: var(--light-red); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+        .tl-yellow { background-color: var(--light-yellow); border-color: var(--light-yellow); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+        .tl-green { background-color: var(--light-green); border-color: var(--light-green); box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+        .tl-gray { background-color: var(--bg-card); border-color: var(--text-sub); } /* Non iniziato */
+
+        .obj-text { font-size: 0.95rem; line-height: 1.3; color: var(--text-main); }
+        .readonly .traffic-light { cursor: default; transform: none; } /* Per istruttori */
+
+        /* Form & Inputs */
         .form-group { margin-bottom: 15px; width: 100%; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-main); opacity: 0.9; }
         
-        /* FIX MOBILE DATE: max-width 100% e box-sizing */
         input, select, textarea { 
             width: 100%; max-width: 100%; min-width: 0;
             padding: 12px; border: 1px solid var(--border); border-radius: 10px; 
-            background: var(--input-bg); color: var(--text-main); 
-            box-sizing: border-box; font-size: 16px; margin: 0; outline: none; font-family: 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif; font-size: 16px; 
+            background: var(--input-bg); outline: none; 
+            color: var(--text-main); box-sizing: border-box; margin: 0;
         }
+        /* Fix iOS date */
         input[type="date"] { -webkit-appearance: none; appearance: none; display: block; }
+        select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23999%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto; padding-right: 30px; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        textarea { height: 90px; resize: vertical; }
         
-        button.primary-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 5px; }
+        button.primary-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 5px; }
+        button.primary-btn:active { transform: scale(0.98); }
+        button.primary-btn:disabled { background-color: #a5a3e0; cursor: not-allowed; opacity: 0.7; }
 
-        /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(2px); }
-        .modal-box { background: var(--bg-card); padding: 25px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.3); color: var(--text-main); }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { flex: 1; padding: 14px; background: var(--border); border: none; border-radius: 8px; cursor: pointer; color: var(--text-main); font-weight: 600; }
-        .btn-confirm { flex: 1; padding: 14px; background: var(--primary); border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: 600; }
+        /* CHECKBOX SOSTITUZIONE */
+        .sub-checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: var(--input-bg); padding: 10px; border: 1px solid var(--border); border-radius: 10px; }
+        .sub-checkbox-wrapper input[type="checkbox"] { width: 20px; height: 20px; margin: 0; appearance: auto !important; -webkit-appearance: checkbox !important; accent-color: #f59e0b; }
+        .sub-checkbox-wrapper label { margin: 0; cursor: pointer; color: var(--text-sub); }
+        .sub-active select#corso { border: 2px solid #f59e0b; background-color: rgba(245, 158, 11, 0.1); }
 
-        /* TRAFFIC LIGHTS */
-        .obj-section-title { margin: 20px 0 10px 0; color: var(--primary); font-size: 1rem; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-        .obj-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-        .traffic-light { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; transition: transform 0.1s; }
-        .traffic-light:active { transform: scale(0.8); }
-        .tl-gray { background: var(--tl-gray); }
-        .tl-red { background: var(--tl-red); box-shadow: 0 0 8px var(--tl-red); }
-        .tl-yellow { background: var(--tl-yellow); box-shadow: 0 0 8px var(--tl-yellow); }
-        .tl-green { background: var(--tl-green); box-shadow: 0 0 8px var(--tl-green); }
-        .readonly .traffic-light { cursor: default; pointer-events: none; }
-        .obj-list-ro { margin-top: 10px; background: var(--bg-body); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        /* Admin Notice Creator */
+        .admin-notice-box { background: rgba(59, 130, 246, 0.1); border: 1px dashed #3b82f6; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .admin-notice-list { margin-top: 15px; border-top: 1px solid var(--border); padding-top: 10px; }
+        .an-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
 
-        /* CARDS & GRID */
-        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .overview-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .course-folder { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; cursor: pointer; border-bottom: 4px solid var(--primary); position: relative; }
-        .last-lesson-box { background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; }
-        body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
+        /* Box Promemoria Ultima Lezione */
+        .last-lesson-box { background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; animation: fadeIn 0.4s ease; }
+        body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; }
+        .ll-header { color: #b45309; font-weight: 700; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        body.dark-mode .ll-header { color: #fbbf24; }
+        .ll-content { color: #78350f; line-height: 1.4; }
+        body.dark-mode .ll-content { color: #fde68a; }
+        .ll-label { font-weight: 600; color: #92400e; }
+        body.dark-mode .ll-label { color: #fcd34d; }
 
-        /* ADMIN LISTS */
-        .admin-tools { background: rgba(79, 70, 229, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .ac-item { padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: var(--bg-card); }
-        .btn-group { display: flex; gap: 5px; margin-top: 5px; }
-        .btn-group button { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; font-size: 1.2rem; background: var(--bg-body); }
-        .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; margin-bottom: 10px;}
-        .level-tag { background: var(--bg-card); border: 1px solid #d97706; color: #b45309; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;}
+        /* FILTER BAR */
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .filter-bar select { flex: 1; min-width: 130px; padding: 10px; font-size: 0.9rem; }
+
+        /* --- ADMIN TOOLS --- */
+        .admin-tools { background: rgba(245, 158, 11, 0.1); border: 1px solid #fcd34d; padding: 15px; border-radius: 12px; margin-bottom: 25px; }
+        body.dark-mode .admin-tools { border-color: #78350f; }
+        .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 10px; align-items: end; }
+        @media (max-width: 768px) { .create-grid { grid-template-columns: 1fr; gap: 15px; } .create-grid button { width: 100%; margin-top: 5px; } }
+
+        /* Levels & Grid */
+        .levels-manager { margin-bottom: 25px; border-bottom: 1px solid #fcd34d; padding-bottom: 20px; }
+        .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .level-tag { background: var(--bg-card); border: 1px solid #d97706; color: #b45309; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; }
         body.dark-mode .level-tag { color: #fbbf24; background: #374151; }
+        .btn-del-level { background: #fee2e2; color: #ef4444; border: none; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; margin-left: 5px; }
+        .add-level-box { display: flex; gap: 10px; margin-top: 10px; width: 100%; }
+
+        /* SWITCH BUTTONS */
+        .view-switch-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
+        .switch-btn { flex: 1; padding: 12px; border: none; background: var(--border); border-radius: 10px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
+        .switch-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); }
+
+        /* GRID & CARDS */
+        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .overview-card, .user-card, .level-card, .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03); transition: transform 0.2s; color: var(--text-main); }
+        .overview-card:active, .user-card:active, .level-card:active, .day-card:active { transform: scale(0.97); }
+        .user-card.active { border: 2px solid var(--primary); background: rgba(79, 70, 229, 0.05); }
         
-        /* FIX CHECKBOX */
-        .sub-checkbox-wrapper { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; background: var(--input-bg); }
-        .sub-checkbox-wrapper input { width: 20px; height: 20px; margin: 0; appearance: auto !important; -webkit-appearance: checkbox !important; accent-color: #f59e0b; }
+        .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 2px; }
+        .uc-name, .oc-name, .dc-name, .lc-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 5px; }
+        .uc-email { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 12px; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px; }
+        .uc-val { display: block; font-weight: 800; font-size: 1.1rem; color: var(--primary); }
+        .oc-count, .dc-count, .lc-count { font-size: 0.9rem; color: var(--text-sub); background: var(--bg-body); padding: 3px 10px; border-radius: 20px; }
+
+        /* Admin Details */
+        .assigned-courses-box { background: rgba(224, 231, 255, 0.3); border: 1px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        body.dark-mode .assigned-courses-box { border-color: #3730a3; }
+        .ac-item { display: flex; flex-direction: column; gap: 8px; background: var(--bg-card); padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); }
+        .ac-title { font-weight: 700; color: var(--primary); font-size: 0.95rem; }
+        .clickable-course { color: var(--primary); text-decoration: underline; cursor: pointer; }
+        
+        .btn-group { display: flex; gap: 8px; width: 100%; margin-top: 5px; }
+        .btn-del-assign, .btn-reassign, .btn-info-course { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-align: center; }
+        .btn-del-assign { background: #fee2e2; color: #ef4444; }
+        .btn-reassign { background: #fef08a; color: #854d0e; }
+        .btn-info-course { background: var(--border); color: var(--text-main); }
+
+        /* Istruttore Elements */
+        .course-folder { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; cursor: pointer; border-bottom: 4px solid var(--primary); position: relative; }
+        .cf-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .cf-title { font-weight: 700; font-size: 1rem; color: var(--text-main); line-height: 1.3; }
+        .cf-settings-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0 0 5px 5px; color: var(--text-sub); }
+        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 500; margin-bottom: 8px; flex-wrap: wrap; }
+        .cf-tag { background: var(--bg-body); padding: 2px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+        .cf-note { font-size: 0.75rem; color: #6b7280; font-style: italic; background: #fffbeb; padding: 5px; border-radius: 4px; border: 1px solid #fcd34d; }
+        body.dark-mode .cf-note { background: #451a03; color: #fcd34d; border-color: #78350f; }
+
+        /* Storico & Lezioni */
+        .history-container { display: none; animation: fadeIn 0.3s ease; }
+        .history-container.active { display: block; }
+        .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: var(--bg-body); padding: 10px; border-radius: 8px; }
+        .btn-pdf { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; }
+        .btn-pdf:hover { background: #dc2626; }
+
+        .lezione-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 5px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px; }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 5px; }
+        .date-badge { background: var(--bg-body); padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: var(--text-sub); }
+        .period-badge { font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-right: 5px; text-transform: uppercase; }
+        .p1 { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; } 
+        .p2 { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; } 
+        .presenze-badge { background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
+        .actions-div { display: flex; gap: 15px; margin-left: auto; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; }
+        .back-btn { background: none; border: none; color: var(--text-sub); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 0.9rem; }
+
+        /* --- NOTIFICHE & MODAL CUSTOM --- */
         .hidden { display: none !important; }
-        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; }
+        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #1f2937; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { background: var(--bg-card); padding: 25px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popUp 0.3s ease; border: 1px solid var(--border); color: var(--text-main); }
+        @keyframes popUp { from {transform: scale(0.9); opacity:0} to {transform: scale(1); opacity:1} }
+        
+        .modal-title { margin-top: 0; font-size: 1.3rem; color: var(--text-main); margin-bottom: 10px; }
+        .modal-msg { color: var(--text-sub); margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { flex: 1; padding: 14px; border: none; background: var(--border); border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-main); font-size: 1rem; }
+        .btn-confirm { flex: 1; padding: 14px; border: none; background: var(--primary); border-radius: 8px; font-weight: 600; cursor: pointer; color: white; font-size: 1rem; }
     </style>
 </head>
 <body>
 
-<div id="toast"></div>
+<div id="toast">Notifica</div>
 
 <div id="notif-overlay" class="notif-overlay">
     <div class="notif-box">
         <div class="notif-header">
             <span>Bacheca Avvisi</span>
-            <button onclick="toggleNotifications()" style="background:none; border:none; font-size:1.5rem; color:var(--text-main); cursor:pointer">×</button>
+            <button class="btn-close-modal" onclick="toggleNotifications()">×</button>
         </div>
-        <div id="notif-list" class="notif-list"></div>
+        <div id="notif-list" class="notif-list">
+            </div>
     </div>
 </div>
 
-<div id="objectives-config-modal" class="modal-overlay">
+<div id="objectives-config-modal" class="modal-overlay" style="display:none">
     <div class="modal-box">
         <h3 class="modal-title">🎯 Obiettivi: <span id="conf-lvl-name"></span></h3>
-        <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:10px">Elenca gli obiettivi (uno per riga).</p>
-        <textarea id="conf-obj-text" style="height:200px; line-height:1.4" placeholder="Es. Galleggiamento&#10;Tuffo"></textarea>
+        <p style="font-size:0.85rem; color:var(--text-sub)">Scrivi gli obiettivi, uno per riga.</p>
+        <textarea id="conf-obj-text" style="height:150px; margin-bottom:15px; font-size:14px" placeholder="Es. Galleggiamento prono&#10;Scivolamento&#10;Respirazione laterale"></textarea>
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="document.getElementById('objectives-config-modal').style.display='none'">Chiudi</button>
+            <button class="btn-cancel" onclick="closeObjConfig()">Annulla</button>
             <button class="btn-confirm" onclick="saveObjConfig()">Salva</button>
         </div>
     </div>
 </div>
 
-<div id="course-settings-modal" class="modal-overlay">
+<div id="confirm-modal" class="modal-overlay" style="display:none">
     <div class="modal-box">
-        <h3 class="modal-title">⚙️ Valutazione Corso</h3>
+        <h3 class="modal-title" id="confirm-title">Titolo</h3>
+        <p class="modal-msg" id="confirm-msg">Messaggio...</p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeConfirm()">Annulla</button>
+            <button class="btn-confirm" id="confirm-btn-action">Conferma</button>
+        </div>
+    </div>
+</div>
+
+<div id="prompt-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+        <h3 class="modal-title" id="prompt-title">Inserisci</h3>
+        <p class="modal-msg" id="prompt-msg" style="margin-bottom:10px"></p>
+        <input type="text" id="prompt-input">
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closePrompt()">Annulla</button>
+            <button class="btn-confirm" id="prompt-btn-action">Salva</button>
+        </div>
+    </div>
+</div>
+
+<div id="edit-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+        <h3 class="modal-title">✏️ Modifica Lezione</h3>
+        <input type="hidden" id="edit-id">
+        <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
+        <div class="form-group">
+            <label>Periodo</label>
+            <select id="edit-periodo"><option>1° Periodo</option><option>2° Periodo</option></select>
+        </div>
+        <div style="display:flex; gap:10px">
+            <div class="form-group" style="flex:1"><label>Presenti</label><input type="number" id="edit-presenze" placeholder="0"></div>
+            <div class="form-group" style="flex:2"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
+        </div>
+        <div class="form-group"><label>Attività</label><textarea id="edit-attivita"></textarea></div>
+        <div class="form-group"><label>Note</label><textarea id="edit-note" style="height:60px"></textarea></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="document.getElementById('edit-modal').style.display='none'">Annulla</button>
+            <button class="btn-confirm" onclick="saveEdit()">Salva</button>
+        </div>
+    </div>
+</div>
+
+<div id="course-settings-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+        <h3 class="modal-title">⚙️ Dettagli Corso</h3>
         <input type="hidden" id="cs-id">
         <div class="form-group">
             <label>Totale Iscritti</label>
-            <input type="number" id="cs-iscritti" placeholder="0">
+            <input type="number" id="cs-iscritti">
         </div>
         <div class="form-group">
-            <label>Note Generali</label>
-            <textarea id="cs-note" style="height:60px" placeholder="Note sul gruppo..."></textarea>
+            <label>Note Generali Corso</label>
+            <textarea id="cs-note" style="height:80px"></textarea>
         </div>
-
-        <div class="obj-section-title">🚦 Obiettivi Didattici</div>
-        <div id="admin-obj-list"></div>
-
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="document.getElementById('course-settings-modal').style.display='none'">Chiudi</button>
-            <button class="btn-confirm" onclick="saveCourseSettings()">Salva Tutto</button>
+            <button class="btn-cancel" onclick="document.getElementById('course-settings-modal').style.display='none'">Annulla</button>
+            <button class="btn-confirm" onclick="saveCourseSettings()">Salva Info</button>
         </div>
     </div>
 </div>
 
-<div id="login-section" style="max-width:350px; margin:50px auto; text-align:center;">
-    <h3 style="margin-bottom:20px; color:var(--text-main)">Accesso</h3>
-    <input type="email" id="email" placeholder="Email" style="margin-bottom:10px">
-    <input type="password" id="password" placeholder="Password" style="margin-bottom:20px">
-    <button id="btn-login" class="primary-btn">Accedi</button>
-</div>
-
-<div class="container hidden" id="dashboard-section">
+<div class="container">
     <div class="app-header">
         <div>
             <h2>Registro Didattico</h2>
-            <div id="user-display" class="user-info">...</div>
+            <div id="user-display" class="user-info">Caricamento...</div>
         </div>
         <div class="header-actions">
-            <div style="position:relative"><button class="action-btn" onclick="toggleNotifications()">🔔</button><span id="notif-badge" class="notif-badge hidden">0</span></div>
-            <button class="action-btn" onclick="toggleTheme()" id="theme-toggle">☀️</button>
-            <button class="logout-btn" onclick="logout()">Esci</button>
+            <div style="position:relative">
+                <button id="notif-btn" class="action-btn" onclick="toggleNotifications()">🔔</button>
+                <span id="notif-badge" class="notif-badge hidden">0</span>
+            </div>
+            <button id="theme-toggle" class="action-btn" onclick="toggleTheme()">☀️</button>
+            <button id="logout-btn" class="logout-btn hidden" onclick="logout()">Esci</button>
         </div>
     </div>
 
-    <div id="admin-view" class="hidden">
-        <div style="background:rgba(59,130,246,0.1); padding:15px; border-radius:12px; border:1px dashed #3b82f6; margin-bottom:20px">
-            <h4 style="margin:0 0 10px 0; color:#2563eb">📢 Invia Avviso</h4>
-            <div style="display:flex; gap:10px">
-                <input type="text" id="admin-notice-text" placeholder="Scrivi messaggio..." style="flex:2">
-                <select id="admin-notice-target" style="flex:1"><option value="all">A: Tutti</option></select>
-                <button onclick="sendNotice()" class="primary-btn" style="width:auto; margin:0">Invia</button>
-            </div>
-            <div id="admin-sent-notices" style="margin-top:10px; max-height:150px; overflow-y:auto"></div>
+    <div id="login-section">
+        <div style="max-width:350px; margin:50px auto; text-align:center;">
+            <h3 style="margin-bottom:20px; color:var(--text-main)">Accesso Area Riservata</h3>
+            <input type="email" id="email" placeholder="Email" style="margin-bottom:10px">
+            <input type="password" id="password" placeholder="Password" style="margin-bottom:20px">
+            <button id="btn-login" class="primary-btn">Accedi</button>
         </div>
+    </div>
 
-        <div class="admin-tools">
-            <h4 style="margin:0 0 10px 0; color:#b45309">🎚 Gestione Livelli (Clicca per Obiettivi)</h4>
-            <div id="levels-container" class="levels-container"></div>
-            <div class="add-level-box">
-                <input type="text" id="new-level-input" placeholder="Nuovo Livello">
-                <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 15px; border-radius:8px; font-weight:bold">+</button>
+    <div id="dashboard-section" class="hidden">
+        
+        <div id="admin-view" class="hidden">
+            <div class="admin-notice-box">
+                <h3 style="margin-top:0; color:#2563eb">📢 Gestione Bacheca</h3>
+                <div class="form-group">
+                    <textarea id="admin-notice-text" placeholder="Scrivi un avviso..." style="height:60px"></textarea>
+                </div>
+                <div style="display:flex; gap:10px">
+                    <select id="admin-notice-target" style="flex:1"><option value="all">A: TUTTI</option></select>
+                    <button class="primary-btn" style="width:auto; margin-top:0; background:#2563eb" onclick="sendNotice()">Invia</button>
+                </div>
+                <div id="admin-sent-notices" class="admin-notice-list"></div>
+            </div>
+
+            <div class="admin-tools">
+                <div class="levels-manager">
+                    <h3 style="margin-top:0; color:#b45309">🎚 Gestione Etichette & Obiettivi</h3>
+                    <div id="levels-container" class="levels-container"></div>
+                    <div class="add-level-box">
+                        <input type="text" id="new-level-input" placeholder="Nuovo livello">
+                        <button onclick="saveNewLevel()" style="background:#b45309; color:white; border:none; padding:0 15px; border-radius:8px; cursor:pointer; font-weight:bold">+</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:20px; color:#b45309">🛠 Nuova Assegnazione</h3>
+                <div class="create-grid">
+                    <div><label style="color:#b45309">Livello</label><select id="new-level-select"><option value="">--</option></select></div>
+                    <div><label style="color:#b45309">Giorno</label><select id="new-day"><option value="">Scegli...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select></div>
+                    <div><label style="color:#b45309">Ora</label><input type="time" id="new-time"></div>
+                    <div><label style="color:#b45309">Istruttore (Email)</label><input type="email" id="new-email" placeholder="email@istr.it"></div>
+                    <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px">Crea</button>
+                </div>
             </div>
             
-            <h4 style="margin:20px 0 10px 0; color:#b45309">🛠 Nuova Assegnazione</h4>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1.5fr auto; gap:10px; align-items:end">
-                <select id="new-level-select"><option>Livello...</option></select>
-                <select id="new-day"><option>Giorno...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
-                <input type="time" id="new-time">
-                <input type="email" id="new-email" placeholder="email@istr.it">
-                <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:10px; margin:0">Crea</button>
+            <div class="view-switch-container">
+                <button id="btn-view-team" class="switch-btn active" onclick="switchAdminView('team')">👥 Istruttori</button>
+                <button id="btn-view-levels" class="switch-btn" onclick="switchAdminView('levels')">🎚 Livelli</button>
+                <button id="btn-view-days" class="switch-btn" onclick="switchAdminView('days')">📅 Giorni</button>
             </div>
-        </div>
-
-        <div id="admin-assigned-list"></div>
-    </div>
-
-    <div id="instructor-view" class="hidden">
-        <h3 style="margin-bottom:15px">Nuova Lezione</h3>
-        <div style="background:var(--bg-body); padding:20px; border-radius:12px; border:1px solid var(--border);">
-            <div class="form-group"><label>Data</label><input type="date" id="data" onchange="autoSetPeriod('data','periodo')"></div>
-            <div class="sub-checkbox-wrapper">
-                <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
-                <label for="is-substitution">🔄 Sto sostituendo un collega</label>
-            </div>
-            <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
             
-            <div id="last-lesson-info" class="last-lesson-box hidden">
-                <div class="ll-header"><span>⏪ Ultima Lezione</span><span id="ll-date"></span></div>
-                <div><b style="color:var(--text-main)">Obiettivo:</b> <span id="ll-obj"></span></div>
-                <div><b style="color:var(--text-main)">Attività:</b> <span id="ll-act"></span></div>
-            </div>
+            <div id="main-admin-grid" class="grid-courses"></div>
+            
+            <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px; min-height:200px">
+                <h4 style="margin:0 0 10px 0" id="detail-title">Dettagli...</h4>
+                <div class="filter-bar" style="margin-bottom:10px">
+                    <select id="adm-sort" onchange="renderDetails(currentSelectedDetail)"><option value="name">Alfabetico</option><option value="day">Giorno</option><option value="recent">Recenti</option></select>
+                    <select id="adm-filter-level" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Livelli</option></select>
+                    <select id="adm-filter-day" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Giorni</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
+                </div>
+                <div class="assigned-courses-box">
+                    <h5 style="margin:0 0 10px 0; color:var(--primary)" id="assigned-title">📋 Corsi Assegnati</h5>
+                    <div id="admin-assigned-list"></div>
+                </div>
+                <div id="admin-objectives-box" class="hidden"></div>
 
-            <div id="instr-obj-box" class="last-lesson-box hidden" style="border-color:var(--primary); background:rgba(79, 70, 229, 0.05)">
-                <div class="ll-header" style="color:var(--primary)">🎯 Obiettivi Didattici</div>
-                <div id="instr-obj-list" class="readonly"></div>
+                <div id="lessons-log-container" class="hidden">
+                    <h5 style="margin:20px 0 10px 0; color:var(--primary)">📝 Storico</h5>
+                    <div id="admin-lessons-list"></div>
+                </div>
             </div>
-
-            <div class="form-group"><label>Periodo</label><select id="periodo"><option>1° Periodo</option><option>2° Periodo</option></select></div>
-            <div style="display:flex; gap:10px">
-                <div class="form-group" style="flex:1"><label>Presenti</label><input type="number" id="presenze"></div>
-                <div class="form-group" style="flex:2"><label>Obiettivo</label><input type="text" id="obiettivo"></div>
-            </div>
-            <div class="form-group"><label>Attività</label><textarea id="attivita"></textarea></div>
-            <div class="form-group"><label>Note</label><textarea id="note" style="height:60px"></textarea></div>
-            <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
         </div>
 
-        <h3 style="margin-top:30px; border-bottom:1px solid var(--border); padding-bottom:10px">I Tuoi Corsi</h3>
-        
-        <div style="display:flex; gap:10px; margin-bottom:20px">
-            <button onclick="switchInstrView('days')" id="btn-instr-days" class="action-btn" style="flex:1; width:auto; font-size:1rem; font-weight:bold">📅 Giorni</button>
-            <button onclick="switchInstrView('levels')" id="btn-instr-levels" class="action-btn" style="flex:1; width:auto; font-size:1rem; font-weight:bold">🎚 Livelli</button>
-        </div>
+        <div id="instructor-view" class="hidden">
+            <h3 style="margin-bottom:15px">Nuova Lezione</h3>
+            <div style="background:var(--bg-body); padding:20px; border-radius:12px; border:1px solid var(--border);">
+                <div class="form-group"><label>Data</label><input type="date" id="data" onchange="autoSetPeriod('data','periodo')"></div>
+                
+                <div class="sub-checkbox-wrapper">
+                    <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
+                    <label for="is-substitution">🔄 Sto sostituendo un collega</label>
+                </div>
 
-        <div id="days-overview-grid" class="grid-courses"></div>
-        <div id="levels-overview-grid" class="grid-courses hidden"></div>
-        
-        <div id="courses-list-wrapper" class="hidden">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px">
-                <button onclick="closeFolderView()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer">⬅ Indietro</button>
-                <h4 style="margin:0; color:var(--primary)" id="folder-title-display">...</h4>
+                <div class="form-group">
+                    <label>Seleziona Corso</label>
+                    <select id="corso"><option>Caricamento...</option></select>
+                </div>
+                
+                <div id="last-lesson-info" class="last-lesson-box hidden">
+                    <div class="ll-header"><span>⏪ Ultima Lezione</span><span id="ll-date"></span></div>
+                    <div class="ll-content">
+                        <div style="margin-bottom:4px"><span class="ll-label">Obiettivo:</span> <span id="ll-obj"></span></div>
+                        <div><span class="ll-label">Attività:</span> <span id="ll-act" style="font-style:italic"></span></div>
+                    </div>
+                </div>
+
+                <div id="instr-objectives-box" class="objectives-card hidden">
+                    <div class="obj-title">🎯 Obiettivi Didattici</div>
+                    <ul id="instr-obj-list" class="obj-list readonly"></ul>
+                </div>
+
+                <div class="form-group"><label>Periodo Didattico</label><select id="periodo"><option>1° Periodo</option><option>2° Periodo</option></select></div>
+                <div style="display:flex; gap:10px">
+                    <div class="form-group" style="flex:1"><label>Presenti</label><input type="number" id="presenze" placeholder="0"></div>
+                    <div class="form-group" style="flex:3"><label>Obiettivo</label><input type="text" id="obiettivo" placeholder="Es. Dorso"></div>
+                </div>
+                <div class="form-group"><label>Attività Svolta</label><textarea id="attivita"></textarea></div>
+                <div class="form-group"><label>Note Lezione</label><textarea id="note" style="height:60px"></textarea></div>
+                <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             </div>
-            <div id="my-courses-grid" class="grid-courses"></div>
-        </div>
-    </div>
-    
-    <div id="course-history" class="hidden">
-        <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:15px">
-            <button onclick="closeHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer; margin-bottom:10px">⬅ Torna ai Corsi</button>
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-body); padding:10px; border-radius:8px">
-                <h3 style="margin:0; color:var(--primary); font-size:1.1rem"><span id="hist-title"></span></h3>
-                <button onclick="downloadCoursePDF()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer">📥 PDF</button>
+
+            <div id="courses-overview">
+                <h3 style="margin-top:40px; border-bottom:1px solid var(--border); padding-bottom:10px">I Tuoi Corsi</h3>
+                <div class="view-switch-container" style="margin-bottom:20px">
+                    <button id="btn-instr-days" class="switch-btn active" onclick="switchInstrView('days')">📅 Giorni</button>
+                    <button id="btn-instr-levels" class="switch-btn" onclick="switchInstrView('levels')">🎚 Livelli</button>
+                </div>
+                <div id="days-overview-grid" class="grid-courses"><p style="color:var(--text-sub)">Caricamento...</p></div>
+                <div id="levels-overview-grid" class="grid-courses hidden"><p style="color:var(--text-sub)">Caricamento...</p></div>
+                
+                <div id="courses-list-wrapper" class="hidden">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px">
+                        <button class="back-btn" onclick="closeFolderView()">⬅ Torna alla vista</button>
+                        <h4 style="margin:0; color:var(--primary)" id="folder-title-display">...</h4>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="instr-sort" onchange="renderCourseFolders()"><option value="name">Alfabetico</option><option value="recent">Recenti</option></select>
+                        <select id="instr-filter-level" onchange="renderCourseFolders()"><option value="all">Tutti</option></select>
+                    </div>
+                    <div id="my-courses-grid" class="grid-courses"></div>
+                </div>
             </div>
-            <div id="history-list"></div>
+
+            <div id="course-history" class="history-container">
+                <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:15px">
+                    <button class="back-btn" onclick="closeHistory()">⬅ Torna ai Corsi</button>
+                    <div class="history-toolbar">
+                        <h3 style="margin:0; color:var(--primary); font-size:1.1rem"><span id="hist-title">...</span></h3>
+                        <div style="display:flex; gap:5px; align-items:center">
+                            <button onclick="downloadCoursePDF()" class="btn-pdf">📥 PDF</button>
+                            <select id="sort-order" class="sort-select" onchange="renderHistoryList()" style="padding:6px; font-size:0.8rem"><option value="desc">Recenti</option><option value="asc">Vecchi</option></select>
+                        </div>
+                    </div>
+                    <div id="history-list"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -280,232 +511,408 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, deleteDoc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA", authDomain: "gestioneore-3bf5f.firebaseapp.com", projectId: "gestioneore-3bf5f", storageBucket: "gestioneore-3bf5f.firebasestorage.app", messagingSenderId: "99818377406", appId: "1:99818377406:web:a62ee0e6f323b8b4178eef" };
-    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA",
+      authDomain: "gestioneore-3bf5f.firebaseapp.com",
+      projectId: "gestioneore-3bf5f",
+      storageBucket: "gestioneore-3bf5f.firebasestorage.app",
+      messagingSenderId: "99818377406",
+      appId: "1:99818377406:web:a62ee0e6f323b8b4178eef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    let currentUser = null;
+    let myLessonsCache = []; let myAssignmentsCache = []; let allActiveAssignmentsCache = []; 
+    let allLessonsCache = []; let allAssignmentsCache = []; let allLevelsCache = []; 
+    let allAnagraficaCache = {}; let allNoticesCache = []; 
+    let objectivesConfigCache = {}; // { "Polipetto": ["Gallegg", "Tuffo"], ... }
+    
+    let currentOpenCourse = null; let currentAdminView = 'team'; let currentSelectedDetail = null;
+    let currentDayView = null; let currentLevelView = null;
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
 
-    let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={};
-    let currentAdminProgress={}; let currentOpenCourse=null; let currentDayView=null; let currentLevelView=null;
-
     // THEME & UTILS
-    window.toggleTheme=()=>{document.body.classList.toggle('dark-mode');localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');document.getElementById('theme-toggle').innerText=document.body.classList.contains('dark-mode')?'🌙':'☀️';}
-    if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark-mode');document.getElementById('theme-toggle').innerText='🌙';}
-    window.toggleNotifications=()=>{const d=document.getElementById('notif-overlay'); d.style.display=(d.style.display==='flex'?'none':'flex');}
-    let logoutTimer; const INACTIVITY_LIMIT=30*60*1000;
-    function setupAutoLogout(){ const r=()=>{if(currentUser){clearTimeout(logoutTimer);logoutTimer=setTimeout(()=>{window.logout();toast("Sessione scaduta");},INACTIVITY_LIMIT);}}; ['mousedown','scroll','touchstart'].forEach(e=>document.addEventListener(e,r,true)); r(); }
-    window.toast=(m)=>{const t=document.getElementById("toast");t.innerText=m;t.className="show";setTimeout(()=>t.className="",3000);};
-    window.autoSetPeriod=(d,p)=>{const v=document.getElementById(d).value;if(v){const m=new Date(v).getMonth()+1;document.getElementById(p).value=(m>=9||m<=1)?"1° Periodo":"2° Periodo";}};
+    window.toggleTheme = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); document.getElementById('theme-toggle').innerText = document.body.classList.contains('dark-mode') ? '🌙' : '☀️'; }
+    if(localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('theme-toggle').innerText = '🌙'; }
+    window.toggleNotifications = () => { const dd = document.getElementById('notif-overlay'); dd.style.display = (dd.style.display==='none'||dd.style.display==='') ? 'flex' : 'none'; }
+    let logoutTimer; const INACTIVITY_LIMIT = 30*60*1000;
+    function setupAutoLogout() { 
+        const reset = () => { if(currentUser) { clearTimeout(logoutTimer); logoutTimer = setTimeout(() => { window.logout(); toast("Sessione scaduta"); }, INACTIVITY_LIMIT); } };
+        ['mousedown','mousemove','keypress','scroll','touchstart'].forEach(e => document.addEventListener(e, reset, true)); reset();
+    }
+    window.toast = (msg) => { const t = document.getElementById("toast"); t.innerText = msg; t.className = "show"; setTimeout(() => t.className = "", 3000); };
+    window.modalConfirm = (t, m, c) => { document.getElementById('confirm-title').innerText=t; document.getElementById('confirm-msg').innerText=m; const b=document.getElementById('confirm-btn-action'); const n=b.cloneNode(true); b.parentNode.replaceChild(n,b); n.onclick=()=>{c();closeConfirm()}; document.getElementById('confirm-modal').style.display='flex'; };
+    window.closeConfirm = () => document.getElementById('confirm-modal').style.display='none';
+    window.modalPrompt = (t, m, d, c) => { document.getElementById('prompt-title').innerText=t; document.getElementById('prompt-msg').innerText=m; const i=document.getElementById('prompt-input'); i.value=d||""; const b=document.getElementById('prompt-btn-action'); const n=b.cloneNode(true); b.parentNode.replaceChild(n,b); n.onclick=()=>{if(i.value){c(i.value);closePrompt()}}; document.getElementById('prompt-modal').style.display='flex'; i.focus(); };
+    window.closePrompt = () => document.getElementById('prompt-modal').style.display='none';
+    window.autoSetPeriod = (dId, pId) => { const v=document.getElementById(dId).value; if(!v)return; const m=new Date(v).getMonth()+1; document.getElementById(pId).value = (m>=9||m<=1) ? "1° Periodo" : "2° Periodo"; };
 
     // AUTH
-    document.getElementById('btn-login').onclick=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('email').value,document.getElementById('password').value);}catch(e){toast(e.message);}};
-    window.logout=async()=>{await signOut(auth);location.reload();}
+    document.getElementById('btn-login').onclick = async () => {
+        try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } 
+        catch(e) { toast("Errore: " + e.message); }
+    };
+    window.logout = async () => { await signOut(auth); window.location.reload(); };
 
     onAuthStateChanged(auth, async (user) => {
-        if(user) {
-            currentUser=user; setupAutoLogout();
+        if (user) {
+            currentUser = user;
+            const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            setupAutoLogout();
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
-            document.getElementById('user-display').innerText = "Ciao " + user.email;
+            document.getElementById('logout-btn').classList.remove('hidden');
             document.getElementById('data').valueAsDate = new Date();
-            autoSetPeriod('data','periodo');
-            
-            // LOAD GLOBAL DATA
-            onSnapshot(collection(db,"config_obiettivi"), s=>{objectivesConfigCache={};s.forEach(d=>objectivesConfigCache[d.id]=d.data().items||[]);});
-            onSnapshot(collection(db,"avvisi"), s=>{allNoticesCache=[];s.forEach(d=>allNoticesCache.push({id:d.id,...d.data()})); 
-                if(user.email.toLowerCase()===ADMIN_EMAIL.toLowerCase()) renderAdminNotices(); else renderInstructorNotices(); 
-            });
+            autoSetPeriod('data', 'periodo');
 
-            if(user.email.toLowerCase()===ADMIN_EMAIL.toLowerCase()) initAdmin(); else initInstructor();
+            // Load Global Data
+            onSnapshot(collection(db, "avvisi"), (s) => { allNoticesCache=[]; s.forEach(d=>allNoticesCache.push({id:d.id,...d.data()})); if(isAdmin)renderAdminNotices(); else renderInstructorNotices(); });
+            onSnapshot(collection(db, "config_obiettivi"), (s) => { objectivesConfigCache={}; s.forEach(d=>{ objectivesConfigCache[d.id] = d.data().items || []; }); });
+
+            if(isAdmin) {
+                document.getElementById('admin-view').classList.remove('hidden');
+                initAdmin();
+            } else {
+                document.getElementById('instructor-view').classList.remove('hidden');
+                initInstructor();
+            }
+        } else {
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('logout-btn').classList.add('hidden');
         }
     });
 
-    // --- ADMIN LOGIC ---
+    // NOTICE LOGIC
+    window.sendNotice = async () => {
+        const txt = document.getElementById('admin-notice-text').value.trim();
+        if(!txt) return toast("Scrivi qualcosa");
+        await addDoc(collection(db, "avvisi"), { testo: txt, destinatario: document.getElementById('admin-notice-target').value, autore: currentUser.email, data: new Date() });
+        document.getElementById('admin-notice-text').value = ""; toast("Inviato");
+    };
+    window.deleteNotice = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "avvisi", id)); };
+    function renderAdminNotices() {
+        const l = document.getElementById('admin-sent-notices'); l.innerHTML="";
+        allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{
+            l.innerHTML += `<div class="an-item"><div><strong>A: ${n.destinatario==='all'?'TUTTI':n.destinatario}</strong><br>${n.testo}</div><button onclick="deleteNotice('${n.id}')" style="color:red;border:none;background:none">🗑️</button></div>`;
+        });
+    }
+    function renderInstructorNotices() {
+        const l=document.getElementById('notif-list'), b=document.getElementById('notif-badge'); l.innerHTML=""; let c=0;
+        allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{
+            if(n.destinatario==='all' || n.destinatario===currentUser.email.toLowerCase()){
+                c++;
+                l.innerHTML += `<div class="notif-item board-msg"><div class="notif-icon">${n.destinatario!=='all'?'📩':'📢'}</div><div class="notif-content"><span class="notif-time">${new Date(n.data.seconds*1000).toLocaleDateString()}</span><div class="notif-text">${n.testo}</div></div></div>`;
+            }
+        });
+        if(c===0) l.innerHTML='<p style="padding:40px;text-align:center;color:#999">Nessun avviso</p>';
+        b.innerText=c; b.classList.toggle('hidden', c===0);
+    }
+
+    // OBJECTIVE LOGIC
+    window.openObjConfig = (lvl) => {
+        document.getElementById('conf-lvl-name').innerText = lvl;
+        const current = objectivesConfigCache[lvl] || [];
+        document.getElementById('conf-obj-text').value = current.join('\n');
+        document.getElementById('objectives-config-modal').style.display='flex';
+    };
+    window.closeObjConfig = () => document.getElementById('objectives-config-modal').style.display='none';
+    window.saveObjConfig = async () => {
+        const lvl = document.getElementById('conf-lvl-name').innerText;
+        const raw = document.getElementById('conf-obj-text').value;
+        const items = raw.split('\n').map(s=>s.trim()).filter(s=>s!=="");
+        await setDoc(doc(db, "config_obiettivi", lvl), { items: items }, { merge: true });
+        closeObjConfig(); toast("Obiettivi aggiornati");
+    };
+
+    window.toggleTrafficLight = async (courseId, objName, currentStatus) => {
+        const states = ['gray', 'red', 'yellow', 'green']; // gray=null/0, red=1, yellow=2, green=3
+        const nextState = (states.indexOf(currentStatus || 'gray') + 1) % 4; 
+        const nextVal = states[nextState];
+        // Save to course
+        const courseRef = doc(db, "corsi_assegnati", courseId);
+        const updateData = {};
+        updateData[`progress.${objName}`] = nextVal; // Dot notation for map update
+        
+        // Firebase cannot update map keys with dots easily if not flattening, 
+        // better to read, update object, write back for safety or use special syntax if needed.
+        // Simplified: use setDoc with merge for top level fields, but for nested map keys it implies replacing map if not careful.
+        // Correct way for nested fields: "progress.KeyName": value
+        // But KeyName might contain spaces/dots. Let's sanitize or just fetch-modify-save.
+        // Fetch-modify-save is safer here.
+        try {
+            const snap = await getDoc(courseRef);
+            let progress = snap.data().progress || {};
+            progress[objName] = nextVal;
+            await updateDoc(courseRef, { progress: progress });
+            // Re-render locally handled by snapshot listener
+        } catch(e) { console.error(e); }
+    };
+
+    function renderTrafficLights(containerId, level, progressMap, isInteractive, courseId) {
+        const container = document.getElementById(containerId);
+        const objectives = objectivesConfigCache[level] || [];
+        
+        if(objectives.length === 0) {
+            container.classList.add('hidden');
+            return;
+        }
+        container.classList.remove('hidden');
+        
+        // Find UL inside
+        let list = container.querySelector('ul');
+        if(!list) {
+            // Admin dynamic creation
+            container.innerHTML = `<h5 style="margin:0 0 10px 0; color:var(--primary)">🎯 Obiettivi: ${level}</h5><ul class="obj-list"></ul>`;
+            list = container.querySelector('ul');
+        } else {
+            // Instructor static clear
+            list.innerHTML = "";
+        }
+
+        objectives.forEach(obj => {
+            const status = (progressMap && progressMap[obj]) ? progressMap[obj] : 'gray';
+            const li = document.createElement('li');
+            li.className = 'obj-item';
+            
+            const dot = document.createElement('div');
+            dot.className = `traffic-light tl-${status}`;
+            if(isInteractive) {
+                dot.onclick = () => window.toggleTrafficLight(courseId, obj, status);
+            } else {
+                container.classList.add('readonly');
+            }
+
+            li.appendChild(dot);
+            li.appendChild(document.createTextNode(obj));
+            list.appendChild(li);
+        });
+    }
+
+
+    // ADMIN INIT
     function initAdmin() {
-        document.getElementById('admin-view').classList.remove('hidden');
-        onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{
+        initLevels();
+        onSnapshot(collection(db, "anagrafica"), (s) => { 
+            allAnagraficaCache={}; const sel=document.getElementById('admin-notice-target'); sel.innerHTML='<option value="all">A: TUTTI</option>';
+            s.forEach(d=>{ allAnagraficaCache[d.id]=d.data(); sel.innerHTML+=`<option value="${d.id}">${d.data().nome||d.id}</option>`; });
+            renderApp();
+        });
+        onSnapshot(query(collection(db, "registro_didattico"), orderBy("data","desc")), s=>{ allLessonsCache=[]; s.forEach(d=>allLessonsCache.push({id:d.id,...d.data()})); renderApp(); });
+        onSnapshot(collection(db, "corsi_assegnati"), s=>{ allAssignmentsCache=[]; s.forEach(d=>allAssignmentsCache.push({id:d.id,...d.data()})); renderApp(); });
+    }
+
+    function renderApp() {
+        if(currentAdminView==='team') renderTeamGrid(); else if(currentAdminView==='levels') renderLevelsGrid(); else renderDaysGrid();
+        if(currentSelectedDetail) renderDetails(currentSelectedDetail); else document.getElementById('admin-detail-area').classList.add('hidden');
+    }
+    window.switchAdminView = (v) => { currentAdminView=v; currentSelectedDetail=null; document.querySelectorAll('.view-switch-container .switch-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-view-'+v).classList.add('active'); renderApp(); };
+    window.selectItem = (id) => { currentSelectedDetail=id; renderApp(); setTimeout(()=>document.getElementById('admin-detail-area').scrollIntoView({behavior:'smooth'}),100); };
+    
+    // Grid Renders (Team, Levels, Days) - Same as before
+    function renderTeamGrid() { const m={}; allAssignmentsCache.forEach(a=>{if(!m[a.istruttore])m[a.istruttore]={c:0};}); allLessonsCache.forEach(l=>{if(!m[l.email])m[l.email]={c:0};m[l.email].c++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(e=>{ g.innerHTML+=`<div class="user-card ${e===currentSelectedDetail?'active':''}" onclick="selectItem('${e}')"><div class="uc-header"><div class="uc-name">${allAnagraficaCache[e]?.nome||e.split('@')[0]}</div><button class="btn-rename" onclick="renameUser('${e}')">✏️</button></div><span class="uc-email">${e}</span><div class="uc-stats"><span class="uc-val">${m[e].c} <small>LEZ</small></span></div></div>`; }); }
+    function renderLevelsGrid() { const m={}; allLevelsCache.forEach(l=>m[l]=0); allAssignmentsCache.forEach(a=>{if(m[a.livello]!==undefined)m[a.livello]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(l=>{ g.innerHTML+=`<div class="overview-card ${l===currentSelectedDetail?'active':''}" onclick="selectItem('${l}')"><div class="oc-name">${l}</div><div class="oc-count">${m[l]} Corsi</div></div>`; }); }
+    function renderDaysGrid() { const m={}; allAssignmentsCache.forEach(a=>{const d=a.giorno||'Altro';if(!m[d])m[d]=0;m[d]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; const ord={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7}; Object.keys(m).sort((a,b)=>(ord[a]||9)-(ord[b]||9)).forEach(d=>{ g.innerHTML+=`<div class="overview-card ${d===currentSelectedDetail?'active':''}" onclick="selectItem('${d}')"><div class="oc-name">${d}</div><div class="oc-count">${m[d]} Corsi</div></div>`; }); }
+
+    function renderDetails(id) {
+        document.getElementById('admin-detail-area').classList.remove('hidden');
+        document.getElementById('detail-title').innerText = (currentAdminView==='team' ? "Istruttore: " : "Dettaglio: ") + (allAnagraficaCache[id]?.nome || id);
+        const list = document.getElementById('admin-assigned-list'); list.innerHTML="";
+        
+        let pool = allAssignmentsCache;
+        if(currentAdminView==='team') pool=pool.filter(a=>a.istruttore===id);
+        else if(currentAdminView==='levels') pool=pool.filter(a=>a.livello===id);
+        else pool=pool.filter(a=>a.giorno===id);
+
+        if(pool.length===0) list.innerHTML="<p>Nessun corso.</p>";
+        else pool.forEach(c => {
+            const instr = allAnagraficaCache[c.istruttore]?.nome || c.istruttore;
+            // Unico ID per il container obiettivi
+            const objBoxId = `adm-obj-${c.id}`;
+            
+            list.innerHTML += `
+                <div class="ac-item">
+                    <div>
+                        <span class="ac-title clickable-course" onclick="openAdminCourseHistory('${c.nome}', '${currentAdminView==='team'?id:null}')">📂 ${c.nome}</span>
+                        <span class="ac-sub">👤 ${instr}</span>
+                    </div>
+                    <div id="${objBoxId}" class="objectives-card" style="margin-top:10px; padding:10px;"></div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-info-course" onclick="openCourseSettings('${c.id}')">⚙️</button>
+                        <button class="btn-reassign" onclick="reassignInstructor('${c.id}', '${c.istruttore}')">👤</button>
+                        <button class="btn-del-assign" onclick="deleteAssignment('${c.id}')">🗑️</button>
+                    </div>
+                </div>`;
+            
+            // Renderizza i semafori dopo aver creato l'HTML
+            setTimeout(() => {
+                renderTrafficLights(objBoxId, c.livello, c.progress, true, c.id);
+            }, 0);
+        });
+    }
+
+    function initLevels() {
+        onSnapshot(query(collection(db, "elenco_livelli"), orderBy("nome")), s => {
             allLevelsCache=[]; const div=document.getElementById('levels-container'); div.innerHTML="";
-            const sel=document.getElementById('new-level-select'); sel.innerHTML='<option>Livello...</option>';
+            const sel=document.getElementById('new-level-select'); sel.innerHTML='<option value="">--</option>';
+            const fil=document.getElementById('adm-filter-level'); fil.innerHTML='<option value="all">Tutti</option>';
             s.forEach(d=>{
                 const l=d.data().nome; allLevelsCache.push(l);
-                div.innerHTML+=`<div class="level-tag" onclick="openObjConfig('${l}')">${l} <span onclick="event.stopPropagation();deleteLevel('${d.id}')" style="margin-left:5px;opacity:0.6">×</span></div>`;
-                sel.innerHTML+=`<option value="${l}">${l}</option>`;
+                // Aggiunto bottone Edit (⚙️) per definire obiettivi
+                div.innerHTML+=`<div class="level-tag" onclick="openObjConfig('${l}')">${l} <button class="btn-del-level" onclick="event.stopPropagation();deleteLevel('${d.id}')">×</button></div>`;
+                sel.innerHTML+=`<option value="${l}">${l}</option>`; fil.innerHTML+=`<option value="${l}">${l}</option>`;
             });
-        });
-        onSnapshot(collection(db,"corsi_assegnati"), s=>{
-            const list=document.getElementById('admin-assigned-list'); list.innerHTML=""; allActiveAssignmentsCache=[];
-            s.forEach(d=>{
-                const c={id:d.id,...d.data()}; allActiveAssignmentsCache.push(c);
-                list.innerHTML+=`<div class="ac-item"><div style="font-weight:bold;color:var(--primary)">${c.nome}</div><div style="color:var(--text-sub);font-size:0.9rem">Istr: ${c.istruttore} | Liv: ${c.livello}</div><div class="btn-group"><button onclick="openCourseSettings('${c.id}')">⚙️</button><button onclick="deleteAssignment('${c.id}')" style="color:red">🗑️</button></div></div>`;
-            });
-        });
-        onSnapshot(collection(db,"anagrafica"), s=>{ const sel=document.getElementById('admin-notice-target'); sel.innerHTML='<option value="all">A: Tutti</option>'; s.forEach(d=>sel.innerHTML+=`<option value="${d.id}">${d.data().nome||d.id}</option>`); });
-    }
-
-    // ADMIN ACTIONS
-    window.openObjConfig=(l)=>{document.getElementById('conf-lvl-name').innerText=l;document.getElementById('conf-obj-text').value=(objectivesConfigCache[l]||[]).join('\n');document.getElementById('objectives-config-modal').style.display='flex';};
-    window.saveObjConfig=async()=>{const l=document.getElementById('conf-lvl-name').innerText; const i=document.getElementById('conf-obj-text').value.split('\n').map(s=>s.trim()).filter(s=>s!==""); await setDoc(doc(db,"config_obiettivi",l),{items:i},{merge:true}); document.getElementById('objectives-config-modal').style.display='none'; toast("Salvati");};
-    window.saveNewLevel=async()=>{const v=document.getElementById('new-level-input').value; if(v) await addDoc(collection(db,"elenco_livelli"),{nome:v});};
-    window.deleteLevel=async(id)=>{if(confirm("Eliminare?")) await deleteDoc(doc(db,"elenco_livelli",id));};
-    window.addCourseStructured=async()=>{const l=document.getElementById('new-level-select').value; const d=document.getElementById('new-day').value; const t=document.getElementById('new-time').value; const m=document.getElementById('new-email').value; if(l&&d&&t&&m) await addDoc(collection(db,"corsi_assegnati"),{nome:`${l} - ${d} ${t}`, livello:l, giorno:d, ora:t, istruttore:m});};
-    window.deleteAssignment=async(id)=>{if(confirm("Eliminare?")) await deleteDoc(doc(db,"corsi_assegnati",id));};
-
-    // COURSE SETTINGS & TRAFFIC LIGHTS (ADMIN)
-    window.openCourseSettings=(id)=>{
-        const c=allActiveAssignmentsCache.find(x=>x.id===id); if(!c)return;
-        document.getElementById('cs-id').value=c.id; document.getElementById('cs-iscritti').value=c.iscritti||""; document.getElementById('cs-note').value=c.note_corso||"";
-        currentAdminProgress=c.progress||{}; renderAdminTrafficLights(c.livello);
-        document.getElementById('course-settings-modal').style.display='flex';
-    };
-    function renderAdminTrafficLights(lvl) {
-        const c=document.getElementById('admin-obj-list'); c.innerHTML="";
-        const objs=objectivesConfigCache[lvl]||[];
-        if(objs.length===0) { c.innerHTML="<p style='color:gray'>Nessun obiettivo.</p>"; return; }
-        objs.forEach(o=>{
-            const s=currentAdminProgress[o]||'gray';
-            const d=document.createElement('div'); d.className='obj-item';
-            d.innerHTML=`<div class="traffic-light tl-${s}" onclick="cycleLight('${o}')"></div><span>${o}</span>`;
-            c.appendChild(d);
+            if(currentAdminView==='levels') renderApp();
         });
     }
-    window.cycleLight=(o)=>{ 
-        const s=['gray','red','yellow','green']; 
-        const curr=currentAdminProgress[o]||'gray'; 
-        const next=s[(s.indexOf(curr)+1)%4]; 
-        currentAdminProgress[o]=next; 
-        // Re-render handled by finding the element and changing class would be faster but full re-render is safer for code size
-        // Finding parent modal level to re-render
-        const cId=document.getElementById('cs-id').value; 
-        const lvl=allActiveAssignmentsCache.find(x=>x.id===cId).livello; 
-        renderAdminTrafficLights(lvl); 
+    // Shared Admin Actions (Save Level, Delete Level, Add Course, etc.) - same as previous
+    window.saveNewLevel = async () => { const n=document.getElementById('new-level-input').value.trim(); if(n) await addDoc(collection(db,"elenco_livelli"),{nome:n}); };
+    window.deleteLevel = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db,"elenco_livelli",id)); };
+    window.addCourseStructured = async () => { /* ... existing code ... */ 
+        const lvl=document.getElementById('new-level-select').value; const day=document.getElementById('new-day').value; const time=document.getElementById('new-time').value; const mail=document.getElementById('new-email').value.trim();
+        if(lvl&&day&&time&&mail) await addDoc(collection(db,"corsi_assegnati"), {nome:`${lvl} - ${day} ${time}`, livello:lvl, giorno:day, ora:time, istruttore:mail, created:new Date()});
     };
-    window.saveCourseSettings=async()=>{
-        const id=document.getElementById('cs-id').value;
-        await updateDoc(doc(db,"corsi_assegnati",id), {
-            iscritti:document.getElementById('cs-iscritti').value, 
-            note_corso:document.getElementById('cs-note').value, 
-            progress:currentAdminProgress
-        });
-        document.getElementById('course-settings-modal').style.display='none'; toast("Salvato");
-    };
+    window.deleteAssignment = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db,"corsi_assegnati",id)); };
+    window.reassignInstructor = async (id,old) => { modalPrompt("Cambia Istruttore","Nuova email:",old, async(n)=>{if(n)await updateDoc(doc(db,"corsi_assegnati",id),{istruttore:n.trim()})}); };
+    window.renameUser = async (e) => { modalPrompt("Rinomina","Nome reale:",allAnagraficaCache[e]?.nome, async(n)=>{if(n)await setDoc(doc(db,"anagrafica",e),{nome:n},{merge:true})}); };
 
-    // --- INSTRUCTOR LOGIC ---
+    // --- INSTRUCTOR INIT ---
     function initInstructor() {
-        document.getElementById('instructor-view').classList.remove('hidden');
-        document.getElementById('corso').addEventListener('change', updateInstructorPreview);
-        
+        document.getElementById('corso').addEventListener('change', updateLastLessonPreview);
+        // Load levels for filter
+        onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")),s=>{ 
+            const f=document.getElementById('instr-filter-level'); f.innerHTML='<option value="all">Tutti</option>'; 
+            s.forEach(d=>f.innerHTML+=`<option value="${d.data().nome}">${d.data().nome}</option>`); 
+        });
+        // Load Courses
         onSnapshot(collection(db,"corsi_assegnati"), s=>{
             allActiveAssignmentsCache=[]; s.forEach(d=>allActiveAssignmentsCache.push({id:d.id,...d.data()}));
-            myAssignmentsCache=allActiveAssignmentsCache.filter(c=>c.istruttore===currentUser.email.toLowerCase());
-            window.toggleSubstitutionMode(); renderInstrOverview();
+            myAssignmentsCache = allActiveAssignmentsCache.filter(c=>c.istruttore===currentUser.email.toLowerCase());
+            window.toggleSubstitutionMode(); // Loads select
+            renderInstrOverview(); updateLastLessonPreview();
         });
+        // Load Lessons
         onSnapshot(query(collection(db,"registro_didattico"),where("uid","==",currentUser.uid)), s=>{
             myLessonsCache=[]; s.forEach(d=>myLessonsCache.push({id:d.id,...d.data()}));
+            renderInstrOverview(); updateLastLessonPreview(); if(currentOpenCourse)renderHistoryList();
         });
     }
 
-    window.toggleSubstitutionMode=()=>{
-        const sub=document.getElementById('is-substitution').checked;
-        const sel=document.getElementById('corso'); sel.innerHTML='<option value="">Seleziona...</option>';
+    // Toggle Substitution, Last Lesson Preview - same as before
+    window.toggleSubstitutionMode = () => {
+        const sub = document.getElementById('is-substitution').checked;
+        const sel = document.getElementById('corso');
         sel.parentElement.classList.toggle('sub-active', sub);
-        const pool=sub?allActiveAssignmentsCache.filter(c=>c.istruttore!==currentUser.email.toLowerCase()):myAssignmentsCache;
+        let pool = sub ? allActiveAssignmentsCache.filter(c=>c.istruttore!==currentUser.email.toLowerCase()) : myAssignmentsCache;
         pool.sort((a,b)=>a.nome.localeCompare(b.nome));
-        pool.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${c.nome} ${sub?'('+c.istruttore+')':''}</option>`);
+        sel.innerHTML = '<option value="">Seleziona...</option>';
+        if(pool.length===0) sel.innerHTML='<option>Nessun corso</option>';
+        pool.forEach(c=>sel.innerHTML+=`<option value="${c.nome}">${c.nome} ${sub?'('+c.istruttore.split('@')[0]+')':''}</option>`);
+        updateLastLessonPreview();
     };
 
-    function updateInstructorPreview() {
-        const cId=document.getElementById('corso').value; const c=allActiveAssignmentsCache.find(x=>x.id===cId);
-        const boxLL=document.getElementById('last-lesson-info'); const boxObj=document.getElementById('instr-obj-box');
+    function updateLastLessonPreview() {
+        const cName = document.getElementById('corso').value;
+        const box = document.getElementById('last-lesson-info');
+        const objBox = document.getElementById('instr-objectives-box');
         
-        if(!cId || !c) { boxLL.classList.add('hidden'); boxObj.classList.add('hidden'); return; }
+        if(!cName || cName.includes("Seleziona") || cName.includes("Nessun")) { box.classList.add('hidden'); objBox.classList.add('hidden'); return; }
 
-        // Last Lesson
-        const l=myLessonsCache.filter(x=>x.corso===c.nome).sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
-        if(l) { 
-            boxLL.classList.remove('hidden'); 
-            document.getElementById('ll-date').innerText=new Date(l.data).toLocaleDateString();
-            document.getElementById('ll-obj').innerText=l.obiettivo; document.getElementById('ll-act').innerText=l.attivita;
-        } else boxLL.classList.add('hidden');
+        // 1. Last Lesson Logic
+        const lessons = myLessonsCache.filter(l=>l.corso===cName).sort((a,b)=>new Date(b.data)-new Date(a.data));
+        if(lessons.length>0) {
+            const last = lessons[0];
+            document.getElementById('ll-date').innerText=new Date(last.data).toLocaleDateString();
+            document.getElementById('ll-obj').innerText=last.obiettivo||"-";
+            document.getElementById('ll-act').innerText=last.attivita||"-";
+            box.classList.remove('hidden');
+        } else box.classList.add('hidden');
 
-        // Objectives
-        const objs=objectivesConfigCache[c.livello];
-        if(objs && objs.length>0) {
-            boxObj.classList.remove('hidden'); const list=document.getElementById('instr-obj-list'); list.innerHTML="";
-            objs.forEach(o=>{
-                const s=(c.progress||{})[o]||'gray';
-                list.innerHTML+=`<div class="obj-item"><div class="traffic-light tl-${s}"></div><span>${o}</span></div>`;
-            });
-        } else boxObj.classList.add('hidden');
+        // 2. Objectives Logic (Read Only)
+        // Find course object to get level and progress
+        const courseObj = allActiveAssignmentsCache.find(c=>c.nome === cName);
+        if(courseObj) {
+            renderTrafficLights('instr-objectives-box', courseObj.livello, courseObj.progress, false, null);
+        } else {
+            objBox.classList.add('hidden');
+        }
     }
 
-    // INSTRUCTOR OVERVIEW (Days/Levels)
-    window.switchInstrView=(v)=>{
-        document.getElementById('btn-instr-days').style.background=v==='days'?'var(--primary)':'var(--input-bg)';
-        document.getElementById('btn-instr-days').style.color=v==='days'?'white':'var(--text-main)';
-        document.getElementById('btn-instr-levels').style.background=v==='levels'?'var(--primary)':'var(--input-bg)';
-        document.getElementById('btn-instr-levels').style.color=v==='levels'?'white':'var(--text-main)';
+    // Instructor Overview & History - same logic as before (switch view, open folders, pdf)
+    window.switchInstrView = (v) => { currentDayView=null; currentLevelView=null; document.getElementById('courses-list-wrapper').classList.add('hidden'); document.querySelectorAll('.view-switch-container .switch-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-instr-'+v).classList.add('active'); if(v==='days'){document.getElementById('days-overview-grid').classList.remove('hidden');document.getElementById('levels-overview-grid').classList.add('hidden');}else{document.getElementById('days-overview-grid').classList.add('hidden');document.getElementById('levels-overview-grid').classList.remove('hidden');} renderInstrOverview(); };
+    
+    window.renderInstrOverview = () => {
+        // ... (Logic to aggregate myAssignmentsCache by Day or Level and render cards) ...
+        // Simplified for brevity, same as previous reliable code
+        const gridD = document.getElementById('days-overview-grid'); const gridL = document.getElementById('levels-overview-grid');
+        gridD.innerHTML=""; gridL.innerHTML="";
         
-        document.getElementById('courses-list-wrapper').classList.add('hidden');
-        if(v==='days') { document.getElementById('days-overview-grid').classList.remove('hidden'); document.getElementById('levels-overview-grid').classList.add('hidden'); }
-        else { document.getElementById('days-overview-grid').classList.add('hidden'); document.getElementById('levels-overview-grid').classList.remove('hidden'); }
-        renderInstrOverview();
+        // Helper to count
+        const countBy = (prop) => { const m={}; myAssignmentsCache.forEach(c=>{const k=c[prop]||'Altro'; m[k]=(m[k]||0)+1;}); return m; };
+        
+        const dMap = countBy('giorno');
+        const lMap = countBy('livello');
+        
+        Object.keys(dMap).sort().forEach(k => gridD.innerHTML+=`<div class="overview-card" onclick="openDayView('${k}')"><div class="oc-name">${k}</div><div class="oc-count">${dMap[k]} Corsi</div></div>`);
+        Object.keys(lMap).sort().forEach(k => gridL.innerHTML+=`<div class="overview-card" onclick="openLevelView('${k}')"><div class="oc-name">${k}</div><div class="oc-count">${lMap[k]} Corsi</div></div>`);
     };
 
-    function renderInstrOverview() {
-        const dGrid=document.getElementById('days-overview-grid'); const lGrid=document.getElementById('levels-overview-grid');
-        dGrid.innerHTML=""; lGrid.innerHTML="";
-        
-        // Count Days
-        const dMap={}; myAssignmentsCache.forEach(c=>{const d=c.giorno||'Altro'; dMap[d]=(dMap[d]||0)+1;});
-        const dOrd={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7};
-        Object.keys(dMap).sort((a,b)=>(dOrd[a]||9)-(dOrd[b]||9)).forEach(d=>{
-            dGrid.innerHTML+=`<div class="overview-card" onclick="openFolder('giorno','${d}')"><div style="font-weight:bold;font-size:1.1rem">${d}</div><small>${dMap[d]} Corsi</small></div>`;
-        });
-
-        // Count Levels
-        const lMap={}; myAssignmentsCache.forEach(c=>{const l=c.livello||'Altro'; lMap[l]=(lMap[l]||0)+1;});
-        Object.keys(lMap).sort().forEach(l=>{
-            lGrid.innerHTML+=`<div class="overview-card" onclick="openFolder('livello','${l}')"><div style="font-weight:bold;font-size:1.1rem">${l}</div><small>${lMap[l]} Corsi</small></div>`;
-        });
-    }
-
-    window.openFolder=(type, val)=>{
+    window.openDayView = (d) => { currentDayView=d; currentLevelView=null; showCourseList(d); };
+    window.openLevelView = (l) => { currentLevelView=l; currentDayView=null; showCourseList(l); };
+    function showCourseList(title) {
         document.getElementById('days-overview-grid').classList.add('hidden'); document.getElementById('levels-overview-grid').classList.add('hidden');
-        document.getElementById('courses-list-wrapper').classList.remove('hidden');
-        document.getElementById('folder-title-display').innerText=val;
-        const grid=document.getElementById('my-courses-grid'); grid.innerHTML="";
-        const pool=myAssignmentsCache.filter(c=>c[type]===val);
-        pool.forEach(c=>{
-            const count=myLessonsCache.filter(l=>l.corso===c.nome).length;
-            grid.innerHTML+=`<div class="course-folder" onclick="openHistory('${c.nome}')"><div class="cf-header"><div class="cf-title">${c.nome}</div></div><div class="cf-meta"><span class="cf-tag">${count} Schede</span></div></div>`;
+        const w = document.getElementById('courses-list-wrapper'); w.classList.remove('hidden');
+        document.getElementById('folder-title-display').innerText = title;
+        renderCourseFolders();
+    }
+    window.closeFolderView = () => { document.getElementById('courses-list-wrapper').classList.add('hidden'); const isDay = document.getElementById('btn-instr-days').classList.contains('active'); if(isDay) document.getElementById('days-overview-grid').classList.remove('hidden'); else document.getElementById('levels-overview-grid').classList.remove('hidden'); };
+
+    window.renderCourseFolders = () => {
+        const grid = document.getElementById('my-courses-grid'); grid.innerHTML="";
+        let pool = myAssignmentsCache;
+        if(currentDayView) pool = pool.filter(c=>c.giorno===currentDayView);
+        else if(currentLevelView) pool = pool.filter(c=>c.livello===currentLevelView);
+        
+        pool.forEach(c => {
+            const count = myLessonsCache.filter(l=>l.corso===c.nome).length;
+            grid.innerHTML += `<div class="course-folder" onclick="openHistory('${c.nome}')"><div class="cf-header"><div class="cf-title">${c.nome}</div><button class="cf-settings-btn" onclick="event.stopPropagation();openCourseSettings('${c.id}')">⚙️</button></div><div class="cf-meta"><div class="cf-count">${count} Schede</div></div></div>`;
         });
     };
-    window.closeFolderView=()=>{ document.getElementById('courses-list-wrapper').classList.add('hidden'); window.switchInstrView(document.getElementById('days-overview-grid').classList.contains('hidden')?'levels':'days'); };
 
-    // HISTORY
-    window.openHistory=(n)=>{ currentOpenCourse=n; document.getElementById('courses-list-wrapper').classList.add('hidden'); document.getElementById('course-history').classList.remove('hidden'); document.getElementById('hist-title').innerText=n; renderHistoryList(); };
-    window.closeHistory=()=>{ document.getElementById('course-history').classList.add('hidden'); document.getElementById('courses-list-wrapper').classList.remove('hidden'); };
-    function renderHistoryList(){
-        const l=document.getElementById('history-list'); l.innerHTML="";
-        const p=myLessonsCache.filter(x=>x.corso===currentOpenCourse).sort((a,b)=>new Date(b.data)-new Date(a.data));
-        p.forEach(d=>{ l.innerHTML+=`<div class="lezione-card"><div class="card-top"><span class="date-badge">${new Date(d.data).toLocaleDateString()}</span><span class="presenze-badge">👥 ${d.presenze}</span></div><div style="margin-top:5px"><b>${d.obiettivo}</b></div><div style="font-size:0.9rem;color:var(--text-sub)">${d.attivita}</div></div>`; });
-    }
-
-    // SAVING LESSON
+    // History, PDF, Edit, Delete - Standard implementation from previous versions
+    window.openHistory = (n) => { currentOpenCourse=n; document.getElementById('courses-list-wrapper').classList.add('hidden'); document.getElementById('course-history').classList.add('active'); document.getElementById('hist-title').innerText=n; renderHistoryList(); };
+    window.closeHistory = () => { currentOpenCourse=null; document.getElementById('course-history').classList.remove('active'); document.getElementById('courses-list-wrapper').classList.remove('hidden'); };
+    window.renderHistoryList = () => {
+        const l = document.getElementById('history-list'); l.innerHTML="";
+        const pool = myLessonsCache.filter(x=>x.corso===currentOpenCourse).sort((a,b)=>new Date(b.data)-new Date(a.data));
+        pool.forEach(d => { l.innerHTML+=`<div class="lezione-card"><div class="card-top"><span class="date-badge">${new Date(d.data).toLocaleDateString()}</span><div class="actions-div"><button class="icon-btn" onclick="openEditModal('${d.id}')">✏️</button><button class="icon-btn" onclick="deleteLesson('${d.id}')">🗑️</button></div></div><div><b>${d.obiettivo}</b><br>${d.attivita}</div></div>`; });
+    };
+    
+    // Save Lesson
     window.salvaLezione = async () => {
-        const cId=document.getElementById('corso').value; const cObj=allActiveAssignmentsCache.find(x=>x.id===cId);
-        if(!cObj) return toast("Seleziona corso");
-        await addDoc(collection(db,"registro_didattico"),{
-            uid:currentUser.uid, email:currentUser.email, data:document.getElementById('data').value,
-            corso:cObj.nome, obiettivo:document.getElementById('obiettivo').value, attivita:document.getElementById('attivita').value,
-            presenze:document.getElementById('presenze').value, note:document.getElementById('note').value,
-            periodo:document.getElementById('periodo').value, is_sostituzione:document.getElementById('is-substitution').checked, timestamp:new Date()
+        const c=document.getElementById('corso').value; 
+        if(!c || c.includes("Seleziona")) return toast("Scegli corso");
+        await addDoc(collection(db,"registro_didattico"), {
+            uid:currentUser.uid, email:currentUser.email,
+            data:document.getElementById('data').value, corso:c,
+            obiettivo:document.getElementById('obiettivo').value,
+            attivita:document.getElementById('attivita').value,
+            presenze:document.getElementById('presenze').value,
+            note:document.getElementById('note').value,
+            periodo:document.getElementById('periodo').value,
+            is_sostituzione: document.getElementById('is-substitution').checked,
+            timestamp: new Date()
         });
         toast("Salvato"); document.getElementById('attivita').value="";
         if(document.getElementById('is-substitution').checked){ document.getElementById('is-substitution').checked=false; toggleSubstitutionMode(); }
-        else updateInstructorPreview();
+        else updateLastLessonPreview();
     };
-
-    // PDF
+    
+    // PDF Export
     window.downloadCoursePDF = () => {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
         const logs = myLessonsCache.filter(l=>l.corso===currentOpenCourse).sort((a,b)=>new Date(a.data)-new Date(b.data));
@@ -514,27 +921,14 @@
         doc.autoTable({head:[['Data','Obiettivo','Attività','Pres.']], body:body});
         doc.save("registro.pdf");
     };
+    
+    // Edit/Delete
+    window.deleteLesson = async(id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db,"registro_didattico",id)); };
+    window.openEditModal = (id) => { const l=myLessonsCache.find(x=>x.id===id); if(!l)return; document.getElementById('edit-id').value=id; document.getElementById('edit-data').value=l.data; document.getElementById('edit-obiettivo').value=l.obiettivo; document.getElementById('edit-attivita').value=l.attivita; document.getElementById('edit-modal').style.display='flex'; };
+    window.saveEdit = async() => { await updateDoc(doc(db,"registro_didattico",document.getElementById('edit-id').value), { obiettivo:document.getElementById('edit-obiettivo').value, attivita:document.getElementById('edit-attivita').value }); document.getElementById('edit-modal').style.display='none'; };
+    window.openCourseSettings = (id) => { const c=myAssignmentsCache.find(x=>x.id===id); if(!c)return; document.getElementById('cs-id').value=id; document.getElementById('cs-iscritti').value=c.iscritti||""; document.getElementById('cs-note').value=c.note_corso||""; document.getElementById('course-settings-modal').style.display='flex'; };
+    window.saveCourseSettings = async() => { await updateDoc(doc(db,"corsi_assegnati",document.getElementById('cs-id').value), { iscritti:document.getElementById('cs-iscritti').value, note_corso:document.getElementById('cs-note').value }); document.getElementById('course-settings-modal').style.display='none'; };
 
-    // NOTICES
-    window.sendNotice=async()=>{ const t=document.getElementById('admin-notice-text').value; if(t) await addDoc(collection(db,"avvisi"),{testo:t, destinatario:document.getElementById('admin-notice-target').value, data:new Date()}); document.getElementById('admin-notice-text').value=""; toast("Inviato"); };
-    window.deleteNotice=async(id)=>{ if(confirm("Eliminare?")) await deleteDoc(doc(db,"avvisi",id)); };
-    function renderAdminNotices(){
-        const l=document.getElementById('admin-sent-notices'); l.innerHTML="";
-        allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{
-            l.innerHTML+=`<div style="padding:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.9rem"><div><b>A: ${n.destinatario==='all'?'Tutti':n.destinatario}</b><br>${n.testo}</div><button onclick="deleteNotice('${n.id}')" style="color:red; border:none; background:none">🗑️</button></div>`;
-        });
-    }
-    function renderInstructorNotices(){
-        const l=document.getElementById('notif-list'); const b=document.getElementById('notif-badge'); l.innerHTML="";
-        let c=0;
-        allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{
-            if(n.destinatario==='all' || n.destinatario===currentUser.email.toLowerCase()){
-                c++; l.innerHTML+=`<div class="notif-item"><div style="flex:1"><small style="color:var(--text-sub)">${new Date(n.data.seconds*1000).toLocaleDateString()}</small><br>${n.testo}</div></div>`;
-            }
-        });
-        if(c===0) l.innerHTML="<p style='padding:20px;text-align:center;color:gray'>Nessun avviso.</p>";
-        b.innerText=c; b.classList.toggle('hidden', c===0);
-    }
 </script>
 </body>
 </html>
