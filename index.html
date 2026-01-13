@@ -15,6 +15,7 @@
             --bg-body: #f3f4f6; --bg-card: #ffffff; --text-main: #1f2937; --text-sub: #6b7280;
             --border: #e5e7eb; --input-bg: #ffffff; 
             --primary: #4f46e5; --primary-hover: #4338ca; --danger: #ef4444;
+            /* Semafori */
             --tl-gray: #e5e7eb; --tl-red: #ef4444; --tl-yellow: #f59e0b; --tl-green: #10b981;
         }
         body.dark-mode {
@@ -25,13 +26,13 @@
 
         /* --- BASE STYLES --- */
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 20px; margin: 0; transition: 0.3s; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 20px; margin: 0; transition: background-color 0.3s, color 0.3s; }
         
         .container { 
             max-width: 1000px; margin: 0 auto; background: var(--bg-card); 
             padding: 30px; border-radius: 20px; min-height: 85vh; 
             border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            overflow-x: hidden; /* Evita scroll orizzontale */
+            overflow-x: hidden;
         }
         
         /* HEADER */
@@ -45,7 +46,17 @@
             padding: 0; border-radius: 12px; cursor: pointer; font-size: 1.3rem; width: 44px; height: 44px; 
             display:flex; align-items:center; justify-content:center; position: relative; transition: all 0.2s;
         }
-        button.logout-btn { background: var(--danger); color: white; border: none; padding: 0 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; height: 44px; }
+        button.action-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        button.logout-btn { background: var(--danger); color: white; border: none; padding: 0 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; height: 44px; transition: opacity 0.2s; }
+        
+        /* NOTIFICHE */
+        .notif-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; font-size: 0.75rem; padding: 2px 7px; border-radius: 12px; font-weight: 800; border: 2px solid var(--bg-card); }
+        .notif-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; padding-top: 80px; backdrop-filter: blur(4px); }
+        .notif-box { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 20px; display: flex; flex-direction: column; max-height: 80vh; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,0.3); animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .notif-header { padding: 20px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); border-radius: 20px 20px 0 0; }
+        .notif-list { flex: 1; overflow-y: auto; padding: 0; }
+        .notif-item { padding: 18px; border-bottom: 1px solid var(--border); border-left: 5px solid var(--primary); background: rgba(79, 70, 229, 0.04); display: flex; justify-content: space-between; align-items: start; }
         
         /* INPUTS & FORMS */
         .form-group { margin-bottom: 20px; width: 100%; }
@@ -55,49 +66,109 @@
             width: 100%; max-width: 100%; min-width: 0;
             padding: 14px; border: 2px solid var(--border); border-radius: 12px; 
             background: var(--input-bg); color: var(--text-main); 
-            box-sizing: border-box; font-size: 16px; margin: 0; outline: none; font-family: 'Inter', sans-serif;
+            box-sizing: border-box; font-size: 16px; margin: 0; outline: none; font-family: 'Inter', sans-serif; transition: border-color 0.2s;
         }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
-        /* Fix iOS date style */
         input[type="date"] { -webkit-appearance: none; appearance: none; display: block; }
         
-        button.primary-btn { width: 100%; padding: 16px; background-color: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-
-        /* TRAFFIC LIGHTS */
-        .obj-container { background: var(--bg-body); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .obj-level-header { font-weight: 800; color: var(--primary); margin-bottom: 10px; font-size: 0.95rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-        .obj-item { display: flex; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .obj-label { font-size: 0.95rem; flex: 1; line-height: 1.3; }
-        .traffic-light { width: 28px; height: 28px; border-radius: 50%; border: 3px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0; }
-        .tl-gray { background: var(--tl-gray); } .tl-red { background: var(--tl-red); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); } 
-        .tl-yellow { background: var(--tl-yellow); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); } .tl-green { background: var(--tl-green); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-        .readonly .traffic-light { cursor: default; opacity: 0.9; }
-
-        /* CARDS & GRID */
-        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .overview-card, .user-card, .course-folder { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .user-card { text-align: left; }
-        .course-folder { border-bottom: 5px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; }
-        .cf-title { font-weight: 800; font-size: 1.1rem; line-height: 1.3; }
-        
-        .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 12px; padding: 15px; margin-bottom: 25px; font-size: 0.95rem; }
-        body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
-
-        /* NOTIFICATIONS */
-        .notif-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; font-size: 0.75rem; padding: 2px 7px; border-radius: 12px; font-weight: 800; border: 2px solid var(--bg-card); }
-        .notif-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; padding-top: 80px; backdrop-filter: blur(4px); }
-        .notif-box { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 20px; display: flex; flex-direction: column; max-height: 80vh; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
-        .notif-header { padding: 20px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); border-radius: 20px 20px 0 0; }
-        .notif-list { flex: 1; overflow-y: auto; padding: 0; }
-        .notif-item { padding: 18px; border-bottom: 1px solid var(--border); border-left: 5px solid var(--primary); background: rgba(79, 70, 229, 0.04); display: flex; justify-content: space-between; align-items: start; }
+        button.primary-btn { width: 100%; padding: 16px; background-color: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+        button.primary-btn:hover { background-color: var(--primary-hover); }
 
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
-        .modal-box { background: var(--bg-card); padding: 30px; border-radius: 20px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.4); color: var(--text-main); }
+        .modal-box { background: var(--bg-card); padding: 30px; border-radius: 20px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.4); color: var(--text-main); animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes popUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal-title { margin-top:0; margin-bottom: 20px; font-size: 1.4rem; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
         .modal-actions { display: flex; gap: 12px; margin-top: 30px; }
-        .btn-cancel, .btn-confirm { flex: 1; padding: 14px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; font-size: 1rem; }
-        .btn-cancel { background: var(--border); color: var(--text-main); } .btn-confirm { background: var(--primary); color: white; }
+        .btn-cancel { flex: 1; padding: 14px; background: var(--border); border: none; border-radius: 10px; cursor: pointer; color: var(--text-main); font-weight: 700; font-size: 1rem; }
+        .btn-confirm { flex: 1; padding: 14px; background: var(--primary); border: none; border-radius: 10px; cursor: pointer; color: white; font-weight: 700; font-size: 1rem; }
 
+        /* TRAFFIC LIGHTS SYSTEM (Double Level - Mobile Optimized) */
+        .obj-container {
+            background: var(--bg-card); /* White box to stand out in form */
+            border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .obj-level-header {
+            font-weight: 800; color: var(--primary); margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border); padding-bottom: 5px;
+        }
+        .obj-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .obj-item:last-child { border-bottom: none; }
+        .obj-label { font-size: 0.95rem; flex: 1; line-height: 1.3; }
+        
+        /* Semafori adattivi */
+        .traffic-light { width: 26px; height: 26px; border-radius: 50%; border: 3px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0; transition: transform 0.1s; }
+        .traffic-light:active { transform: scale(0.9); }
+        .tl-gray { background: var(--tl-gray); }
+        .tl-red { background: var(--tl-red); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+        .tl-yellow { background: var(--tl-yellow); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .tl-green { background: var(--tl-green); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .readonly .traffic-light { cursor: default; pointer-events: none; opacity: 1; }
+
+        /* CARDS & GRID */
+        .grid-courses { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 25px;
+        }
+        .overview-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; }
+        .overview-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.06); }
+        .oc-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; display: block; }
+        .oc-count { background: var(--bg-body); padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: var(--text-sub); }
+
+        .user-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.2s; }
+        .user-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .user-card.active { border: 2px solid var(--primary); background: rgba(79, 70, 229, 0.04); }
+        
+        .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px; }
+        .uc-name { font-weight: 800; font-size: 1.15rem; color: var(--text-main); }
+        .uc-email { font-size: 0.85rem; color: var(--text-sub); display: block; margin-bottom: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px; font-weight: 700; color: var(--primary); }
+        
+        .course-folder { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; cursor: pointer; border-bottom: 5px solid var(--primary); position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.04); transition: transform 0.2s; }
+        .course-folder:active { transform: scale(0.98); }
+        .cf-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 5px; line-height: 1.3; }
+
+        /* ADMIN TOOLS & LISTS */
+        .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
+        body.dark-mode .admin-tools { border-color: #92400e; background: rgba(146, 64, 14, 0.15); }
+        
+        .ac-item { padding: 15px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; background: var(--bg-card); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .btn-group { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 1.2rem; background: var(--bg-body); transition: background 0.2s; }
+        .btn-group button:hover { background: var(--border); }
+        
+        .levels-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; margin-bottom: 20px;}
+        .level-tag { background: var(--bg-card); border: 2px solid #f59e0b; color: #b45309; padding: 8px 16px; border-radius: 30px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; }
+        .level-tag:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); }
+        body.dark-mode .level-tag { color: #fbbf24; background: #374151; border-color: #fbbf24; }
+        
+        /* FIX CHECKBOX & PREVIEW */
+        .sub-checkbox-wrapper { display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 15px; background: var(--input-bg); transition: border-color 0.2s; }
+        .sub-checkbox-wrapper input { width: 24px; height: 24px; margin: 0; appearance: auto !important; -webkit-appearance: checkbox !important; accent-color: #f59e0b; }
+        .sub-checkbox-wrapper label { font-weight: 600; font-size: 1rem; cursor: pointer; }
+
+        .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 12px; padding: 15px; margin-bottom: 25px; font-size: 0.95rem; }
+        body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
+
+        /* SWITCH BUTTONS */
+        .view-switch-container { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
+        .switch-btn { flex: 1; padding: 14px; border: none; background: var(--border); border-radius: 12px; font-weight: 700; color: var(--text-sub); cursor: pointer; transition: all 0.2s; font-size: 1rem; }
+        .switch-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); transform: translateY(-1px); }
+
+        .hidden { display: none !important; }
+        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 15px; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        
+        /* Helper per semafori */
+        .sub-checkbox-wrapper input { cursor: pointer; }
+        .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
+        
         /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 14px; }
@@ -110,7 +181,7 @@
             button.action-btn { width: 34px; height: 34px; font-size: 1rem; }
             button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
 
-            /* Grid a 1 colonna */
+            /* Grid a 1 colonna per tutto */
             .grid-courses { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
             .course-folder, .overview-card, .user-card { padding: 15px; border-radius: 12px; }
             .cf-title { font-size: 1rem; }
@@ -122,9 +193,9 @@
             button.primary-btn { padding: 12px; font-size: 14px; margin-top: 5px; }
 
             /* Obiettivi più compatti */
-            .obj-container { padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+            .obj-container { padding: 10px; margin-bottom: 10px; }
             .obj-item { padding: 6px 0; gap: 8px; }
-            .traffic-light { width: 20px; height: 20px; border-width: 2px; }
+            .traffic-light { width: 22px; height: 22px; border-width: 2px; }
             .obj-label { font-size: 0.85rem; }
             .obj-level-header { font-size: 0.8rem; margin-bottom: 5px; }
 
@@ -147,28 +218,6 @@
             /* Last Lesson Box */
             .last-lesson-box { padding: 10px; font-size: 0.85rem; margin-bottom: 15px; }
         }
-
-        /* Utility */
-        .hidden { display: none !important; }
-        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-        
-        /* Helper per semafori */
-        .sub-checkbox-wrapper input { cursor: pointer; }
-        .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
-        
-        /* Admin lists */
-        .ac-item { padding: 15px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; background: var(--bg-card); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .btn-group { display: flex; gap: 8px; margin-top: 10px; }
-        .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 1.2rem; background: var(--bg-body); transition: background 0.2s; }
-        .levels-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; margin-bottom: 20px;}
-        .level-tag { background: var(--bg-card); border: 2px solid #f59e0b; color: #b45309; padding: 8px 16px; border-radius: 30px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        body.dark-mode .level-tag { color: #fbbf24; background: #374151; border-color: #fbbf24; }
-        .view-switch-container { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
-        .switch-btn { flex: 1; padding: 14px; border: none; background: var(--border); border-radius: 12px; font-weight: 700; color: var(--text-sub); cursor: pointer; transition: all 0.2s; font-size: 1rem; }
-        .switch-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -189,7 +238,7 @@
     <div class="modal-box">
         <h3 class="modal-title">🎯 Definisci Obiettivi: <span id="conf-lvl-name"></span></h3>
         <p style="font-size:0.9rem; color:var(--text-sub); margin-bottom:15px">Elenca gli obiettivi didattici (uno per riga).</p>
-        <textarea id="conf-obj-text" style="height:200px; line-height:1.5" placeholder="Es. Galleggiamento prono&#10;Respirazione laterale"></textarea>
+        <textarea id="conf-obj-text" style="height:250px; line-height:1.5" placeholder="Es. Galleggiamento prono&#10;Respirazione laterale&#10;Tuffo dal blocco"></textarea>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="document.getElementById('objectives-config-modal').style.display='none'">Chiudi</button>
             <button class="btn-confirm" onclick="saveObjConfig()">Salva Modifiche</button>
@@ -206,7 +255,7 @@
             <input type="number" id="cs-iscritti" placeholder="0">
         </div>
         <div class="form-group">
-            <label>Note Generali (Visibili all'istruttore)</label>
+            <label>Note Generali</label>
             <textarea id="cs-note" style="height:80px" placeholder="Note fisse sul gruppo..."></textarea>
         </div>
 
@@ -251,11 +300,11 @@
                 <select id="admin-notice-target" style="flex:1"><option value="all">A: Tutti</option></select>
                 <button onclick="sendNotice()" class="primary-btn" style="width:auto; margin:0; padding:0 20px">Invia</button>
             </div>
-            <div id="admin-sent-notices" style="margin-top:10px; max-height:150px; overflow-y:auto; font-size:0.9rem"></div>
+            <div id="admin-sent-notices" style="margin-top:15px; max-height:200px; overflow-y:auto; border-top:1px solid rgba(0,0,0,0.1); padding-top:10px"></div>
         </div>
 
         <div class="admin-tools">
-            <h4 style="margin:0 0 10px 0; color:#b45309">🎚 Gestione Livelli</h4>
+            <h4 style="margin:0 0 15px 0; color:#b45309; font-size:1.2rem">🎚 Gestione Livelli</h4>
             <div id="levels-container" class="levels-container" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px"></div>
             <div style="display:flex; gap:10px">
                 <input type="text" id="new-level-input" placeholder="Nuovo Livello">
@@ -263,7 +312,7 @@
             </div>
             
             <h4 style="margin:25px 0 10px 0; color:#b45309">🛠 Nuova Assegnazione</h4>
-            <div class="create-grid">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1.5fr auto; gap:15px; align-items:end">
                 <select id="new-level-select"><option>Livello...</option></select>
                 <select id="new-day"><option>Giorno...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
                 <input type="time" id="new-time">
@@ -280,19 +329,19 @@
 
         <div id="main-admin-grid" class="grid-courses"></div>
 
-        <div id="admin-detail-area" class="hidden" style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px">
-            <h4 style="margin:0 0 10px 0" id="detail-title">Dettagli...</h4>
+        <div id="admin-detail-area" class="hidden" style="margin-top:40px; border-top:2px solid var(--border); padding-top:30px">
+            <h4 style="margin:0 0 15px 0; font-size:1.3rem" id="detail-title">Dettagli...</h4>
             <div class="filter-bar">
                 <select id="adm-sort" onchange="renderDetails(currentSelectedDetail)"><option value="name">Alfabetico</option><option value="day">Giorno</option></select>
                 <select id="adm-filter-level" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Livelli</option></select>
                 <select id="adm-filter-day" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Giorni</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
             </div>
             <div class="assigned-courses-box">
-                <h5 style="margin:0 0 10px 0; color:var(--primary)" id="assigned-title">📋 Corsi Assegnati</h5>
+                <h5 style="margin:0 0 15px 0; color:var(--primary); font-size:1.1rem" id="assigned-title">📋 Corsi Assegnati</h5>
                 <div id="admin-assigned-list"></div>
             </div>
             <div id="lessons-log-container" class="hidden">
-                <h5 style="margin:20px 0 10px 0; color:var(--primary)">📝 Storico</h5>
+                <h5 style="margin:30px 0 15px 0; color:var(--primary); font-size:1.1rem">📝 Storico</h5>
                 <div id="admin-lessons-list"></div>
             </div>
         </div>
@@ -422,7 +471,12 @@
             autoSetPeriod('data','periodo');
             
             // LOAD GLOBAL DATA
-            onSnapshot(collection(db,"config_obiettivi"), s=>{objectivesConfigCache={};s.forEach(d=>objectivesConfigCache[d.id]=d.data().items||[]); if(currentSelectedDetail) renderDetails(currentSelectedDetail); });
+            onSnapshot(collection(db,"config_obiettivi"), s=>{
+                objectivesConfigCache={};s.forEach(d=>objectivesConfigCache[d.id]=d.data().items||[]); 
+                if(currentSelectedDetail) renderDetails(currentSelectedDetail); 
+                // FORCE INSTRUCTOR UPDATE
+                if(!document.getElementById('instructor-view').classList.contains('hidden')) updateInstructorPreview();
+            });
             onSnapshot(collection(db,"avvisi"), s=>{allNoticesCache=[];s.forEach(d=>allNoticesCache.push({id:d.id,...d.data()})); 
                 if(user.email.toLowerCase()===ADMIN_EMAIL.toLowerCase()) renderAdminNotices(); else renderInstructorNotices(); 
             });
@@ -487,7 +541,7 @@
         if(currentAdminView!=='levels' && lvlFil!=='all') pool=pool.filter(c=>c.livello===lvlFil);
         if(currentAdminView!=='days' && dayFil!=='all') pool=pool.filter(c=>c.giorno===dayFil);
 
-        if(pool.length===0) list.innerHTML="<p>Nessun corso.</p>";
+        if(pool.length===0) list.innerHTML="<p style='color:var(--text-sub);padding:10px'>Nessun corso.</p>";
         else pool.forEach(c => {
             const instr = allAnagraficaCache[c.istruttore]?.nome || c.istruttore;
             list.innerHTML += `
@@ -592,20 +646,22 @@
         document.getElementById('instructor-view').classList.remove('hidden');
         document.getElementById('corso').addEventListener('change', updateInstructorPreview);
         // Load All Levels just to know order
-        onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{ allLevelsCache=[]; s.forEach(d=>allLevelsCache.push(d.data().nome)); });
+        onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{ 
+            allLevelsCache=[]; 
+            s.forEach(d=>allLevelsCache.push(d.data().nome)); 
+            // Force update preview in case levels loaded after course selection
+            updateInstructorPreview();
+        });
 
         onSnapshot(collection(db,"corsi_assegnati"), s=>{
             allActiveAssignmentsCache=[]; s.forEach(d=>allActiveAssignmentsCache.push({id:d.id,...d.data()}));
             myAssignmentsCache=allActiveAssignmentsCache.filter(c=>c.istruttore===currentUser.email.toLowerCase());
             window.toggleSubstitutionMode(); 
-            // HERE IS THE FIX: Explicitly call update logic after loading courses
             renderInstrOverview();
-            // Try to restore previous selection if possible, or just reset
-            updateInstructorPreview(); 
+            updateInstructorPreview();
         });
         onSnapshot(query(collection(db,"registro_didattico"),where("uid","==",currentUser.uid)), s=>{
             myLessonsCache=[]; s.forEach(d=>myLessonsCache.push({id:d.id,...d.data()}));
-            // Also update preview when lessons change (e.g. after save)
             updateInstructorPreview();
         });
     }
@@ -617,38 +673,27 @@
         const pool=sub?allActiveAssignmentsCache.filter(c=>c.istruttore!==currentUser.email.toLowerCase()):myAssignmentsCache;
         pool.sort((a,b)=>a.nome.localeCompare(b.nome));
         pool.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${c.nome} ${sub?'('+c.istruttore+')':''}</option>`);
-        
-        // FIX: Force update of preview to clear previous selection visuals
         updateInstructorPreview();
     };
 
     function updateInstructorPreview() {
-        const cId=document.getElementById('corso').value; 
-        const c=allActiveAssignmentsCache.find(x=>x.id===cId);
+        const cId=document.getElementById('corso').value; const c=allActiveAssignmentsCache.find(x=>x.id===cId);
         const boxLL=document.getElementById('last-lesson-info'); 
         const wrapper=document.getElementById('instr-obj-wrapper');
         
-        if(!cId || !c) { 
-            boxLL.classList.add('hidden'); 
-            wrapper.classList.add('hidden'); 
-            return; 
-        }
+        if(!cId || !c) { boxLL.classList.add('hidden'); wrapper.classList.add('hidden'); return; }
 
         // Last Lesson
         const l=myLessonsCache.filter(x=>x.corso===c.nome).sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
         if(l) { 
             boxLL.classList.remove('hidden'); 
             document.getElementById('ll-date').innerText=new Date(l.data).toLocaleDateString();
-            document.getElementById('ll-obj').innerText=l.obiettivo; 
-            document.getElementById('ll-act').innerText=l.attivita;
-        } else {
-            // Show box but empty/dash if no lessons yet? Or hide? 
-            // Better hide to avoid confusion
-            boxLL.classList.add('hidden');
-        }
+            document.getElementById('ll-obj').innerText=l.obiettivo; document.getElementById('ll-act').innerText=l.attivita;
+        } else boxLL.classList.add('hidden');
 
         // Objectives (Double Level)
         const nextLvl = getNextLevelName(c.livello);
+        // FIX: Ensure we check if cache is populated
         const hasCurr = objectivesConfigCache[c.livello] && objectivesConfigCache[c.livello].length > 0;
         const hasNext = nextLvl && objectivesConfigCache[nextLvl] && objectivesConfigCache[nextLvl].length > 0;
 
