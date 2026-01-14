@@ -48,29 +48,33 @@
         .user-info { font-size: 0.95rem; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
         .header-actions { display: flex; gap: 12px; align-items: center; }
         
-        /* FORM GRID SYSTEM (COMPATTO) */
+        /* FORM GRID SYSTEM */
         .form-header-grid {
             display: grid;
-            grid-template-columns: 1.5fr 1fr auto; /* Data | Periodo | Checkbox */
+            grid-template-columns: 1.5fr 1fr 1fr; /* 3 Colonne Desktop */
             gap: 12px; margin-bottom: 12px; align-items: end;
         }
         .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .form-group { margin-bottom: 0; width: 100%; }
         .form-full-width { margin-bottom: 12px; }
 
-        /* CHECKBOX COMPATTO (Icona) */
+        /* CHECKBOX CLASSICO MA COMPATTO */
         .compact-checkbox-wrapper {
-            display: flex; align-items: center; justify-content: center;
-            height: 44px; width: 44px; /* Quadrato */
+            display: flex; align-items: center; gap: 8px; height: 44px; 
             background: var(--input-bg); border: 2px solid var(--border);
-            border-radius: 10px; cursor: pointer; position: relative;
+            border-radius: 10px; padding: 0 10px; cursor: pointer;
+            box-sizing: border-box; overflow: hidden;
         }
         .compact-checkbox-wrapper input { 
-            position: absolute; opacity: 0; cursor: pointer; height: 100%; width: 100%;
+            width: 18px; height: 18px; margin: 0; cursor: pointer; 
+            accent-color: #f59e0b; padding: 0; border: none; flex-shrink: 0;
         }
-        .checkbox-icon { font-size: 1.2rem; opacity: 0.3; transition: 0.2s; }
-        .compact-checkbox-wrapper input:checked + .checkbox-icon { opacity: 1; transform: scale(1.1); }
-        .compact-checkbox-wrapper.sub-active { border-color: #f59e0b; background: #fffbeb; }
+        .compact-checkbox-wrapper label { 
+            margin: 0; font-size: 0.85rem; cursor: pointer; 
+            font-weight: 600; padding: 0; color: var(--text-main); 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sub-active { border-color: #f59e0b; background-color: #fffbeb; }
 
         /* INPUTS & BUTTONS */
         label { display: block; font-weight: 700; margin-bottom: 5px; font-size: 0.8rem; color: var(--text-main); }
@@ -179,6 +183,7 @@
 
         /* UTILS */
         .hidden { display: none !important; }
+        .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
         .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; }
         body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
 
@@ -193,7 +198,7 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS --- */
+        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
@@ -201,8 +206,15 @@
             .app-header { margin-bottom: 15px; padding-bottom: 10px; }
             h2 { font-size: 1.2rem; }
             
-            /* Compact Header Grid */
-            .form-header-grid { grid-template-columns: 1.5fr 1fr auto; gap: 8px; }
+            /* Form Grid Mobile: Data (full) | Periodo (50%) + Sub (50%) */
+            .form-header-grid { 
+                grid-template-columns: 1fr 1fr; /* 2 cols */
+                gap: 10px; 
+            }
+            /* First child (Data) spans all columns */
+            .form-header-grid > .form-group:first-child { grid-column: 1 / -1; }
+            
+            .compact-checkbox-wrapper { padding: 0 8px; }
             
             button.action-btn { width: 34px; height: 34px; font-size: 1.1rem; }
             button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
@@ -215,8 +227,10 @@
             textarea { min-height: 42px; }
             .create-grid { grid-template-columns: 1fr; gap: 8px; }
             .create-grid button { width: 100%; margin-top: 5px; }
+            
             .notif-overlay { padding-top: 0; align-items: flex-end; }
             .notif-box { width: 100%; height: 90%; max-height: 90%; border-radius: 20px 20px 0 0; }
+            
             .global-season-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; margin-bottom: 20px;}
             .gsb-select { width: 100%; }
             .filter-bar { gap: 10px; padding: 5px 0; border: none; background: transparent; }
@@ -393,9 +407,9 @@
                     <label>Periodo</label>
                     <select id="periodo"><option>1° Periodo</option><option>2° Periodo</option></select>
                 </div>
-                <div class="compact-checkbox-wrapper" onclick="document.getElementById('is-substitution').click()">
+                <div class="compact-checkbox-wrapper">
                     <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
-                    <span class="checkbox-icon" title="Sostituzione">🔄</span>
+                    <label for="is-substitution">Sostituzione</label>
                 </div>
             </div>
 
@@ -844,7 +858,7 @@
             });
             myAssignmentsCache=allActiveAssignmentsCache.filter(c=>c.istruttore.toLowerCase()===currentUser.email.toLowerCase());
             
-            // IMPORTANT: Call logic once data is loaded
+            // LOAD COURSES THEN RENDER
             toggleSubstitutionMode(); 
             renderInstrOverview();
             updateInstructorPreview();
@@ -856,15 +870,10 @@
         });
     }
 
-    // --- HELPER DATE (FIXED) ---
+    // --- HELPER DATE (FIXED LOCAL TIME) ---
     function getDayName(dateString) {
         if (!dateString) return null;
-        // Parse "YYYY-MM-DD" manually to ensure Local Time usage
-        const parts = dateString.split('-');
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; 
-        const day = parseInt(parts[2], 10);
-        const d = new Date(year, month, day); 
+        const d = new Date(dateString + 'T12:00:00'); // Force Midday to avoid TZ issues
         const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
         return days[d.getDay()];
     }
@@ -894,7 +903,7 @@
         
         if (pool.length === 0) {
             const dayLabel = dateVal ? getDayName(dateVal) : '';
-            select.innerHTML += `<option disabled>Nessun corso di ${dayLabel}</option>`;
+            select.innerHTML += `<option disabled>Nessun corso ${dayLabel ? 'di ' + dayLabel : ''}</option>`;
         }
         
         pool.forEach(c => {
