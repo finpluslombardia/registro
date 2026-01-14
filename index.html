@@ -25,7 +25,7 @@
 
         /* --- BASE STYLES --- */
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 20px; margin: 0; transition: 0.3s; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 20px; margin: 0; transition: background-color 0.3s, color 0.3s; }
         body.no-scroll { overflow: hidden; }
 
         .container { 
@@ -36,67 +36,77 @@
         }
         
         /* HEADER */
-        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
         h2 { margin: 0; color: var(--primary); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.5px; }
         .user-info { font-size: 1rem; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
         .header-actions { display: flex; gap: 12px; align-items: center; }
         
-        /* FORM COMPACT GRID (NEW) */
+        /* FORM GRID SYSTEM (UPDATED) */
         .form-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 Colonne su desktop */
+            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne: Data, Periodo, Checkbox */
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 Colonne: Presenti, Obiettivo */
             gap: 15px;
             margin-bottom: 15px;
         }
-        .form-group { margin-bottom: 0; width: 100%; } /* Reset margin for grid */
-        .form-full-width { grid-column: 1 / -1; } /* Campi a larghezza intera */
-        
-        /* Checkbox sostituzione compatto */
+        .form-group { margin-bottom: 0; width: 100%; }
+        .form-full-width { margin-bottom: 15px; }
+
+        /* CHECKBOX COMPATTO */
         .compact-checkbox-wrapper {
-            display: flex; align-items: center; gap: 8px; height: 100%;
-            background: var(--input-bg); border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 8px; height: 48px; /* Altezza fissa uguale input */
+            background: var(--input-bg); border: 2px solid var(--border);
             border-radius: 12px; padding: 0 12px; cursor: pointer;
+            box-sizing: border-box;
         }
-        .compact-checkbox-wrapper input { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: #f59e0b; }
-        .compact-checkbox-wrapper label { margin: 0; font-size: 0.9rem; cursor: pointer; font-weight: 500; }
+        .compact-checkbox-wrapper input { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: #f59e0b; padding: 0; border: none; }
+        .compact-checkbox-wrapper label { margin: 0; font-size: 0.9rem; cursor: pointer; font-weight: 600; padding: 0; color: var(--text-main); }
 
         /* INPUTS & BUTTONS */
         label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-main); }
         
         input, select, textarea { 
-            width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; 
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; 
             background: var(--input-bg); color: var(--text-main); box-sizing: border-box; 
             font-size: 15px; outline: none; font-family: 'Inter', sans-serif;
+            height: 48px; /* Altezza uniforme */
         }
+        textarea { height: auto; min-height: 50px; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
-        textarea { resize: vertical; min-height: 45px; }
-        input[type="date"] { display: block; }
+        input[type="date"] { -webkit-appearance: none; appearance: none; display: block; }
         
         button.action-btn { background: var(--input-bg); color: var(--text-main); border: 2px solid var(--border); padding: 0; border-radius: 12px; cursor: pointer; font-size: 1.3rem; width: 44px; height: 44px; display:flex; align-items:center; justify-content:center; transition: all 0.2s; }
         button.logout-btn { background: var(--danger); color: white; border: none; padding: 0 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; height: 44px; }
-        button.primary-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        button.primary-btn { width: 100%; padding: 16px; background-color: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
         /* GLOBAL SEASON BAR */
         .global-season-bar {
             background: rgba(79, 70, 229, 0.08); border: 2px solid var(--primary); border-radius: 14px;
             padding: 15px 20px; margin-bottom: 30px; display: flex; align-items: center; gap: 20px;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.1);
         }
         .gsb-label { font-weight: 800; color: var(--primary); font-size: 1.1rem; white-space: nowrap; }
-        .gsb-select { flex: 1; padding: 12px; border: 2px solid var(--primary); font-weight: 700; cursor: pointer; }
+        .gsb-select { flex: 1; padding: 12px; border: 2px solid var(--primary); font-weight: 700; cursor: pointer; height: auto;}
 
-        /* LOCAL FILTER BAR */
+        /* FILTRI */
         .filter-bar { 
             display: flex; gap: 10px; margin-bottom: 20px; 
             overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; 
         }
         .filter-bar::-webkit-scrollbar { display: none; }
-        .filter-bar select { flex: 0 0 auto; min-width: 140px; font-weight: 600; cursor: pointer; }
+        .filter-bar select { flex: 0 0 auto; min-width: 140px; font-weight: 600; cursor: pointer; height: auto; padding: 10px; }
 
         /* CARDS & GRID */
         .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .overview-card, .user-card, .course-folder { 
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; 
-            padding: 20px; text-align: center; cursor: pointer; 
+            padding: 25px; text-align: center; cursor: pointer; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: transform 0.2s; 
         }
         .overview-card:hover { transform: translateY(-3px); }
@@ -117,13 +127,12 @@
         .oc-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; display: block; }
         .oc-count { background: var(--bg-body); padding: 5px 15px; border-radius: 20px; font-size: 0.95rem; font-weight: 600; color: var(--text-sub); }
 
-        /* LISTS & LESSON CARDS */
+        /* LISTS */
         .ac-item { 
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; 
             padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
             display: flex; flex-direction: column; gap: 10px;
         }
-        
         .lesson-card {
             background: var(--bg-card); border: 1px solid var(--border); border-left: 5px solid var(--primary);
             border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
@@ -145,7 +154,7 @@
         .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; margin-bottom: 20px;}
         .level-tag { background: var(--bg-card); border: 2px solid #f59e0b; color: #b45309; padding: 8px 16px; border-radius: 30px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 
-        /* VIEW SWITCHER */
+        /* SWITCHER */
         .view-switch-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 15px; overflow-x: auto; }
         .switch-btn { flex: 1; padding: 12px; border: none; background: var(--border); border-radius: 12px; font-weight: 700; color: var(--text-sub); cursor: pointer; white-space: nowrap; }
         .switch-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
@@ -190,19 +199,26 @@
             .app-header { margin-bottom: 15px; padding-bottom: 10px; }
             h2 { font-size: 1.2rem; }
             
-            /* Break grid to single column on mobile */
+            /* Responsive Grid for Form */
             .form-grid { grid-template-columns: 1fr; gap: 10px; }
-            .compact-checkbox-wrapper { padding: 10px; justify-content: flex-start; }
+            /* First row layout for mobile: Data | Periodo | Sub */
+            .form-grid-mobile-row { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; margin-bottom: 10px; }
             
-            /* Inputs & Buttons */
-            button.action-btn { width: 34px; height: 34px; font-size: 1.1rem; }
-            button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
             .grid-courses { display: block; margin-bottom: 15px; }
             .course-folder, .overview-card, .user-card { padding: 15px; margin-bottom: 10px; display: block; width: 100%; }
+            .cf-title { font-size: 1.1rem; }
+            .cf-settings-btn { font-size: 1.3rem; padding: 5px 10px; }
+
+            button.action-btn { width: 34px; height: 34px; font-size: 1.1rem; }
+            button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
+            
+            input, select, textarea { padding: 10px; font-size: 14px; }
             .create-grid { grid-template-columns: 1fr; gap: 10px; }
             .create-grid button { width: 100%; margin-top: 5px; }
+            
             .notif-overlay { padding-top: 0; align-items: flex-end; }
             .notif-box { width: 100%; height: 90%; max-height: 90%; border-radius: 20px 20px 0 0; }
+            
             .global-season-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; margin-bottom: 20px;}
             .gsb-select { width: 100%; }
             .filter-bar { gap: 10px; padding: 5px 0; border: none; background: transparent; }
@@ -360,41 +376,37 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label>Data</label>
-                    <input type="date" id="data" onchange="autoSetPeriod('data','periodo')">
-                </div>
-                <div class="form-group compact-checkbox-wrapper">
-                    <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
-                    <label for="is-substitution">Sostituzione</label>
-                </div>
-
-                <div class="form-group form-full-width">
-                    <label>Seleziona Corso</label>
-                    <select id="corso"><option>Caricamento...</option></select>
-                </div>
-                <div class="form-group form-full-width">
+                    <input type="date" id="data"> </div>
+                
+                <div class="form-group">
                     <label>Periodo</label>
                     <select id="periodo"><option>1° Periodo</option><option>2° Periodo</option></select>
                 </div>
 
+                <div class="form-group compact-checkbox-wrapper">
+                    <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
+                    <label for="is-substitution">Sostituzione</label>
+                </div>
+            </div>
+
+            <div class="form-group form-full-width">
+                <label>Seleziona Corso (Filtro per giorno attivo)</label>
+                <select id="corso"><option>Seleziona una data...</option></select>
+            </div>
+
+            <div class="form-grid-2">
                 <div class="form-group">
                     <label>Presenti</label>
                     <input type="number" id="presenze" placeholder="N.">
                 </div>
                 <div class="form-group">
                     <label>Obiettivo</label>
-                    <input type="text" id="obiettivo" placeholder="Obiettivo principale">
+                    <input type="text" id="obiettivo" placeholder="Obiettivo">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Attività</label>
-                <textarea id="attivita" placeholder="Esercizi svolti..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Note</label>
-                <textarea id="note" style="height:50px" placeholder="Eventuali note..."></textarea>
-            </div>
-
+            <div class="form-group"><label>Attività</label><textarea id="attivita" placeholder="Esercizi..."></textarea></div>
+            <div class="form-group"><label>Note</label><textarea id="note" style="height:50px" placeholder="Note..."></textarea></div>
             <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             
             <div id="last-lesson-info" class="last-lesson-box hidden" style="margin-top:20px">
@@ -449,7 +461,7 @@
         <input type="hidden" id="edit-id">
         <div class="form-group"><label>Data</label><input type="date" id="edit-data"></div>
         <div class="form-group"><label>Periodo</label><select id="edit-periodo"><option>1° Periodo</option><option>2° Periodo</option></select></div>
-        <div class="form-grid">
+        <div class="form-grid-2">
             <div class="form-group"><label>Presenti</label><input type="number" id="edit-presenze"></div>
             <div class="form-group"><label>Obiettivo</label><input type="text" id="edit-obiettivo"></div>
         </div>
@@ -501,6 +513,12 @@
             document.getElementById('data').valueAsDate = new Date();
             autoSetPeriod('data','periodo');
             
+            // DATE LISTENER FOR AUTO-FILTERING
+            document.getElementById('data').addEventListener('change', () => {
+                autoSetPeriod('data','periodo');
+                renderCourseOptions();
+            });
+
             const seasonSel = document.getElementById('season-selector');
             seasonSel.innerHTML = "";
             AVAILABLE_SEASONS.forEach(s => {
@@ -749,14 +767,51 @@
         });
     }
 
-    window.toggleSubstitutionMode=()=>{
-        const sub=document.getElementById('is-substitution').checked;
-        const sel=document.getElementById('corso'); sel.innerHTML='<option value="">Seleziona...</option>';
-        sel.parentElement.classList.toggle('sub-active', sub);
-        const pool=sub?allActiveAssignmentsCache.filter(c=>c.istruttore.toLowerCase()!==currentUser.email.toLowerCase()):myAssignmentsCache;
+    // --- HELPER DATE ---
+    function getDayName(dateString) {
+        if (!dateString) return null;
+        const d = new Date(dateString);
+        const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+        return days[d.getDay()];
+    }
+
+    // --- RENDER COURSE OPTIONS BASED ON DATE ---
+    function renderCourseOptions() {
+        const dateVal = document.getElementById('data').value;
+        const isSub = document.getElementById('is-substitution').checked;
+        const select = document.getElementById('corso');
+        
+        let pool = isSub 
+            ? allActiveAssignmentsCache.filter(c => c.istruttore.toLowerCase() !== currentUser.email.toLowerCase())
+            : myAssignmentsCache;
+
+        // FILTER BY DAY IF DATE SELECTED
+        if (dateVal) {
+            const dayName = getDayName(dateVal);
+            // Filter pool by matching day name
+            pool = pool.filter(c => c.giorno === dayName);
+        }
+
         pool.sort((a,b)=>a.nome.localeCompare(b.nome));
-        pool.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${c.nome} ${sub?'('+c.istruttore+')':''}</option>`);
+        
+        select.innerHTML = '<option value="">Seleziona...</option>';
+        if (pool.length === 0) {
+            select.innerHTML += `<option disabled>Nessun corso ${dateVal ? 'di ' + getDayName(dateVal) : ''}</option>`;
+        }
+        pool.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.nome} ${isSub ? '('+c.istruttore+')' : ''}</option>`;
+        });
+        
+        // Update styling
+        const wrapper = document.getElementById('is-substitution').parentElement;
+        if(isSub) wrapper.classList.add('sub-active'); else wrapper.classList.remove('sub-active');
+        
+        // Reset preview
         updateInstructorPreview();
+    }
+
+    window.toggleSubstitutionMode=()=>{
+        renderCourseOptions();
     };
 
     function updateInstructorPreview() {
