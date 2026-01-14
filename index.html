@@ -15,7 +15,6 @@
             --bg-body: #f3f4f6; --bg-card: #ffffff; --text-main: #1f2937; --text-sub: #6b7280;
             --border: #e5e7eb; --input-bg: #ffffff; 
             --primary: #4f46e5; --primary-hover: #4338ca; --danger: #ef4444;
-            /* Traffic Lights */
             --tl-gray: #e5e7eb; --tl-red: #ef4444; --tl-yellow: #f59e0b; --tl-green: #10b981;
         }
         body.dark-mode {
@@ -28,7 +27,7 @@
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 20px; margin: 0; transition: background-color 0.3s, color 0.3s; }
         
-        /* Classe per bloccare lo scroll quando c'è un modale aperto */
+        /* SCROLL LOCK */
         body.no-scroll { overflow: hidden; }
 
         .container { 
@@ -89,7 +88,7 @@
 
         /* TRAFFIC LIGHTS SYSTEM (Double Level - Mobile Optimized) */
         .obj-container {
-            background: var(--bg-card); /* White box to stand out */
+            background: var(--bg-card); 
             border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border);
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
@@ -188,7 +187,7 @@
             button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
 
             /* Grid */
-            .grid-courses { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+            .grid-courses { display: block; margin-bottom: 15px; }
             .course-folder, .overview-card, .user-card { 
                 padding: 15px; border-radius: 12px; margin-bottom: 10px; 
                 display: block; width: 100%; 
@@ -339,7 +338,7 @@
                 <select id="new-level-select"><option>Livello...</option></select>
                 <select id="new-day"><option>Giorno...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
                 <input type="time" id="new-time">
-                <input type="email" id="new-email" placeholder="email@istr.it">
+                <select id="new-instructor-select"><option value="">Scegli Istruttore...</option></select>
                 <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:14px; margin:0">Crea</button>
             </div>
         </div>
@@ -507,7 +506,6 @@
             onSnapshot(collection(db,"config_obiettivi"), s=>{
                 objectivesConfigCache={};s.forEach(d=>objectivesConfigCache[d.id]=d.data().items||[]); 
                 if(currentSelectedDetail) renderDetails(currentSelectedDetail); 
-                // FORCE INSTRUCTOR UPDATE
                 if(!document.getElementById('instructor-view').classList.contains('hidden')) updateInstructorPreview();
             });
             onSnapshot(collection(db,"avvisi"), s=>{allNoticesCache=[];s.forEach(d=>allNoticesCache.push({id:d.id,...d.data()})); 
@@ -540,8 +538,23 @@
             renderApp();
         });
         onSnapshot(collection(db,"anagrafica"), s=>{ 
-            allAnagraficaCache={}; const sel=document.getElementById('admin-notice-target'); sel.innerHTML='<option value="all">A: Tutti</option>'; 
-            s.forEach(d=>{ allAnagraficaCache[d.id]=d.data(); sel.innerHTML+=`<option value="${d.id}">${d.data().nome||d.id}</option>`; }); 
+            allAnagraficaCache={}; 
+            const sel=document.getElementById('admin-notice-target'); sel.innerHTML='<option value="all">A: Tutti</option>'; 
+            const selInstr=document.getElementById('new-instructor-select'); selInstr.innerHTML='<option value="">Scegli Istruttore...</option>';
+            
+            // Populate select for creating courses
+            let instructors = [];
+            s.forEach(d=>{ 
+                allAnagraficaCache[d.id]=d.data(); 
+                sel.innerHTML+=`<option value="${d.id}">${d.data().nome||d.id}</option>`;
+                instructors.push({email: d.id, name: d.data().nome || d.id});
+            });
+            // Sort instructors alphabetically by name
+            instructors.sort((a,b)=>a.name.localeCompare(b.name));
+            instructors.forEach(i => {
+                selInstr.innerHTML += `<option value="${i.email}">${i.name}</option>`;
+            });
+            
             renderApp();
         });
         onSnapshot(query(collection(db,"registro_didattico"),orderBy("data","desc")), s=>{ allLessonsCache=[]; s.forEach(d=>allLessonsCache.push({id:d.id,...d.data()})); renderApp(); });
@@ -554,7 +567,7 @@
     window.switchAdminView = (v) => { currentAdminView=v; currentSelectedDetail=null; document.querySelectorAll('.view-switch-container .switch-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-view-'+v).classList.add('active'); renderApp(); };
     window.selectItem = (id) => { currentSelectedDetail=id; renderApp(); setTimeout(()=>document.getElementById('admin-detail-area').scrollIntoView({behavior:'smooth'}),100); };
     
-    // Grid Renders (Team, Levels, Days)
+    // Grid Renders
     function renderTeamGrid() { const m={}; allAssignmentsCache.forEach(a=>{if(!m[a.istruttore])m[a.istruttore]={c:0};}); allLessonsCache.forEach(l=>{if(!m[l.email])m[l.email]={c:0};m[l.email].c++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(e=>{ g.innerHTML+=`<div class="user-card ${e===currentSelectedDetail?'active':''}" onclick="selectItem('${e}')"><div class="uc-header"><div class="uc-name">${allAnagraficaCache[e]?.nome||e.split('@')[0]}</div><button class="action-btn" style="width:25px;height:25px;font-size:0.8rem" onclick="event.stopPropagation();renameUser('${e}')">✏️</button></div><span class="uc-email">${e}</span><div class="uc-stats"><span class="uc-val">${m[e].c} <small>LEZ</small></span></div></div>`; }); }
     function renderLevelsGrid() { const m={}; allLevelsCache.forEach(l=>m[l]=0); allAssignmentsCache.forEach(a=>{if(m[a.livello]!==undefined)m[a.livello]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(l=>{ g.innerHTML+=`<div class="overview-card ${l===currentSelectedDetail?'active':''}" onclick="selectItem('${l}')"><div class="oc-name">${l}</div><div class="oc-count">${m[l]} Corsi</div></div>`; }); }
     function renderDaysGrid() { const m={}; allAssignmentsCache.forEach(a=>{const d=a.giorno||'Altro';if(!m[d])m[d]=0;m[d]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; const ord={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7}; Object.keys(m).sort((a,b)=>(ord[a]||9)-(ord[b]||9)).forEach(d=>{ g.innerHTML+=`<div class="overview-card ${d===currentSelectedDetail?'active':''}" onclick="selectItem('${d}')"><div class="oc-name">${d}</div><div class="oc-count">${m[d]} Corsi</div></div>`; }); }
@@ -573,7 +586,7 @@
         if(currentAdminView!=='levels' && lvlFil!=='all') pool=pool.filter(c=>c.livello===lvlFil);
         if(currentAdminView!=='days' && dayFil!=='all') pool=pool.filter(c=>c.giorno===dayFil);
 
-        if(pool.length===0) list.innerHTML="<p>Nessun corso.</p>";
+        if(pool.length===0) list.innerHTML="<p style='color:var(--text-sub);padding:10px'>Nessun corso.</p>";
         else pool.forEach(c => {
             const instr = allAnagraficaCache[c.istruttore]?.nome || c.istruttore;
             list.innerHTML += `
@@ -614,6 +627,7 @@
         } else {
             // IF USER IS INSTRUCTOR, OPEN READ-ONLY MODAL
             const c=allActiveAssignmentsCache.find(x=>x.id===id); if(!c)return;
+            const modal = document.getElementById('instructor-obj-modal');
             document.getElementById('io-title').innerText = c.nome;
             renderInstructorTrafficLights(c.livello, 'io-list-current', 'io-lvl-current-title', c.progress);
             const nextLvl = getNextLevelName(c.livello);
@@ -669,7 +683,16 @@
     
     window.saveNewLevel=async()=>{const v=document.getElementById('new-level-input').value.trim(); if(v) await addDoc(collection(db,"elenco_livelli"),{nome:v});};
     window.deleteLevel=async(id)=>{if(confirm("Eliminare?")) await deleteDoc(doc(db,"elenco_livelli",id));};
-    window.addCourseStructured=async()=>{ const l=document.getElementById('new-level-select').value; const d=document.getElementById('new-day').value; const t=document.getElementById('new-time').value; const m=document.getElementById('new-email').value.trim(); if(l&&d&&t&&m) await addDoc(collection(db,"corsi_assegnati"),{nome:`${l} - ${d} ${t}`, livello:l, giorno:d, ora:t, istruttore:m, created:new Date()});};
+    
+    window.addCourseStructured=async()=>{ 
+        const l=document.getElementById('new-level-select').value; 
+        const d=document.getElementById('new-day').value; 
+        const t=document.getElementById('new-time').value; 
+        const m=document.getElementById('new-instructor-select').value.trim(); // Now reading from select
+        
+        if(l&&d&&t&&m) await addDoc(collection(db,"corsi_assegnati"),{nome:`${l} - ${d} ${t}`, livello:l, giorno:d, ora:t, istruttore:m, created:new Date()});
+    };
+    
     window.deleteAssignment=async(id)=>{if(confirm("Eliminare?")) await deleteDoc(doc(db,"corsi_assegnati",id));};
     window.reassignInstructor=async(id,old)=>{const n=prompt("Nuova email:",old); if(n)await updateDoc(doc(db,"corsi_assegnati",id),{istruttore:n.trim()});};
     window.renameUser=async(e)=>{const n=prompt("Nome reale:",allAnagraficaCache[e]?.nome); if(n)await setDoc(doc(db,"anagrafica",e),{nome:n},{merge:true});};
@@ -687,7 +710,6 @@
         onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{ 
             allLevelsCache=[]; 
             s.forEach(d=>allLevelsCache.push(d.data().nome)); 
-            // Force update preview in case levels loaded after course selection
             updateInstructorPreview();
         });
 
@@ -730,9 +752,8 @@
             document.getElementById('ll-obj').innerText=l.obiettivo; document.getElementById('ll-act').innerText=l.attivita;
         } else boxLL.classList.add('hidden');
 
-        // Objectives (Double Level)
+        // Objectives
         const nextLvl = getNextLevelName(c.livello);
-        // FIX: Ensure we check if cache is populated
         const hasCurr = objectivesConfigCache[c.livello] && objectivesConfigCache[c.livello].length > 0;
         const hasNext = nextLvl && objectivesConfigCache[nextLvl] && objectivesConfigCache[nextLvl].length > 0;
 
