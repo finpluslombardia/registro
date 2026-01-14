@@ -35,13 +35,13 @@
             overflow-x: hidden;
         }
 
-        /* UNIFIED SECTION BOX (COMPACT) */
+        /* UNIFIED SECTION BOX */
         .section-box {
             background: var(--bg-body); 
-            padding: 15px; /* Ridotto da 20px */
+            padding: 15px; 
             border-radius: 16px; 
             border: 1px solid var(--border);
-            margin-bottom: 25px; /* Ridotto da 30px */
+            margin-bottom: 25px; 
         }
         
         /* HEADER */
@@ -58,7 +58,7 @@
 
         /* CHECKBOX COMPATTO */
         .compact-checkbox-wrapper {
-            display: flex; align-items: center; gap: 8px; height: 44px; /* Ridotto altezza */
+            display: flex; align-items: center; gap: 8px; height: 44px; 
             background: var(--input-bg); border: 2px solid var(--border);
             border-radius: 10px; padding: 0 10px; cursor: pointer;
             box-sizing: border-box;
@@ -73,7 +73,7 @@
             width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 10px; 
             background: var(--input-bg); color: var(--text-main); box-sizing: border-box; 
             font-size: 14px; outline: none; font-family: 'Inter', sans-serif;
-            height: 44px; /* Ridotto altezza */
+            height: 44px; 
         }
         textarea { height: auto; min-height: 44px; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
@@ -100,7 +100,7 @@
         .filter-bar::-webkit-scrollbar { display: none; }
         .filter-bar select { flex: 0 0 auto; min-width: 130px; font-weight: 600; cursor: pointer; height: auto; padding: 8px; font-size: 0.85rem; }
 
-        /* CARDS & GRID (MORE COMPACT) */
+        /* CARDS & GRID */
         .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
         .overview-card, .user-card, .course-folder { 
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; 
@@ -131,18 +131,29 @@
             padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
             display: flex; flex-direction: column; gap: 8px;
         }
+
+        /* --- COMPACT LESSON CARD (NEW STYLE) --- */
         .lesson-card {
             background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--primary);
             border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
         .lesson-card:last-child { margin-bottom: 0; }
-        .lc-header { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; font-size: 0.85rem; color: var(--text-sub); }
+        
+        .lc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .lc-info { display: flex; align-items: center; gap: 10px; }
         .lc-date { font-weight: 800; color: var(--text-main); font-size: 0.95rem; }
-        .lc-row { margin-bottom: 6px; font-size: 0.9rem; line-height: 1.35; }
-        .lc-label { font-weight: 700; color: var(--primary); margin-right: 4px; }
-        .lc-actions { display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); justify-content: flex-end; }
-        .btn-icon-text { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--text-main); }
-        .btn-icon-text.delete { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+        .lc-badge { background: var(--bg-body); padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); border: 1px solid var(--border); }
+        
+        .lc-actions { display: flex; gap: 8px; }
+        .mini-btn { 
+            width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); 
+            background: var(--bg-body); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        }
+        .mini-btn.delete { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+
+        .lc-row { margin-bottom: 4px; font-size: 0.9rem; line-height: 1.35; color: var(--text-main); }
+        .lc-icon { display: inline-block; width: 20px; text-align: center; margin-right: 4px; }
+        .lc-note { font-style: italic; font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
 
         .btn-group { display: flex; gap: 8px; margin-top: 5px; }
         .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-body); font-weight: 600; font-size: 0.85rem; }
@@ -195,7 +206,7 @@
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
-            .section-box { padding: 12px; margin-bottom: 20px; } /* Ancora più compatto su mobile */
+            .section-box { padding: 12px; margin-bottom: 20px; } /* Ancora più compatto */
             
             .app-header { margin-bottom: 15px; padding-bottom: 10px; }
             h2 { font-size: 1.2rem; }
@@ -225,9 +236,8 @@
             .gsb-select { width: 100%; }
             .filter-bar { gap: 10px; padding: 5px 0; border: none; background: transparent; }
             .filter-bar select { padding: 8px; font-size: 0.85rem; min-width: 120px; }
-            
             .traffic-light { width: 20px; height: 20px; border-width: 2px; }
-            .obj-label { font-size: 0.85rem; }
+            .obj-label { font-size: 0.9rem; }
             .obj-item { padding: 6px 0; }
         }
     </style>
@@ -732,7 +742,24 @@
     
     window.openAdminCourseHistory=(n,f)=>{ currentOpenCourse=n; document.getElementById('lessons-log-container').classList.remove('hidden'); document.getElementById('admin-course-name-title').innerText=n; const l=document.getElementById('admin-lessons-list'); l.innerHTML="";
         let p=allLessonsCache.filter(x=>x.corso===n); if(f) p=p.filter(x=>x.email===f); p.sort((a,b)=>new Date(b.data)-new Date(a.data));
-        p.forEach(d=>{ l.innerHTML+=`<div class="lezione-card"><div class="card-top"><span class="date-badge">${new Date(d.data).toLocaleDateString()}</span><span class="presenze-badge">👤 ${allAnagraficaCache[d.email]?.nome||d.email.split('@')[0]}</span></div><div style="margin-top:5px"><b>${d.obiettivo}</b><br><small>${d.attivita}</small></div></div>`; });
+        p.forEach(d=>{ 
+            l.innerHTML+=`
+            <div class="lesson-card">
+                <div class="lc-top">
+                    <div class="lc-info">
+                        <span class="lc-date">${new Date(d.data).toLocaleDateString()}</span>
+                        <span class="lc-badge">👥 ${d.presenze}</span>
+                    </div>
+                    <div class="lc-actions">
+                        <button class="mini-btn" onclick="openEditModal('${d.id}')">✏️</button>
+                        <button class="mini-btn delete" onclick="deleteLesson('${d.id}')">🗑️</button>
+                    </div>
+                </div>
+                <div class="lc-row"><span class="lc-icon">🎯</span> ${d.obiettivo}</div>
+                <div class="lc-row"><span class="lc-icon">📝</span> ${d.attivita}</div>
+                ${d.note ? `<div class="lc-note">Note: ${d.note}</div>` : ''}
+            </div>`; 
+        });
     };
 
     function initInstructor() {
@@ -897,14 +924,19 @@
         p.forEach(d=>{ 
             l.innerHTML+=`
             <div class="lesson-card">
-                <div class="lc-header"><span class="lc-date">${new Date(d.data).toLocaleDateString()}</span><span>👥 ${d.presenze}</span></div>
-                <div class="lc-row"><span class="lc-label">🎯</span> ${d.obiettivo}</div>
-                <div class="lc-row"><span class="lc-label">📝</span> ${d.attivita}</div>
-                ${d.note ? `<div class="lc-note">Note: ${d.note}</div>` : ''}
-                <div class="lc-actions">
-                    <button class="btn-icon-text" onclick="openEditModal('${d.id}')">✏️ Modifica</button>
-                    <button class="btn-icon-text delete" onclick="deleteLesson('${d.id}')">🗑️ Elimina</button>
+                <div class="lc-top">
+                    <div class="lc-info">
+                        <span class="lc-date">${new Date(d.data).toLocaleDateString()}</span>
+                        <span class="lc-badge">👥 ${d.presenze}</span>
+                    </div>
+                    <div class="lc-actions">
+                        <button class="mini-btn" onclick="openEditModal('${d.id}')">✏️</button>
+                        <button class="mini-btn delete" onclick="deleteLesson('${d.id}')">🗑️</button>
+                    </div>
                 </div>
+                <div class="lc-row"><span class="lc-icon">🎯</span> ${d.obiettivo}</div>
+                <div class="lc-row"><span class="lc-icon">📝</span> ${d.attivita}</div>
+                ${d.note ? `<div class="lc-note">Note: ${d.note}</div>` : ''}
             </div>`; 
         });
     }
