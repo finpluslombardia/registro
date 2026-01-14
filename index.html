@@ -41,50 +41,72 @@
         .user-info { font-size: 1rem; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
         .header-actions { display: flex; gap: 12px; align-items: center; }
         
-        /* BUTTONS & INPUTS */
         button.action-btn { background: var(--input-bg); color: var(--text-main); border: 2px solid var(--border); padding: 0; border-radius: 12px; cursor: pointer; font-size: 1.3rem; width: 44px; height: 44px; display:flex; align-items:center; justify-content:center; transition: all 0.2s; }
         button.action-btn:hover { border-color: var(--primary); color: var(--primary); }
         button.logout-btn { background: var(--danger); color: white; border: none; padding: 0 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; height: 44px; }
         
+        /* GLOBAL SEASON BAR */
+        .global-season-bar {
+            background: var(--bg-body); border: 2px solid var(--primary); border-radius: 12px;
+            padding: 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;
+        }
+        .gsb-label { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
+        .gsb-select {
+            flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px;
+            font-weight: 600; font-size: 1rem; background: var(--bg-card); color: var(--text-main);
+        }
+
+        /* LOCAL FILTER BAR (Inside Details) */
+        .filter-bar { 
+            display: flex; gap: 12px; margin-bottom: 20px; 
+            overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; 
+        }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-bar select { min-width: 140px; flex: 0 0 auto; cursor: pointer; font-size: 0.9rem; padding: 10px; }
+
+        /* CARDS & GRID */
+        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .overview-card, .user-card, .course-folder { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s; }
+        .overview-card:hover { transform: translateY(-3px); }
+        .user-card { text-align: left; }
+        .user-card.active { border: 2px solid var(--primary); background: rgba(79, 70, 229, 0.04); }
+        .course-folder { border-bottom: 5px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .uc-header { display: flex; justify-content: space-between; align-items: start; }
+        .uc-name { font-weight: 800; font-size: 1.15rem; }
+        .uc-email { font-size: 0.85rem; color: var(--text-sub); display: block; margin-bottom: 12px; }
+        .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px; font-weight: 700; color: var(--primary); }
+        
+        /* ADMIN LISTS */
+        .ac-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .btn-group { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-body); }
+        
+        /* ADMIN TOOLS */
+        .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
+        .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 15px; align-items: end; }
+        .levels-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; margin-bottom: 20px;}
+        .level-tag { background: var(--bg-card); border: 2px solid #f59e0b; color: #b45309; padding: 8px 16px; border-radius: 30px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+
+        /* VIEW SWITCHER */
+        .view-switch-container { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
+        .switch-btn { flex: 1; padding: 14px; border: none; background: var(--border); border-radius: 12px; font-weight: 700; color: var(--text-sub); cursor: pointer; transition: all 0.2s; }
+        .switch-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+
+        /* INPUTS */
         .form-group { margin-bottom: 20px; width: 100%; }
         label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-main); }
-        
-        input, select, textarea { 
-            width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 12px; 
-            background: var(--input-bg); color: var(--text-main); 
-            box-sizing: border-box; font-size: 16px; margin: 0; outline: none; font-family: 'Inter', sans-serif;
-        }
+        input, select, textarea { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 12px; background: var(--input-bg); color: var(--text-main); box-sizing: border-box; font-size: 16px; outline: none; font-family: 'Inter', sans-serif; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
         button.primary-btn { width: 100%; padding: 16px; background-color: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-
-        /* --- FILTRI MODERNI (SCROLLABILI SU MOBILE) --- */
-        .filter-bar { 
-            display: flex; 
-            gap: 12px; 
-            margin-bottom: 20px; 
-            overflow-x: auto; /* Abilita scroll orizzontale */
-            padding-bottom: 5px; /* Spazio per la scrollbar */
-            -webkit-overflow-scrolling: touch; /* Scroll fluido su iOS */
-            scrollbar-width: none; /* Nascondi scrollbar Firefox */
-        }
-        .filter-bar::-webkit-scrollbar { display: none; /* Nascondi scrollbar Chrome/Safari */ }
-        
-        .filter-bar select {
-            min-width: 160px; /* Larghezza fissa per coerenza */
-            flex: 0 0 auto; /* Non restringere */
-            cursor: pointer;
-            background-position: right 14px center;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
 
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
         .modal-box { background: var(--bg-card); padding: 30px; border-radius: 20px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.4); color: var(--text-main); }
         .modal-title { margin-top:0; margin-bottom: 20px; font-size: 1.4rem; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
         .modal-actions { display: flex; gap: 12px; margin-top: 30px; }
-        .btn-cancel, .btn-confirm { flex: 1; padding: 14px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; font-size: 1rem; }
-        .btn-cancel { background: var(--border); color: var(--text-main); } .btn-confirm { background: var(--primary); color: white; }
+        .btn-cancel { flex: 1; padding: 14px; background: var(--border); border: none; border-radius: 10px; cursor: pointer; color: var(--text-main); font-weight: 700; font-size: 1rem; }
+        .btn-confirm { flex: 1; padding: 14px; background: var(--primary); border: none; border-radius: 10px; cursor: pointer; color: white; font-weight: 700; font-size: 1rem; }
 
         /* TRAFFIC LIGHTS */
         .obj-container { background: var(--bg-card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
@@ -94,44 +116,12 @@
         .tl-gray { background: var(--tl-gray); } .tl-red { background: var(--tl-red); } .tl-yellow { background: var(--tl-yellow); } .tl-green { background: var(--tl-green); }
         .readonly .traffic-light { cursor: default; opacity: 1; }
 
-        /* CARDS & GRID */
-        .grid-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .overview-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s; }
-        .overview-card:hover { transform: translateY(-3px); }
-        .oc-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; display: block; }
-        .oc-count { background: var(--bg-body); padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: var(--text-sub); }
-
-        /* LISTS */
-        .ac-item, .course-folder, .user-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .user-card:hover { border-color: var(--primary); }
-        .user-card.active { border: 2px solid var(--primary); background: rgba(79, 70, 229, 0.04); }
-        .course-folder { border-bottom: 5px solid var(--primary); cursor: pointer; }
-        
-        .uc-header { display: flex; justify-content: space-between; align-items: start; }
-        .uc-name { font-weight: 800; font-size: 1.1rem; }
-        .btn-group { display: flex; gap: 8px; margin-top: 10px; }
-        .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-body); }
-        
-        /* ADMIN TOOLS */
-        .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
-        .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 15px; align-items: end; }
-        .level-tag { background: var(--bg-card); border: 2px solid #f59e0b; color: #b45309; padding: 8px 16px; border-radius: 30px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-
-        /* VIEW SWITCHER */
-        .view-switch-container { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
-        .switch-btn { flex: 1; padding: 14px; border: none; background: var(--border); border-radius: 12px; font-weight: 700; color: var(--text-sub); cursor: pointer; transition: all 0.2s; }
-        .switch-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
-
-        /* HELPER */
+        /* UTILS */
         .hidden { display: none !important; }
         #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 15px; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-        
-        .sub-checkbox-wrapper { display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 15px; background: var(--input-bg); }
-        .sub-checkbox-wrapper input { width: 24px; height: 24px; margin: 0; cursor: pointer; accent-color: #f59e0b; }
-        .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
 
         /* NOTIFICHE */
         .notif-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; padding-top: 80px; }
@@ -143,27 +133,16 @@
         /* --- MOBILE OPTIMIZATIONS --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 14px; }
-            .container { padding: 15px; border-radius: 12px; min-height: 90vh; }
+            .container { padding: 15px; min-height: 90vh; }
             .app-header { margin-bottom: 15px; padding-bottom: 10px; }
             h2 { font-size: 1.2rem; }
-            
-            /* Grid a 1 colonna */
             .grid-courses { display: block; margin-bottom: 15px; }
             .course-folder, .overview-card, .user-card { padding: 15px; margin-bottom: 10px; display: block; width: 100%; }
-            
-            /* Input & Buttons */
-            input, select, textarea { padding: 12px; font-size: 15px; }
             .create-grid { grid-template-columns: 1fr; gap: 10px; }
             .create-grid button { width: 100%; margin-top: 5px; }
-            
-            /* Notifiche Full Screen */
             .notif-overlay { padding-top: 0; align-items: flex-end; }
             .notif-box { width: 100%; height: 90%; max-height: 90%; border-radius: 20px 20px 0 0; }
-            
-            /* Traffic Lights */
-            .traffic-light { width: 22px; height: 22px; border-width: 2px; }
-            .obj-item { padding: 6px 0; }
-            .obj-label { font-size: 0.85rem; }
+            .global-season-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
         }
     </style>
 </head>
@@ -189,7 +168,7 @@
         <div class="obj-level-header" id="io-lvl-next-title" style="margin-top:10px">Livello Successivo</div>
         <div id="io-list-next" class="obj-container"></div>
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal('instructor-obj-modal')" style="background:var(--primary); color:white;">Chiudi</button>
+            <button class="btn-cancel" onclick="closeModal('instructor-obj-modal')" style="width:100%; background:var(--primary); color:white; border:none;">Chiudi</button>
         </div>
     </div>
 </div>
@@ -197,11 +176,11 @@
 <div id="objectives-config-modal" class="modal-overlay">
     <div class="modal-box">
         <h3 class="modal-title">🎯 Definisci Obiettivi: <span id="conf-lvl-name"></span></h3>
-        <p style="font-size:0.9rem; color:var(--text-sub); margin-bottom:15px">Elenca gli obiettivi (uno per riga).</p>
-        <textarea id="conf-obj-text" style="height:250px; line-height:1.5" placeholder="Es. Galleggiamento prono"></textarea>
+        <p style="font-size:0.9rem; color:var(--text-sub); margin-bottom:15px">Elenca gli obiettivi didattici (uno per riga).</p>
+        <textarea id="conf-obj-text" style="height:250px; line-height:1.5" placeholder="Es. Galleggiamento prono&#10;Respirazione laterale"></textarea>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeModal('objectives-config-modal')">Chiudi</button>
-            <button class="btn-confirm" onclick="saveObjConfig()">Salva</button>
+            <button class="btn-confirm" onclick="saveObjConfig()">Salva Modifiche</button>
         </div>
     </div>
 </div>
@@ -246,6 +225,11 @@
     </div>
 
     <div id="admin-view" class="hidden">
+        <div class="global-season-bar">
+            <span class="gsb-label">📅 Stagione Corrente:</span>
+            <select id="season-selector" class="gsb-select" onchange="changeSeason()"></select>
+        </div>
+
         <div style="background:rgba(59,130,246,0.1); padding:20px; border-radius:16px; border:2px dashed #3b82f6; margin-bottom:30px">
             <h4 style="margin:0 0 15px 0; color:#2563eb">📢 Invia Avviso</h4>
             <div style="display:flex; gap:10px">
@@ -259,7 +243,7 @@
         <div class="admin-tools">
             <h4 style="margin:0 0 15px 0; color:#b45309; font-size:1.2rem">🎚 Gestione Livelli</h4>
             <div id="levels-container" class="levels-container"></div>
-            <div style="display:flex; gap:10px; margin-top:15px">
+            <div style="display:flex; gap:10px">
                 <input type="text" id="new-level-input" placeholder="Nuovo Livello">
                 <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer">+</button>
             </div>
@@ -286,8 +270,6 @@
             <h4 style="margin:0 0 15px 0; font-size:1.3rem" id="detail-title">Dettagli...</h4>
             
             <div class="filter-bar">
-                <select id="season-selector" onchange="changeSeason()" style="background-color:rgba(79, 70, 229, 0.1); border-color:var(--primary)">
-                    </select>
                 <select id="adm-sort" onchange="renderDetails(currentSelectedDetail)"><option value="name">Alfabetico</option><option value="day">Giorno</option></select>
                 <select id="adm-filter-level" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Livelli</option></select>
                 <select id="adm-filter-day" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Giorni</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
@@ -314,7 +296,7 @@
             </div>
             <div class="form-group"><label>Seleziona Corso</label><select id="corso"><option>Caricamento...</option></select></div>
             
-            <div id="last-lesson-info" class="last-lesson-box hidden">
+            <div id="last-lesson-info" class="last-lesson-box hidden" style="background:#fffbeb; border:2px solid #fcd34d; padding:15px; border-radius:12px; margin-bottom:15px">
                 <div style="font-weight:bold; color:#b45309; margin-bottom:5px; display:flex; justify-content:space-between"><span>⏪ Ultima Lezione</span><span id="ll-date"></span></div>
                 <div style="font-size:0.9rem; color:#78350f"><span style="font-weight:bold">Obiettivo:</span> <span id="ll-obj"></span></div>
                 <div style="font-size:0.9rem; color:#78350f"><span style="font-weight:bold">Attività:</span> <span id="ll-act" style="font-style:italic"></span></div>
@@ -397,15 +379,13 @@
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
     
-    // --- GESTIONE STAGIONI ---
     const AVAILABLE_SEASONS = ["2024/2025", "2025/2026", "2026/2027"];
-    let CURRENT_SEASON = "2025/2026"; // Default
+    let CURRENT_SEASON = "2025/2026";
     let selectedSeason = CURRENT_SEASON;
 
     let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLessonsCache=[], allAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={};
     let currentAdminProgress={}; let currentOpenCourse=null; let currentAdminView='team'; let currentSelectedDetail=null; let currentDayView=null; let currentLevelView=null;
 
-    // THEME & UTILS
     window.toggleTheme=()=>{document.body.classList.toggle('dark-mode');localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');document.getElementById('theme-toggle').innerText=document.body.classList.contains('dark-mode')?'🌙':'☀️';}
     if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark-mode');document.getElementById('theme-toggle').innerText='🌙';}
     window.openModal = (id) => { document.getElementById(id).style.display='flex'; document.body.classList.add('no-scroll'); }
@@ -417,7 +397,6 @@
     window.autoSetPeriod=(d,p)=>{const v=document.getElementById(d).value;if(v){const m=new Date(v).getMonth()+1;document.getElementById(p).value=(m>=9||m<=1)?"1° Periodo":"2° Periodo";}};
     window.modalPrompt = (t, m, d, c) => { const r=prompt(m,d); if(r) c(r); };
 
-    // AUTH
     document.getElementById('btn-login').onclick=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('email').value,document.getElementById('password').value);}catch(e){toast(e.message);}};
     window.logout=async()=>{await signOut(auth);location.reload();}
 
@@ -430,7 +409,6 @@
             document.getElementById('data').valueAsDate = new Date();
             autoSetPeriod('data','periodo');
             
-            // Populate Season Selector
             const seasonSel = document.getElementById('season-selector');
             seasonSel.innerHTML = "";
             AVAILABLE_SEASONS.forEach(s => {
@@ -440,7 +418,6 @@
                 seasonSel.appendChild(opt);
             });
             
-            // LOAD GLOBAL DATA
             onSnapshot(collection(db,"config_obiettivi"), s=>{
                 objectivesConfigCache={};s.forEach(d=>objectivesConfigCache[d.id]=d.data().items||[]); 
                 if(currentSelectedDetail) renderDetails(currentSelectedDetail); 
@@ -454,15 +431,12 @@
         }
     });
 
-    // --- SEASON LOGIC ---
     window.changeSeason = () => {
         selectedSeason = document.getElementById('season-selector').value;
-        // Re-run initAdmin to re-filter courses by new season
         initAdmin(); 
         toast("Stagione cambiata: " + selectedSeason);
     };
 
-    // --- ADMIN LOGIC ---
     function initAdmin() {
         document.getElementById('admin-view').classList.remove('hidden');
         onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{
@@ -477,13 +451,10 @@
             if(currentAdminView==='levels') renderApp();
         });
         
-        // FILTER COURSES BY SEASON
         onSnapshot(collection(db,"corsi_assegnati"), s=>{
             allAssignmentsCache=[]; 
             s.forEach(d=>{
                 const data = d.data();
-                // If no season field, assume default current or show all (backward compat). 
-                // We show if data.stagione matches selectedSeason OR if data.stagione is missing and selectedSeason is CURRENT_SEASON
                 if((data.stagione && data.stagione === selectedSeason) || (!data.stagione && selectedSeason === CURRENT_SEASON)) {
                     allAssignmentsCache.push({id:d.id,...data});
                 }
@@ -509,11 +480,7 @@
         
         onSnapshot(query(collection(db,"registro_didattico"),orderBy("data","desc")), s=>{ 
             allLessonsCache=[]; 
-            s.forEach(d=>{
-                // Optional: Filter lessons by season too? 
-                // For now we keep all lessons visible in history if the course is visible
-                allLessonsCache.push({id:d.id,...d.data()});
-            }); 
+            s.forEach(d=>{ allLessonsCache.push({id:d.id,...d.data()}); }); 
             renderApp(); 
         });
     }
@@ -525,7 +492,6 @@
     window.switchAdminView = (v) => { currentAdminView=v; currentSelectedDetail=null; document.querySelectorAll('.view-switch-container .switch-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-view-'+v).classList.add('active'); renderApp(); };
     window.selectItem = (id) => { currentSelectedDetail=id; renderApp(); setTimeout(()=>document.getElementById('admin-detail-area').scrollIntoView({behavior:'smooth'}),100); };
     
-    // Grid Renders
     function renderTeamGrid() { const m={}; allAssignmentsCache.forEach(a=>{if(!m[a.istruttore])m[a.istruttore]={c:0};}); allLessonsCache.forEach(l=>{if(!m[l.email])m[l.email]={c:0};m[l.email].c++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(e=>{ g.innerHTML+=`<div class="user-card ${e===currentSelectedDetail?'active':''}" onclick="selectItem('${e}')"><div class="uc-header"><div class="uc-name">${allAnagraficaCache[e]?.nome||e.split('@')[0]}</div><button class="action-btn" style="width:25px;height:25px;font-size:0.8rem" onclick="event.stopPropagation();renameUser('${e}')">✏️</button></div><span class="uc-email">${e}</span><div class="uc-stats"><span class="uc-val">${m[e].c} <small>LEZ</small></span></div></div>`; }); }
     function renderLevelsGrid() { const m={}; allLevelsCache.forEach(l=>m[l]=0); allAssignmentsCache.forEach(a=>{if(m[a.livello]!==undefined)m[a.livello]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(l=>{ g.innerHTML+=`<div class="overview-card ${l===currentSelectedDetail?'active':''}" onclick="selectItem('${l}')"><div class="oc-name">${l}</div><div class="oc-count">${m[l]} Corsi</div></div>`; }); }
     function renderDaysGrid() { const m={}; allAssignmentsCache.forEach(a=>{const d=a.giorno||'Altro';if(!m[d])m[d]=0;m[d]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; const ord={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7}; Object.keys(m).sort((a,b)=>(ord[a]||9)-(ord[b]||9)).forEach(d=>{ g.innerHTML+=`<div class="overview-card ${d===currentSelectedDetail?'active':''}" onclick="selectItem('${d}')"><div class="oc-name">${d}</div><div class="oc-count">${m[d]} Corsi</div></div>`; }); }
@@ -562,7 +528,6 @@
         });
     }
     
-    // --- HELPER: GET NEXT LEVEL ---
     function getNextLevelName(currentLvl) {
         if(!allLevelsCache || allLevelsCache.length===0) return null;
         const idx = allLevelsCache.indexOf(currentLvl);
@@ -570,20 +535,16 @@
         return allLevelsCache[idx+1];
     }
 
-    // --- ADMIN TRAFFIC LIGHTS ---
     window.openCourseSettings=(id)=>{
-        // IF USER IS ADMIN
         if (currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
             const c=allAssignmentsCache.find(x=>x.id===id); if(!c)return;
-            document.getElementById('cs-id').value=c.id; 
-            document.getElementById('cs-iscritti').value=c.iscritti||""; document.getElementById('cs-note').value=c.note_corso||"";
+            document.getElementById('cs-id').value=c.id; document.getElementById('cs-iscritti').value=c.iscritti||""; document.getElementById('cs-note').value=c.note_corso||"";
             currentAdminProgress=c.progress||{}; 
             renderAdminTrafficLights(c.livello, 'admin-obj-list-current', 'modal-lvl-current-title');
             const nextLvl = getNextLevelName(c.livello);
             renderAdminTrafficLights(nextLvl, 'admin-obj-list-next', 'modal-lvl-next-title');
             openModal('course-settings-modal');
         } else {
-            // IF USER IS INSTRUCTOR (Read-Only)
             const c=allActiveAssignmentsCache.find(x=>x.id===id); if(!c)return;
             document.getElementById('io-title').innerText = c.nome;
             renderInstructorTrafficLights(c.livello, 'io-list-current', 'io-lvl-current-title', c.progress);
@@ -624,7 +585,6 @@
         } catch(e) { alert("Errore Salvataggio: " + e.message); }
     };
 
-    // SHARED ACTIONS
     window.openObjConfig=(l)=>{document.getElementById('conf-lvl-name').innerText=l;document.getElementById('conf-obj-text').value=(objectivesConfigCache[l]||[]).join('\n');openModal('objectives-config-modal');};
     window.saveObjConfig=async()=>{
         try {
@@ -643,9 +603,10 @@
         const d=document.getElementById('new-day').value; 
         const t=document.getElementById('new-time').value; 
         const m=document.getElementById('new-instructor-select').value.trim(); 
+        
         if(l&&d&&t&&m) await addDoc(collection(db,"corsi_assegnati"),{
             nome:`${l} - ${d} ${t}`, livello:l, giorno:d, ora:t, istruttore:m, 
-            created:new Date(), stagione: selectedSeason // Saves with selected season
+            created:new Date(), stagione: selectedSeason 
         });
     };
     
@@ -658,19 +619,13 @@
         p.forEach(d=>{ l.innerHTML+=`<div class="lezione-card"><div class="card-top"><span class="date-badge">${new Date(d.data).toLocaleDateString()}</span><span class="presenze-badge">👤 ${allAnagraficaCache[d.email]?.nome||d.email.split('@')[0]}</span></div><div style="margin-top:5px"><b>${d.obiettivo}</b><br><small>${d.attivita}</small></div></div>`; });
     };
 
-    // --- INSTRUCTOR LOGIC ---
     function initInstructor() {
         document.getElementById('instructor-view').classList.remove('hidden');
         document.getElementById('corso').addEventListener('change', updateInstructorPreview);
-        // Load All Levels just to know order
         onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{ 
-            allLevelsCache=[]; 
-            s.forEach(d=>allLevelsCache.push(d.data().nome)); 
+            allLevelsCache=[]; s.forEach(d=>allLevelsCache.push(d.data().nome)); 
             updateInstructorPreview();
         });
-
-        // LOAD ONLY CURRENT SEASON COURSES FOR INSTRUCTOR (Simplification)
-        // Or keep all. Let's keep current season only to avoid confusion.
         onSnapshot(collection(db,"corsi_assegnati"), s=>{
             allActiveAssignmentsCache=[]; 
             s.forEach(d=>{
@@ -679,13 +634,11 @@
                      allActiveAssignmentsCache.push({id:d.id,...data});
                 }
             });
-            // FIX: Case insensitive email check
             myAssignmentsCache=allActiveAssignmentsCache.filter(c=>c.istruttore.toLowerCase()===currentUser.email.toLowerCase());
             window.toggleSubstitutionMode(); 
             renderInstrOverview();
             updateInstructorPreview();
         });
-        
         onSnapshot(query(collection(db,"registro_didattico"),where("uid","==",currentUser.uid)), s=>{
             myLessonsCache=[]; s.forEach(d=>myLessonsCache.push({id:d.id,...d.data()}));
             updateInstructorPreview();
@@ -709,7 +662,6 @@
         
         if(!cId || !c) { boxLL.classList.add('hidden'); wrapper.classList.add('hidden'); return; }
 
-        // Last Lesson
         const l=myLessonsCache.filter(x=>x.corso===c.nome).sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
         if(l) { 
             boxLL.classList.remove('hidden'); 
@@ -717,7 +669,6 @@
             document.getElementById('ll-obj').innerText=l.obiettivo; document.getElementById('ll-act').innerText=l.attivita;
         } else boxLL.classList.add('hidden');
 
-        // Objectives (Double Level)
         const nextLvl = getNextLevelName(c.livello);
         const hasCurr = objectivesConfigCache[c.livello] && objectivesConfigCache[c.livello].length > 0;
         const hasNext = nextLvl && objectivesConfigCache[nextLvl] && objectivesConfigCache[nextLvl].length > 0;
@@ -744,13 +695,11 @@
         });
     }
 
-    // INSTRUCTOR OVERVIEW
     window.switchInstrView=(v)=>{
         document.getElementById('btn-instr-days').style.background=v==='days'?'var(--primary)':'var(--input-bg)';
         document.getElementById('btn-instr-days').style.color=v==='days'?'white':'var(--text-main)';
         document.getElementById('btn-instr-levels').style.background=v==='levels'?'var(--primary)':'var(--input-bg)';
         document.getElementById('btn-instr-levels').style.color=v==='levels'?'white':'var(--text-main)';
-        
         document.getElementById('courses-list-wrapper').classList.add('hidden');
         if(v==='days') { document.getElementById('days-overview-grid').classList.remove('hidden'); document.getElementById('levels-overview-grid').classList.add('hidden'); }
         else { document.getElementById('days-overview-grid').classList.add('hidden'); document.getElementById('levels-overview-grid').classList.remove('hidden'); }
@@ -787,7 +736,6 @@
     };
     window.closeFolderView=()=>{ document.getElementById('courses-list-wrapper').classList.add('hidden'); window.switchInstrView(document.getElementById('days-overview-grid').classList.contains('hidden')?'levels':'days'); };
 
-    // HISTORY & PDF
     window.openHistory=(n)=>{ currentOpenCourse=n; document.getElementById('courses-list-wrapper').classList.add('hidden'); document.getElementById('course-history').classList.remove('hidden'); document.getElementById('hist-title').innerText=n; renderHistoryList(); };
     window.closeHistory=()=>{ document.getElementById('course-history').classList.add('hidden'); document.getElementById('courses-list-wrapper').classList.remove('hidden'); };
     function renderHistoryList(){
@@ -818,13 +766,11 @@
         doc.save("registro.pdf");
     };
 
-    // NOTICES
     window.sendNotice=async()=>{ const t=document.getElementById('admin-notice-text').value; if(t) await addDoc(collection(db,"avvisi"),{testo:t, destinatario:document.getElementById('admin-notice-target').value, data:new Date()}); document.getElementById('admin-notice-text').value=""; toast("Inviato"); };
     window.deleteNotice=async(id)=>{ if(confirm("Eliminare?")) await deleteDoc(doc(db,"avvisi",id)); };
     function renderAdminNotices(){ const l=document.getElementById('admin-sent-notices'); l.innerHTML=""; allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{ l.innerHTML+=`<div style="padding:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.9rem"><div><b>A: ${n.destinatario==='all'?'Tutti':n.destinatario}</b><br>${n.testo}</div><button onclick="deleteNotice('${n.id}')" style="color:red; border:none; background:none">🗑️</button></div>`; }); }
     function renderInstructorNotices(){ const l=document.getElementById('notif-list'); const b=document.getElementById('notif-badge'); l.innerHTML=""; let c=0; allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{ if(n.destinatario==='all' || n.destinatario===currentUser.email.toLowerCase()){ c++; l.innerHTML+=`<div class="notif-item"><div style="flex:1"><small style="color:var(--text-sub)">${new Date(n.data.seconds*1000).toLocaleDateString()}</small><br>${n.testo}</div></div>`; } }); if(c===0) l.innerHTML="<p style='padding:20px;text-align:center;color:gray'>Nessun avviso.</p>"; b.innerText=c; b.classList.toggle('hidden', c===0); }
     
-    // EDIT
     window.deleteLesson = async(id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db,"registro_didattico",id)); };
     window.openEditModal = (id) => { const l=myLessonsCache.find(x=>x.id===id); if(!l)return; document.getElementById('edit-id').value=id; document.getElementById('edit-data').value=l.data; document.getElementById('edit-obiettivo').value=l.obiettivo; document.getElementById('edit-attivita').value=l.attivita; openModal('edit-modal'); };
     window.saveEdit = async() => { await updateDoc(doc(db,"registro_didattico",document.getElementById('edit-id').value), { obiettivo:document.getElementById('edit-obiettivo').value, attivita:document.getElementById('edit-attivita').value }); closeModal('edit-modal'); };
