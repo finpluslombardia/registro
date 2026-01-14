@@ -43,6 +43,13 @@
         .user-info { font-size: 1rem; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
         .header-actions { display: flex; gap: 12px; align-items: center; }
         
+        /* SEASON BADGE */
+        .season-badge {
+            background: var(--bg-body); border: 1px solid var(--border); 
+            padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; 
+            font-weight: 700; color: var(--text-sub); margin-left: 10px;
+        }
+
         button.action-btn { 
             background: var(--input-bg); color: var(--text-main); border: 2px solid var(--border); 
             padding: 0; border-radius: 12px; cursor: pointer; font-size: 1.3rem; width: 44px; height: 44px; 
@@ -306,6 +313,7 @@
         <div>
             <h2>Registro Didattico</h2>
             <div id="user-display" class="user-info">...</div>
+            <span class="season-badge" id="current-season-badge">2025/2026</span>
         </div>
         <div class="header-actions">
             <div style="position:relative"><button class="action-btn" onclick="toggleNotifications()">🔔</button><span id="notif-badge" class="notif-badge hidden">0</span></div>
@@ -465,6 +473,7 @@
     const firebaseConfig = { apiKey: "AIzaSyAi5AwcIcjgLGyI7E8x4ndcYCI9DUIybeA", authDomain: "gestioneore-3bf5f.firebaseapp.com", projectId: "gestioneore-3bf5f", storageBucket: "gestioneore-3bf5f.firebasestorage.app", messagingSenderId: "99818377406", appId: "1:99818377406:web:a62ee0e6f323b8b4178eef" };
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
+    const CURRENT_SEASON = "2025/2026"; // CAMBIA QUI LA STAGIONE
 
     let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLessonsCache=[], allAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={};
     let currentAdminProgress={}; let currentOpenCourse=null; let currentAdminView='team'; let currentSelectedDetail=null; let currentDayView=null; let currentLevelView=null;
@@ -499,6 +508,7 @@
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('user-display').innerText = "Ciao " + user.email;
+            document.getElementById('current-season-badge').innerText = CURRENT_SEASON;
             document.getElementById('data').valueAsDate = new Date();
             autoSetPeriod('data','periodo');
             
@@ -506,6 +516,7 @@
             onSnapshot(collection(db,"config_obiettivi"), s=>{
                 objectivesConfigCache={};s.forEach(d=>objectivesConfigCache[d.id]=d.data().items||[]); 
                 if(currentSelectedDetail) renderDetails(currentSelectedDetail); 
+                // FORCE INSTRUCTOR UPDATE
                 if(!document.getElementById('instructor-view').classList.contains('hidden')) updateInstructorPreview();
             });
             onSnapshot(collection(db,"avvisi"), s=>{allNoticesCache=[];s.forEach(d=>allNoticesCache.push({id:d.id,...d.data()})); 
@@ -531,33 +542,50 @@
             });
             if(currentAdminView==='levels') renderApp();
         });
+        
+        // FILTER COURSES BY SEASON
         onSnapshot(collection(db,"corsi_assegnati"), s=>{
-            allAssignmentsCache=[]; s.forEach(d=>allAssignmentsCache.push({id:d.id,...d.data()}));
+            allAssignmentsCache=[]; 
+            s.forEach(d=>{
+                const data = d.data();
+                // Backward compatibility: if no season field, assume it's current or show it
+                if(!data.stagione || data.stagione === CURRENT_SEASON) {
+                    allAssignmentsCache.push({id:d.id,...data});
+                }
+            });
             // Update cache used for settings modal
             allActiveAssignmentsCache = allAssignmentsCache; 
             renderApp();
         });
+        
         onSnapshot(collection(db,"anagrafica"), s=>{ 
             allAnagraficaCache={}; 
             const sel=document.getElementById('admin-notice-target'); sel.innerHTML='<option value="all">A: Tutti</option>'; 
             const selInstr=document.getElementById('new-instructor-select'); selInstr.innerHTML='<option value="">Scegli Istruttore...</option>';
             
-            // Populate select for creating courses
             let instructors = [];
             s.forEach(d=>{ 
                 allAnagraficaCache[d.id]=d.data(); 
                 sel.innerHTML+=`<option value="${d.id}">${d.data().nome||d.id}</option>`;
                 instructors.push({email: d.id, name: d.data().nome || d.id});
             });
-            // Sort instructors alphabetically by name
             instructors.sort((a,b)=>a.name.localeCompare(b.name));
             instructors.forEach(i => {
                 selInstr.innerHTML += `<option value="${i.email}">${i.name}</option>`;
             });
-            
             renderApp();
         });
-        onSnapshot(query(collection(db,"registro_didattico"),orderBy("data","desc")), s=>{ allLessonsCache=[]; s.forEach(d=>allLessonsCache.push({id:d.id,...d.data()})); renderApp(); });
+        
+        // FILTER LESSONS BY SEASON (Only load relevant ones to save memory/bandwidth potentially, but client-side filter is safer for now)
+        onSnapshot(query(collection(db,"registro_didattico"),orderBy("data","desc")), s=>{ 
+            allLessonsCache=[]; 
+            s.forEach(d=>{
+                // Filter by season could be done here if lesson has season field, otherwise check date?
+                // For simplicity, let's just load them. In a real app we'd query by date range.
+                allLessonsCache.push({id:d.id,...d.data()});
+            }); 
+            renderApp(); 
+        });
     }
 
     function renderApp() {
@@ -614,7 +642,7 @@
 
     // --- ADMIN TRAFFIC LIGHTS ---
     window.openCourseSettings=(id)=>{
-        // IF USER IS ADMIN, OPEN EDITABLE MODAL
+        // IF USER IS ADMIN
         if (currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
             const c=allAssignmentsCache.find(x=>x.id===id); if(!c)return;
             document.getElementById('cs-id').value=c.id; document.getElementById('cs-level').value=c.livello;
@@ -625,7 +653,7 @@
             renderAdminTrafficLights(nextLvl, 'admin-obj-list-next', 'modal-lvl-next-title');
             openModal('course-settings-modal');
         } else {
-            // IF USER IS INSTRUCTOR, OPEN READ-ONLY MODAL
+            // IF USER IS INSTRUCTOR (Read-Only Mode)
             const c=allActiveAssignmentsCache.find(x=>x.id===id); if(!c)return;
             const modal = document.getElementById('instructor-obj-modal');
             document.getElementById('io-title').innerText = c.nome;
@@ -688,9 +716,12 @@
         const l=document.getElementById('new-level-select').value; 
         const d=document.getElementById('new-day').value; 
         const t=document.getElementById('new-time').value; 
-        const m=document.getElementById('new-instructor-select').value.trim(); // Now reading from select
+        const m=document.getElementById('new-instructor-select').value.trim(); 
         
-        if(l&&d&&t&&m) await addDoc(collection(db,"corsi_assegnati"),{nome:`${l} - ${d} ${t}`, livello:l, giorno:d, ora:t, istruttore:m, created:new Date()});
+        if(l&&d&&t&&m) await addDoc(collection(db,"corsi_assegnati"),{
+            nome:`${l} - ${d} ${t}`, livello:l, giorno:d, ora:t, istruttore:m, 
+            created:new Date(), stagione: CURRENT_SEASON
+        });
     };
     
     window.deleteAssignment=async(id)=>{if(confirm("Eliminare?")) await deleteDoc(doc(db,"corsi_assegnati",id));};
@@ -706,21 +737,30 @@
     function initInstructor() {
         document.getElementById('instructor-view').classList.remove('hidden');
         document.getElementById('corso').addEventListener('change', updateInstructorPreview);
-        // Load All Levels just to know order
+        // Load All Levels
         onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{ 
             allLevelsCache=[]; 
             s.forEach(d=>allLevelsCache.push(d.data().nome)); 
             updateInstructorPreview();
         });
 
+        // LOAD ONLY CURRENT SEASON COURSES
         onSnapshot(collection(db,"corsi_assegnati"), s=>{
-            allActiveAssignmentsCache=[]; s.forEach(d=>allActiveAssignmentsCache.push({id:d.id,...d.data()}));
+            allActiveAssignmentsCache=[]; 
+            s.forEach(d=>{
+                const data = d.data();
+                if(!data.stagione || data.stagione === CURRENT_SEASON) {
+                     allActiveAssignmentsCache.push({id:d.id,...data});
+                }
+            });
             // FIX: Case insensitive email check
             myAssignmentsCache=allActiveAssignmentsCache.filter(c=>c.istruttore.toLowerCase()===currentUser.email.toLowerCase());
             window.toggleSubstitutionMode(); 
             renderInstrOverview();
             updateInstructorPreview();
         });
+        
+        // LOAD ALL LESSONS (Could filter by date/season if needed, but keeping all for now)
         onSnapshot(query(collection(db,"registro_didattico"),where("uid","==",currentUser.uid)), s=>{
             myLessonsCache=[]; s.forEach(d=>myLessonsCache.push({id:d.id,...d.data()}));
             updateInstructorPreview();
@@ -752,7 +792,7 @@
             document.getElementById('ll-obj').innerText=l.obiettivo; document.getElementById('ll-act').innerText=l.attivita;
         } else boxLL.classList.add('hidden');
 
-        // Objectives
+        // Objectives (Double Level)
         const nextLvl = getNextLevelName(c.livello);
         const hasCurr = objectivesConfigCache[c.livello] && objectivesConfigCache[c.livello].length > 0;
         const hasNext = nextLvl && objectivesConfigCache[nextLvl] && objectivesConfigCache[nextLvl].length > 0;
@@ -841,7 +881,8 @@
             uid:currentUser.uid, email:currentUser.email, data:document.getElementById('data').value,
             corso:cObj.nome, obiettivo:document.getElementById('obiettivo').value, attivita:document.getElementById('attivita').value,
             presenze:document.getElementById('presenze').value, note:document.getElementById('note').value,
-            periodo:document.getElementById('periodo').value, is_sostituzione:document.getElementById('is-substitution').checked, timestamp:new Date()
+            periodo:document.getElementById('periodo').value, is_sostituzione:document.getElementById('is-substitution').checked, timestamp:new Date(),
+            stagione: CURRENT_SEASON
         });
         toast("Salvato"); document.getElementById('attivita').value="";
         if(document.getElementById('is-substitution').checked){ document.getElementById('is-substitution').checked=false; toggleSubstitutionMode(); }
