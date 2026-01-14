@@ -38,33 +38,39 @@
         /* UNIFIED SECTION BOX */
         .section-box {
             background: var(--bg-body); 
-            padding: 15px; 
-            border-radius: 16px; 
-            border: 1px solid var(--border);
-            margin-bottom: 25px; 
+            padding: 15px; border-radius: 16px; 
+            border: 1px solid var(--border); margin-bottom: 25px; 
         }
         
         /* HEADER */
-        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
         h2 { margin: 0; color: var(--primary); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
         .user-info { font-size: 0.95rem; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
         .header-actions { display: flex; gap: 12px; align-items: center; }
         
-        /* FORM GRID SYSTEM */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; align-items: end; }
+        /* FORM GRID SYSTEM (COMPATTO) */
+        .form-header-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr auto; /* Data | Periodo | Checkbox */
+            gap: 12px; margin-bottom: 12px; align-items: end;
+        }
         .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .form-group { margin-bottom: 0; width: 100%; }
         .form-full-width { margin-bottom: 12px; }
 
-        /* CHECKBOX COMPATTO */
+        /* CHECKBOX COMPATTO (Icona) */
         .compact-checkbox-wrapper {
-            display: flex; align-items: center; gap: 8px; height: 44px; 
+            display: flex; align-items: center; justify-content: center;
+            height: 44px; width: 44px; /* Quadrato */
             background: var(--input-bg); border: 2px solid var(--border);
-            border-radius: 10px; padding: 0 10px; cursor: pointer;
-            box-sizing: border-box;
+            border-radius: 10px; cursor: pointer; position: relative;
         }
-        .compact-checkbox-wrapper input { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: #f59e0b; padding: 0; border: none; }
-        .compact-checkbox-wrapper label { margin: 0; font-size: 0.85rem; cursor: pointer; font-weight: 600; padding: 0; color: var(--text-main); }
+        .compact-checkbox-wrapper input { 
+            position: absolute; opacity: 0; cursor: pointer; height: 100%; width: 100%;
+        }
+        .checkbox-icon { font-size: 1.2rem; opacity: 0.3; transition: 0.2s; }
+        .compact-checkbox-wrapper input:checked + .checkbox-icon { opacity: 1; transform: scale(1.1); }
+        .compact-checkbox-wrapper.sub-active { border-color: #f59e0b; background: #fffbeb; }
 
         /* INPUTS & BUTTONS */
         label { display: block; font-weight: 700; margin-bottom: 5px; font-size: 0.8rem; color: var(--text-main); }
@@ -72,12 +78,10 @@
         input, select, textarea { 
             width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 10px; 
             background: var(--input-bg); color: var(--text-main); box-sizing: border-box; 
-            font-size: 14px; outline: none; font-family: 'Inter', sans-serif;
-            height: 44px; 
+            font-size: 14px; outline: none; font-family: 'Inter', sans-serif; height: 44px; 
         }
         textarea { height: auto; min-height: 44px; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
-        input[type="date"] { -webkit-appearance: none; appearance: none; display: block; }
         
         button.action-btn { background: var(--input-bg); color: var(--text-main); border: 2px solid var(--border); padding: 0; border-radius: 10px; cursor: pointer; font-size: 1.2rem; width: 40px; height: 40px; display:flex; align-items:center; justify-content:center; transition: all 0.2s; }
         button.logout-btn { background: var(--danger); color: white; border: none; padding: 0 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; height: 40px; }
@@ -87,7 +91,6 @@
         .global-season-bar {
             background: rgba(79, 70, 229, 0.08); border: 2px solid var(--primary); border-radius: 12px;
             padding: 12px 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.1);
         }
         .gsb-label { font-weight: 800; color: var(--primary); font-size: 1rem; white-space: nowrap; }
         .gsb-select { flex: 1; padding: 10px; border: 2px solid var(--primary); font-weight: 700; cursor: pointer; height: auto; font-size: 0.95rem; }
@@ -110,11 +113,8 @@
         .overview-card:hover { transform: translateY(-2px); }
         .user-card { text-align: left; }
         .user-card.active { border: 2px solid var(--primary); background: rgba(79, 70, 229, 0.03); }
-        
-        /* ADMIN CARD */
-        .ac-course-card { display: flex; flex-direction: column; gap: 10px; text-align: left; border-left: 4px solid var(--primary); }
-
         .course-folder { border-bottom: 4px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; }
+        .ac-course-card { display: flex; flex-direction: column; gap: 10px; text-align: left; border-left: 4px solid var(--primary); }
         
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px; }
         .uc-name { font-weight: 800; font-size: 1.05rem; }
@@ -139,7 +139,7 @@
             border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
         .lesson-card:last-child { margin-bottom: 0; }
-        .lc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .lc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px; font-size: 0.85rem; color: var(--text-sub); }
         .lc-info { display: flex; align-items: center; gap: 10px; }
         .lc-date { font-weight: 800; color: var(--text-main); font-size: 0.95rem; }
         .lc-badge { background: var(--bg-body); padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); border: 1px solid var(--border); }
@@ -179,7 +179,6 @@
 
         /* UTILS */
         .hidden { display: none !important; }
-        .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
         .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; }
         body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
 
@@ -194,18 +193,16 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
+        /* --- MOBILE OPTIMIZATIONS --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
             .section-box { padding: 12px; margin-bottom: 20px; }
-            
             .app-header { margin-bottom: 15px; padding-bottom: 10px; }
             h2 { font-size: 1.2rem; }
-            .user-info { font-size: 0.8rem; }
             
-            .form-grid { grid-template-columns: 1fr; gap: 8px; }
-            .compact-checkbox-wrapper { padding: 8px; }
+            /* Compact Header Grid */
+            .form-header-grid { grid-template-columns: 1.5fr 1fr auto; gap: 8px; }
             
             button.action-btn { width: 34px; height: 34px; font-size: 1.1rem; }
             button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
@@ -218,10 +215,8 @@
             textarea { min-height: 42px; }
             .create-grid { grid-template-columns: 1fr; gap: 8px; }
             .create-grid button { width: 100%; margin-top: 5px; }
-            
             .notif-overlay { padding-top: 0; align-items: flex-end; }
             .notif-box { width: 100%; height: 90%; max-height: 90%; border-radius: 20px 20px 0 0; }
-            
             .global-season-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; margin-bottom: 20px;}
             .gsb-select { width: 100%; }
             .filter-bar { gap: 10px; padding: 5px 0; border: none; background: transparent; }
@@ -378,13 +373,9 @@
                 </div>
 
                 <div id="lessons-log-container" class="hidden">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                         <h5 style="margin:0; color:var(--primary); font-size:1.1rem" id="admin-history-title">...</h5>
-                         <button onclick="closeAdminHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer">⬅ Torna ai Corsi</button>
-                    </div>
+                    <h5 style="margin:30px 0 15px 0; color:var(--primary); font-size:1.1rem">📝 Storico Lezioni</h5>
                     <div id="admin-lessons-list" class="section-box"></div> 
                 </div>
-
             </div>
         </div>
     </div>
@@ -393,7 +384,7 @@
         <h3 style="margin-bottom:15px; font-size:1.2rem">Nuova Lezione</h3>
         <div class="section-box">
             
-            <div class="form-grid">
+            <div class="form-header-grid">
                 <div class="form-group">
                     <label>Data</label>
                     <input type="date" id="data"> 
@@ -402,14 +393,14 @@
                     <label>Periodo</label>
                     <select id="periodo"><option>1° Periodo</option><option>2° Periodo</option></select>
                 </div>
-                <div class="form-group compact-checkbox-wrapper">
+                <div class="compact-checkbox-wrapper" onclick="document.getElementById('is-substitution').click()">
                     <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
-                    <label for="is-substitution">Sostituzione</label>
+                    <span class="checkbox-icon" title="Sostituzione">🔄</span>
                 </div>
             </div>
 
             <div class="form-group form-full-width">
-                <label>Seleziona Corso (Filtro per giorno attivo)</label>
+                <label>Seleziona Corso (Filtro automatico per giorno)</label>
                 <select id="corso"><option>Seleziona una data...</option></select>
             </div>
 
@@ -538,6 +529,7 @@
             document.getElementById('data').valueAsDate = new Date();
             autoSetPeriod('data','periodo');
             
+            // LISTENER DATA
             document.getElementById('data').addEventListener('change', () => {
                 autoSetPeriod('data','periodo');
                 renderCourseOptions();
@@ -637,7 +629,7 @@
         document.getElementById('admin-days-grid').classList.toggle('hidden', v!=='days');
         document.getElementById('admin-levels-grid').classList.toggle('hidden', v!=='levels');
         document.getElementById('admin-courses-list').classList.add('hidden');
-        document.getElementById('lessons-log-container').classList.add('hidden'); // Reset history view
+        document.getElementById('lessons-log-container').classList.add('hidden'); 
     };
     
     function renderDetails(id) {
@@ -671,7 +663,7 @@
         document.getElementById('admin-days-grid').classList.add('hidden');
         document.getElementById('admin-levels-grid').classList.add('hidden');
         document.getElementById('admin-courses-list').classList.remove('hidden');
-        document.getElementById('lessons-log-container').classList.add('hidden'); // Ensure history is hidden
+        document.getElementById('lessons-log-container').classList.add('hidden'); 
         
         const content = document.getElementById('admin-folder-content');
         content.innerHTML = "";
@@ -704,17 +696,11 @@
          switchAdminDetailView(currentAdminDetailView); 
     };
 
-    // --- NEW: ADMIN HISTORY NAV ---
     window.openAdminCourseHistory=(courseName, instructorEmail)=>{ 
         currentOpenCourse=courseName; 
-        
-        // HIDE COURSE LIST to focus
         document.getElementById('admin-courses-list').classList.add('hidden'); 
-        
-        // SHOW HISTORY
         const container = document.getElementById('lessons-log-container');
         container.classList.remove('hidden'); 
-        document.getElementById('admin-history-title').innerText = courseName;
         
         let p=allLessonsCache.filter(x=>x.corso===courseName); 
         if(instructorEmail) p=p.filter(x=>x.email===instructorEmail); 
@@ -842,10 +828,12 @@
     function initInstructor() {
         document.getElementById('instructor-view').classList.remove('hidden');
         document.getElementById('corso').addEventListener('change', updateInstructorPreview);
+        
         onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{ 
             allLevelsCache=[]; s.forEach(d=>allLevelsCache.push(d.data().nome)); 
             updateInstructorPreview();
         });
+
         onSnapshot(collection(db,"corsi_assegnati"), s=>{
             allActiveAssignmentsCache=[]; 
             s.forEach(d=>{
@@ -855,24 +843,69 @@
                 }
             });
             myAssignmentsCache=allActiveAssignmentsCache.filter(c=>c.istruttore.toLowerCase()===currentUser.email.toLowerCase());
-            window.toggleSubstitutionMode(); 
+            
+            // IMPORTANT: Call logic once data is loaded
+            toggleSubstitutionMode(); 
             renderInstrOverview();
             updateInstructorPreview();
         });
+        
         onSnapshot(query(collection(db,"registro_didattico"),where("uid","==",currentUser.uid)), s=>{
             myLessonsCache=[]; s.forEach(d=>myLessonsCache.push({id:d.id,...d.data()}));
             updateInstructorPreview();
         });
     }
 
-    window.toggleSubstitutionMode=()=>{
-        const sub=document.getElementById('is-substitution').checked;
-        const sel=document.getElementById('corso'); sel.innerHTML='<option value="">Seleziona...</option>';
-        sel.parentElement.classList.toggle('sub-active', sub);
-        const pool=sub?allActiveAssignmentsCache.filter(c=>c.istruttore.toLowerCase()!==currentUser.email.toLowerCase()):myAssignmentsCache;
+    // --- HELPER DATE (FIXED) ---
+    function getDayName(dateString) {
+        if (!dateString) return null;
+        // Parse "YYYY-MM-DD" manually to ensure Local Time usage
+        const parts = dateString.split('-');
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; 
+        const day = parseInt(parts[2], 10);
+        const d = new Date(year, month, day); 
+        const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+        return days[d.getDay()];
+    }
+
+    // --- RENDER COURSE OPTIONS BASED ON DATE ---
+    function renderCourseOptions() {
+        const dateVal = document.getElementById('data').value;
+        const isSub = document.getElementById('is-substitution').checked;
+        const select = document.getElementById('corso');
+        const wrapper = document.getElementById('is-substitution').parentElement;
+        
+        if(isSub) wrapper.classList.add('sub-active'); else wrapper.classList.remove('sub-active');
+
+        let pool = isSub 
+            ? allActiveAssignmentsCache.filter(c => c.istruttore.toLowerCase() !== currentUser.email.toLowerCase())
+            : myAssignmentsCache;
+
+        // FILTER BY DAY
+        if (dateVal) {
+            const dayName = getDayName(dateVal);
+            pool = pool.filter(c => c.giorno === dayName);
+        }
+
         pool.sort((a,b)=>a.nome.localeCompare(b.nome));
-        pool.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${c.nome} ${sub?'('+c.istruttore+')':''}</option>`);
+        
+        select.innerHTML = '<option value="">Seleziona...</option>';
+        
+        if (pool.length === 0) {
+            const dayLabel = dateVal ? getDayName(dateVal) : '';
+            select.innerHTML += `<option disabled>Nessun corso di ${dayLabel}</option>`;
+        }
+        
+        pool.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.nome} ${isSub ? '('+c.istruttore+')' : ''}</option>`;
+        });
+        
         updateInstructorPreview();
+    }
+
+    window.toggleSubstitutionMode=()=>{
+        renderCourseOptions();
     };
 
     function updateInstructorPreview() {
