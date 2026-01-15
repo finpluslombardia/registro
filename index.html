@@ -51,7 +51,7 @@
         /* FORM GRID SYSTEM */
         .form-header-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne identiche su Desktop */
+            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne Desktop */
             gap: 15px; margin-bottom: 15px; align-items: end;
             width: 100%;
         }
@@ -65,7 +65,7 @@
             background: var(--input-bg); border: 2px solid var(--border);
             border-radius: 12px; padding: 0 15px; cursor: pointer;
             box-sizing: border-box; transition: 0.2s;
-            width: 100%;
+            width: 100%; min-width: 0;
         }
         .compact-checkbox-wrapper:active { background: rgba(0,0,0,0.02); }
         .compact-checkbox-wrapper input { 
@@ -125,14 +125,12 @@
         .user-card { text-align: left; }
         .user-card.active { border: 2px solid var(--primary); background: rgba(37, 99, 235, 0.03); }
         
-        /* MODIFICATO: Rimossa space-between per fixare spazio su desktop */
+        /* CARD CORSO (ISTRUTTORE) - FIX SPAZI */
         .course-folder { 
             border-bottom: 4px solid var(--primary); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: flex-start; /* Fix Spaziatura */
+            display: flex; flex-direction: column; justify-content: flex-start;
+            padding: 12px; /* Padding leggermente ridotto */
         }
-        
         .ac-course-card { display: flex; flex-direction: column; gap: 10px; text-align: left; border-left: 4px solid var(--primary); }
         
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px; }
@@ -140,14 +138,28 @@
         .uc-email { font-size: 0.8rem; color: var(--text-sub); display: block; margin-bottom: 8px; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 8px; font-weight: 700; color: var(--primary); font-size: 0.85rem; }
         
-        .cf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .cf-title { font-weight: 800; font-size: 1rem; line-height: 1.25; text-align: left; }
-        .cf-settings-btn { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 4px; color: var(--text-sub); z-index: 10; margin-top: -4px; margin-right: -4px; }
-        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 8px; }
-        .cf-stat-item { display:flex; gap: 5px; align-items:center; }
+        /* HEADER CARD CORSO COMPATTO */
+        .cf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .cf-title { font-weight: 800; font-size: 1rem; line-height: 1.25; text-align: left; margin-bottom: 0; }
+        .cf-settings-btn { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 0 0 0 5px; color: var(--text-sub); margin-top: -2px; }
+        
+        /* META DATI COMPATTI (ISCRITTI / MEDIA) */
+        .cf-meta { 
+            display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; 
+            margin-top: 5px; /* Ridotto da 8px */
+            border-top: 1px dashed var(--border); 
+            padding-top: 5px; /* Ridotto da 8px */
+        }
+        .cf-stat-item { display:flex; gap: 5px; align-items:center; color: var(--text-main); }
         
         .oc-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; display: block; }
         .oc-count { background: var(--bg-body); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
+
+        .cf-count { 
+            margin-top: 8px; /* Ridotto da 10px */
+            background: var(--bg-body); padding: 3px 10px; border-radius: 12px; 
+            font-size: 0.8rem; font-weight: 600; color: var(--text-sub); display: inline-block;
+        }
 
         .btn-group { display: flex; gap: 8px; margin-top: 5px; }
         .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-body); font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
@@ -224,24 +236,24 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
+        /* --- MOBILE OPTIMIZATIONS --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
-            .section-box { padding: 12px; margin-bottom: 20px; }
+            .section-box { padding: 10px 12px; margin-bottom: 20px; }
             .app-header { margin-bottom: 15px; padding-bottom: 10px; }
             h2 { font-size: 1.2rem; }
             
             /* FIX SFORAMENTO: Griglia 2 colonne */
             .form-header-grid { 
-                grid-template-columns: 1fr 1fr; /* 2 colonne */
+                grid-template-columns: 1fr 1fr; 
                 gap: 10px; 
             }
             .form-header-grid > .form-group:first-child { 
-                grid-column: 1 / -1; /* Data prende tutto */
+                grid-column: 1 / -1; 
             }
             
-            /* Fix Anti-Overflow: impedisce ai child di allargare il padre */
+            /* Fix Anti-Overflow */
             .form-group, .compact-checkbox-wrapper { min-width: 0; }
             
             .compact-checkbox-wrapper { padding: 0 8px; }
@@ -253,7 +265,6 @@
             .cf-title, .ac-course-card span { font-size: 1rem; }
             .cf-settings-btn { font-size: 1.2rem; padding: 4px; }
 
-            /* ANTI ZOOM & SFORAMENTO */
             input, select, textarea { padding: 10px; font-size: 16px !important; height: 44px; border-radius: 8px; }
             textarea { min-height: 44px; }
             
@@ -317,10 +328,10 @@
 
 <div id="course-settings-modal" class="modal-overlay">
     <div class="modal-box">
-        <h3 class="modal-title">⚙️ Valutazione Corso</h3>
+        <h3 class="modal-title">🎯 Valutazione Corso</h3>
         <input type="hidden" id="cs-id">
         <div class="form-group"><label>Iscritti</label><input type="number" id="cs-iscritti"></div>
-        <div class="form-group"><label>Note</label><textarea id="cs-note" style="height:80px"></textarea></div>
+        <div class="form-group"><label>Note (Visibili all'istruttore)</label><textarea id="cs-note" style="height:80px"></textarea></div>
 
         <div class="obj-level-header" id="modal-lvl-current-title" style="margin-top:20px">Livello Corrente</div>
         <div id="admin-obj-list-current" class="obj-container"></div>
