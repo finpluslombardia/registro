@@ -39,7 +39,7 @@
             background: var(--bg-body); 
             padding: 15px; border-radius: 16px; 
             border: 1px solid var(--border); margin-bottom: 25px; 
-            width: 100%; box-sizing: border-box; 
+            width: 100%; box-sizing: border-box; /* Fix overflow */
         }
         
         /* HEADER */
@@ -51,12 +51,12 @@
         /* FORM GRID SYSTEM */
         .form-header-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne identiche su Desktop */
             gap: 15px; margin-bottom: 15px; align-items: end;
             width: 100%;
         }
         .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; width: 100%; }
-        .form-group { margin-bottom: 0; width: 100%; min-width: 0; }
+        .form-group { margin-bottom: 0; width: 100%; min-width: 0; /* Fix overflow grid item */ }
         .form-full-width { margin-bottom: 15px; width: 100%; }
 
         /* CHECKBOX COMPATTO */
@@ -86,7 +86,7 @@
             width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; 
             background: var(--input-bg); color: var(--text-main); box-sizing: border-box; 
             font-size: 15px; outline: none; font-family: 'Inter', sans-serif; height: 48px;
-            max-width: 100%; min-width: 0;
+            max-width: 100%; min-width: 0; /* Fix overflow input */
         }
         textarea { height: auto; min-height: 50px; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
@@ -98,9 +98,10 @@
 
         /* GLOBAL SEASON BAR */
         .global-season-bar {
-            background: rgba(37, 99, 235, 0.08); border: 2px solid var(--primary); border-radius: 12px;
+            background: rgba(37, 99, 235, 0.08); 
+            border: 2px solid var(--primary); border-radius: 12px;
             padding: 12px 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1); 
         }
         .gsb-label { font-weight: 800; color: var(--primary); font-size: 1rem; white-space: nowrap; }
         .gsb-select { flex: 1; padding: 10px; border: 2px solid var(--primary); font-weight: 700; cursor: pointer; height: auto; font-size: 0.95rem; }
@@ -193,13 +194,26 @@
         .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
         .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; }
         body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
+        
+        /* BOX NOTE CORSO (NEW) */
+        .course-notes-box {
+            background-color: #eff6ff; /* Azzurro chiarissimo */
+            border: 1px solid #93c5fd; 
+            color: #1e3a8a;
+            border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; 
+            line-height: 1.4;
+        }
+        body.dark-mode .course-notes-box { background-color: #172554; border-color: #1e40af; color: #bfdbfe; }
 
         /* NOTIFICHE */
         .notif-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; padding-top: 80px; }
         .notif-box { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 20px; display: flex; flex-direction: column; max-height: 80vh; border: 1px solid var(--border); }
         .notif-header { padding: 20px; border-bottom: 1px solid var(--border); font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
         .notif-list { flex: 1; overflow-y: auto; padding: 0; }
-        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); border-left: 5px solid var(--primary); background: rgba(37, 99, 235, 0.04); }
+        .notif-item { 
+            padding: 15px; border-bottom: 1px solid var(--border); border-left: 5px solid var(--primary); 
+            background: rgba(37, 99, 235, 0.04); 
+        }
         #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 14px; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
@@ -221,6 +235,11 @@
             .form-header-grid > .form-group:first-child { 
                 grid-column: 1 / -1; /* Data prende tutto */
             }
+            
+            /* Fix Anti-Overflow: impedisce ai child di allargare il padre */
+            .form-group, .compact-checkbox-wrapper { min-width: 0; }
+            
+            .compact-checkbox-wrapper { padding: 0 8px; }
             
             button.action-btn { width: 34px; height: 34px; font-size: 1.1rem; }
             button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
@@ -333,7 +352,7 @@
             <select id="season-selector" class="gsb-select" onchange="changeSeason()"></select>
         </div>
 
-        <div style="background:rgba(59,130,246,0.1); padding:20px; border-radius:16px; border:2px dashed #3b82f6; margin-bottom:30px">
+        <div style="background:rgba(37, 99, 235, 0.08); padding:20px; border-radius:16px; border:2px dashed #2563eb; margin-bottom:30px">
             <h4 style="margin:0 0 15px 0; color:#2563eb">📢 Invia Avviso</h4>
             <div style="display:flex; gap:10px">
                 <input type="text" id="admin-notice-text" placeholder="Messaggio..." style="flex:2">
@@ -417,7 +436,7 @@
                 </div>
                 <div class="compact-checkbox-wrapper">
                     <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
-                    <label for="is-substitution">Sto sostituendo un collega</label>
+                    <label for="is-substitution">Sostituzione</label>
                 </div>
             </div>
 
@@ -441,7 +460,9 @@
             <div class="form-group"><label>Note</label><textarea id="note" style="height:50px" placeholder="Note..."></textarea></div>
             <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             
-            <div id="last-lesson-info" class="last-lesson-box hidden" style="margin-top:20px">
+            <div id="instr-course-notes" class="course-notes-box hidden" style="margin-top:20px"></div>
+            
+            <div id="last-lesson-info" class="last-lesson-box hidden" style="margin-top:15px">
                 <div style="font-weight:bold; color:#b45309; margin-bottom:5px; display:flex; justify-content:space-between"><span>⏪ Ultima Lezione</span><span id="ll-date"></span></div>
                 <div style="font-size:0.9rem; color:#78350f"><span style="font-weight:bold">Obiettivo:</span> <span id="ll-obj"></span></div>
                 <div style="font-size:0.9rem; color:#78350f"><span style="font-weight:bold">Attività:</span> <span id="ll-act" style="font-style:italic"></span></div>
@@ -717,7 +738,7 @@
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button onclick="openCourseSettings('${c.id}')" title="Valutazione">⚙️</button>
+                        <button onclick="openCourseSettings('${c.id}')" title="Valutazione">🎯</button>
                         <button onclick="reassignInstructor('${c.id}','${c.istruttore}')">👤</button>
                         <button onclick="deleteAssignment('${c.id}')" style="color:red">🗑️</button>
                     </div>
@@ -946,8 +967,22 @@
         const cId=document.getElementById('corso').value; const c=allActiveAssignmentsCache.find(x=>x.id===cId);
         const boxLL=document.getElementById('last-lesson-info'); 
         const wrapper=document.getElementById('instr-obj-wrapper');
+        const notesBox = document.getElementById('instr-course-notes'); // GET NOTES BOX
         
-        if(!cId || !c) { boxLL.classList.add('hidden'); wrapper.classList.add('hidden'); return; }
+        if(!cId || !c) { 
+            boxLL.classList.add('hidden'); 
+            wrapper.classList.add('hidden'); 
+            notesBox.classList.add('hidden'); // HIDE NOTES
+            return; 
+        }
+
+        // SHOW NOTES IF PRESENT
+        if(c.note_corso) {
+            notesBox.innerHTML = `<strong>ℹ️ Note del Corso:</strong> ${c.note_corso}`;
+            notesBox.classList.remove('hidden');
+        } else {
+            notesBox.classList.add('hidden');
+        }
 
         const l=myLessonsCache.filter(x=>x.corso===c.nome).sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
         if(l) { 
@@ -1023,7 +1058,7 @@
                 <div class="course-folder">
                     <div class="cf-header">
                         <div class="cf-title" onclick="openHistory('${c.nome}')">${c.nome}</div>
-                        <button class="cf-settings-btn" onclick="event.stopPropagation();openCourseSettings('${c.id}')">⚙️</button>
+                        <button class="cf-settings-btn" onclick="event.stopPropagation();openCourseSettings('${c.id}')">🎯</button>
                     </div>
                     <div class="cf-meta" onclick="openHistory('${c.nome}')">
                         <div class="cf-stat-item">👥 Iscritti: ${enrolled} | 📊 Media: ${average}</div>
