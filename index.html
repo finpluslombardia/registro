@@ -51,7 +51,7 @@
         /* FORM GRID SYSTEM */
         .form-header-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne Desktop */
+            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne identiche su Desktop */
             gap: 15px; margin-bottom: 15px; align-items: end;
             width: 100%;
         }
@@ -124,7 +124,15 @@
         .overview-card:hover { transform: translateY(-2px); }
         .user-card { text-align: left; }
         .user-card.active { border: 2px solid var(--primary); background: rgba(37, 99, 235, 0.03); }
-        .course-folder { border-bottom: 4px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* MODIFICATO: Rimossa space-between per fixare spazio su desktop */
+        .course-folder { 
+            border-bottom: 4px solid var(--primary); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Fix Spaziatura */
+        }
+        
         .ac-course-card { display: flex; flex-direction: column; gap: 10px; text-align: left; border-left: 4px solid var(--primary); }
         
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px; }
@@ -183,7 +191,7 @@
         
         /* NOTE BOX (BLUE) */
         .course-notes-box {
-            background-color: #eff6ff; /* Azzurro */
+            background-color: #eff6ff; 
             border: 1px solid #93c5fd; 
             color: #1e3a8a;
             border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; 
@@ -216,7 +224,7 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS --- */
+        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
@@ -816,10 +824,10 @@
             const nextLvl = getNextLevelName(c.livello);
             renderInstructorTrafficLights(nextLvl, 'io-list-next', 'io-lvl-next-title', c.progress);
             
-            // SHOW NOTES IN MODAL
+            // NOTE NEL MODALE
             const notesDiv = document.getElementById('io-notes');
             if (c.note_corso) {
-                notesDiv.innerHTML = `<strong>ℹ️ Note:</strong> ${c.note_corso}`;
+                notesDiv.innerHTML = `<strong>ℹ️ Note del Corso:</strong> ${c.note_corso}`;
                 notesDiv.classList.remove('hidden');
             } else {
                 notesDiv.classList.add('hidden');
@@ -986,7 +994,7 @@
             return; 
         }
 
-        // SHOW NOTES IF PRESENT
+        // NOTE NELLA DASHBOARD
         if(c.note_corso) {
             notesBox.innerHTML = `<strong>ℹ️ Note del Corso:</strong> ${c.note_corso}`;
             notesBox.classList.remove('hidden');
