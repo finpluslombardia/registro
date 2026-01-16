@@ -29,7 +29,7 @@
         body.no-scroll { overflow: hidden; }
 
         .container { 
-            max-width: 1000px; margin: 0 auto; background: var(--bg-card); 
+            max-width: 1200px; margin: 0 auto; background: var(--bg-card); 
             padding: 30px; border-radius: 20px; min-height: 85vh; 
             border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             overflow-x: hidden;
@@ -65,7 +65,7 @@
             background: var(--input-bg); border: 2px solid var(--border);
             border-radius: 12px; padding: 0 15px; cursor: pointer;
             box-sizing: border-box; transition: 0.2s;
-            width: 100%; min-width: 0;
+            width: 100%;
         }
         .compact-checkbox-wrapper:active { background: rgba(0,0,0,0.02); }
         .compact-checkbox-wrapper input { 
@@ -124,13 +124,7 @@
         .overview-card:hover { transform: translateY(-2px); }
         .user-card { text-align: left; }
         .user-card.active { border: 2px solid var(--primary); background: rgba(37, 99, 235, 0.03); }
-        
-        /* CARD CORSO (ISTRUTTORE) - FIX SPAZI */
-        .course-folder { 
-            border-bottom: 4px solid var(--primary); 
-            display: flex; flex-direction: column; justify-content: flex-start;
-            padding: 12px; /* Padding leggermente ridotto */
-        }
+        .course-folder { border-bottom: 4px solid var(--primary); display: flex; flex-direction: column; justify-content: flex-start; padding: 12px; }
         .ac-course-card { display: flex; flex-direction: column; gap: 10px; text-align: left; border-left: 4px solid var(--primary); }
         
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px; }
@@ -138,28 +132,16 @@
         .uc-email { font-size: 0.8rem; color: var(--text-sub); display: block; margin-bottom: 8px; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 8px; font-weight: 700; color: var(--primary); font-size: 0.85rem; }
         
-        /* HEADER CARD CORSO COMPATTO */
         .cf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
         .cf-title { font-weight: 800; font-size: 1rem; line-height: 1.25; text-align: left; margin-bottom: 0; }
         .cf-settings-btn { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 0 0 0 5px; color: var(--text-sub); margin-top: -2px; }
         
-        /* META DATI COMPATTI (ISCRITTI / MEDIA) */
-        .cf-meta { 
-            display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; 
-            margin-top: 5px; /* Ridotto da 8px */
-            border-top: 1px dashed var(--border); 
-            padding-top: 5px; /* Ridotto da 8px */
-        }
+        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin-top: 5px; border-top: 1px dashed var(--border); padding-top: 5px; }
         .cf-stat-item { display:flex; gap: 5px; align-items:center; color: var(--text-main); }
         
         .oc-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; display: block; }
         .oc-count { background: var(--bg-body); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
-
-        .cf-count { 
-            margin-top: 8px; /* Ridotto da 10px */
-            background: var(--bg-body); padding: 3px 10px; border-radius: 12px; 
-            font-size: 0.8rem; font-weight: 600; color: var(--text-sub); display: inline-block;
-        }
+        .cf-count { margin-top: 8px; background: var(--bg-body); padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); display: inline-block; }
 
         .btn-group { display: flex; gap: 8px; margin-top: 5px; }
         .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-body); font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
@@ -182,6 +164,18 @@
         .lc-icon { display: inline-block; width: 20px; text-align: center; margin-right: 4px; }
         .lc-note { font-style: italic; font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
 
+        /* AGENDA (NEW) */
+        .agenda-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .agenda-col { background: var(--bg-body); border-radius: 12px; padding: 10px; min-height: 200px; border: 1px solid var(--border); }
+        .agenda-header { text-align: center; font-weight: 800; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 8px; margin-bottom: 10px; text-transform: uppercase; font-size: 0.85rem; }
+        .agenda-card {
+            background: var(--bg-card); border-left: 3px solid var(--primary); border-radius: 8px;
+            padding: 10px; margin-bottom: 8px; font-size: 0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .ac-instr { font-weight: 700; display: block; margin-bottom: 3px; font-size: 0.8rem; color: var(--text-main); }
+        .ac-course { color: var(--text-sub); display: block; margin-bottom: 3px; }
+        .ac-pres { font-weight: 600; color: var(--primary); font-size: 0.75rem; background: rgba(37,99,235,0.1); padding: 2px 6px; border-radius: 6px; }
+
         /* ADMIN TOOLS */
         .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 12px; align-items: end; }
@@ -203,10 +197,8 @@
         
         /* NOTE BOX (BLUE) */
         .course-notes-box {
-            background-color: #eff6ff; 
-            border: 1px solid #93c5fd; 
-            color: #1e3a8a;
-            border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; 
+            background-color: #eff6ff; border: 1px solid #93c5fd; 
+            color: #1e3a8a; border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; 
             line-height: 1.4; display: block;
         }
         body.dark-mode .course-notes-box { background-color: #172554; border-color: #1e40af; color: #bfdbfe; }
@@ -236,7 +228,7 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS --- */
+        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
@@ -281,6 +273,10 @@
             .traffic-light { width: 20px; height: 20px; border-width: 2px; }
             .obj-label { font-size: 0.9rem; }
             .obj-item { padding: 6px 0; }
+
+            /* AGENDA MOBILE */
+            .agenda-grid { grid-template-columns: 1fr; }
+            .agenda-col { min-height: auto; margin-bottom: 15px; }
         }
     </style>
 </head>
@@ -403,6 +399,11 @@
             <button id="btn-view-team" class="switch-btn active" onclick="switchAdminView('team')">👥 Istruttori</button>
             <button id="btn-view-levels" class="switch-btn" onclick="switchAdminView('levels')">🎚 Livelli</button>
             <button id="btn-view-days" class="switch-btn" onclick="switchAdminView('days')">📅 Giorni</button>
+            <button id="btn-view-agenda" class="switch-btn" onclick="switchAdminView('agenda')">🗓 Agenda</button>
+        </div>
+
+        <div id="admin-agenda-view" class="hidden">
+            <div id="agenda-grid" class="agenda-grid"></div>
         </div>
 
         <div id="main-admin-grid" class="grid-courses"></div>
@@ -670,14 +671,97 @@
             allLessonsCache=[]; 
             s.forEach(d=>{ allLessonsCache.push({id:d.id,...d.data()}); }); 
             renderApp(); 
+            if(currentAdminView==='agenda') renderWeeklyAgenda();
         });
     }
 
     function renderApp() {
-        if(currentAdminView==='team') renderTeamGrid(); else if(currentAdminView==='levels') renderLevelsGrid(); else renderDaysGrid();
-        if(currentSelectedDetail) renderDetails(currentSelectedDetail); else document.getElementById('admin-detail-area').classList.add('hidden');
+        document.getElementById('main-admin-grid').classList.add('hidden');
+        document.getElementById('admin-agenda-view').classList.add('hidden');
+        document.getElementById('admin-detail-area').classList.add('hidden');
+
+        if(currentAdminView==='agenda') {
+            document.getElementById('admin-agenda-view').classList.remove('hidden');
+            renderWeeklyAgenda();
+        } else {
+            document.getElementById('main-admin-grid').classList.remove('hidden');
+            if(currentAdminView==='team') renderTeamGrid(); 
+            else if(currentAdminView==='levels') renderLevelsGrid(); 
+            else renderDaysGrid();
+        }
+        
+        if(currentSelectedDetail && currentAdminView!=='agenda') renderDetails(currentSelectedDetail); 
     }
-    window.switchAdminView = (v) => { currentAdminView=v; currentSelectedDetail=null; document.querySelectorAll('.view-switch-container .switch-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-view-'+v).classList.add('active'); renderApp(); };
+    
+    window.switchAdminView = (v) => { 
+        currentAdminView=v; currentSelectedDetail=null; 
+        document.querySelectorAll('.view-switch-container .switch-btn').forEach(b=>b.classList.remove('active')); 
+        document.getElementById('btn-view-'+v).classList.add('active'); 
+        renderApp(); 
+    };
+    
+    // --- AGENDA LOGIC ---
+    function getStartOfWeek(d) {
+        d = new Date(d);
+        var day = d.getDay(),
+            diff = d.getDate() - day + (day == 0 ? -6 : 1); 
+        return new Date(d.setDate(diff));
+    }
+
+    function renderWeeklyAgenda() {
+        const grid = document.getElementById('agenda-grid');
+        grid.innerHTML = "";
+        
+        const today = new Date();
+        const startOfWeek = getStartOfWeek(today);
+        const days = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+        
+        // Prepare filtering range
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6);
+        endOfWeek.setHours(23,59,59);
+        startOfWeek.setHours(0,0,0);
+
+        // Filter lessons for this week
+        const weekLessons = allLessonsCache.filter(l => {
+            const lDate = new Date(l.data);
+            return lDate >= startOfWeek && lDate <= endOfWeek;
+        });
+
+        // Generate Columns
+        for (let i = 0; i < 7; i++) {
+            const currentDay = new Date(startOfWeek);
+            currentDay.setDate(startOfWeek.getDate() + i);
+            const dateStr = currentDay.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+            
+            let colHTML = `<div class="agenda-col">
+                            <div class="agenda-header">${days[i]} ${dateStr}</div>`;
+            
+            // Find lessons for this specific day
+            // Note: l.data is YYYY-MM-DD string. 
+            const checkStr = currentDay.toISOString().split('T')[0];
+            
+            const dayLessons = weekLessons.filter(l => l.data === checkStr);
+            
+            if(dayLessons.length === 0) {
+                 colHTML += `<div style="text-align:center; color:var(--text-sub); font-size:0.8rem; margin-top:20px;">-</div>`;
+            } else {
+                dayLessons.forEach(l => {
+                    const instrName = allAnagraficaCache[l.email]?.nome || l.email.split('@')[0];
+                    colHTML += `
+                    <div class="agenda-card">
+                        <span class="ac-instr">👤 ${instrName}</span>
+                        <span class="ac-course">${l.corso}</span>
+                        <span class="ac-pres">👥 ${l.presenze}</span>
+                    </div>`;
+                });
+            }
+            
+            colHTML += `</div>`;
+            grid.innerHTML += colHTML;
+        }
+    }
+
     window.selectItem = (id) => { currentSelectedDetail=id; renderApp(); setTimeout(()=>document.getElementById('admin-detail-area').scrollIntoView({behavior:'smooth'}),100); };
     
     function renderTeamGrid() { const m={}; allAssignmentsCache.forEach(a=>{if(!m[a.istruttore])m[a.istruttore]={c:0};}); allLessonsCache.forEach(l=>{if(!m[l.email])m[l.email]={c:0};m[l.email].c++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(e=>{ g.innerHTML+=`<div class="user-card ${e===currentSelectedDetail?'active':''}" onclick="selectItem('${e}')"><div class="uc-header"><div class="uc-name">${allAnagraficaCache[e]?.nome||e.split('@')[0]}</div><button class="action-btn" style="width:25px;height:25px;font-size:0.8rem" onclick="event.stopPropagation();renameUser('${e}')">✏️</button></div><span class="uc-email">${e}</span><div class="uc-stats"><span class="uc-val">${m[e].c} <small>LEZ</small></span></div></div>`; }); }
