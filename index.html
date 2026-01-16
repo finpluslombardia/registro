@@ -29,7 +29,7 @@
         body.no-scroll { overflow: hidden; }
 
         .container { 
-            max-width: 1200px; margin: 0 auto; background: var(--bg-card); 
+            max-width: 1000px; margin: 0 auto; background: var(--bg-card); 
             padding: 30px; border-radius: 20px; min-height: 85vh; 
             border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             overflow-x: hidden;
@@ -130,7 +130,15 @@
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px; }
         .uc-name { font-weight: 800; font-size: 1.05rem; }
         .uc-email { font-size: 0.8rem; color: var(--text-sub); display: block; margin-bottom: 8px; }
-        .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 8px; font-weight: 700; color: var(--primary); font-size: 0.85rem; }
+        
+        /* USER CARD STATS MODIFICATO */
+        .uc-stats { 
+            display: flex; justify-content: space-between; 
+            border-top: 1px solid var(--border); 
+            padding-top: 8px; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+        }
         
         .cf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
         .cf-title { font-weight: 800; font-size: 1rem; line-height: 1.25; text-align: left; margin-bottom: 0; }
@@ -164,7 +172,7 @@
         .lc-icon { display: inline-block; width: 20px; text-align: center; margin-right: 4px; }
         .lc-note { font-style: italic; font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
 
-        /* AGENDA (NEW) */
+        /* AGENDA */
         .agenda-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
         .agenda-col { background: var(--bg-body); border-radius: 12px; padding: 10px; min-height: 200px; border: 1px solid var(--border); }
         .agenda-header { text-align: center; font-weight: 800; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 8px; margin-bottom: 10px; text-transform: uppercase; font-size: 0.85rem; }
@@ -228,7 +236,7 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
+        /* --- MOBILE OPTIMIZATIONS --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
@@ -764,7 +772,46 @@
 
     window.selectItem = (id) => { currentSelectedDetail=id; renderApp(); setTimeout(()=>document.getElementById('admin-detail-area').scrollIntoView({behavior:'smooth'}),100); };
     
-    function renderTeamGrid() { const m={}; allAssignmentsCache.forEach(a=>{if(!m[a.istruttore])m[a.istruttore]={c:0};}); allLessonsCache.forEach(l=>{if(!m[l.email])m[l.email]={c:0};m[l.email].c++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(e=>{ g.innerHTML+=`<div class="user-card ${e===currentSelectedDetail?'active':''}" onclick="selectItem('${e}')"><div class="uc-header"><div class="uc-name">${allAnagraficaCache[e]?.nome||e.split('@')[0]}</div><button class="action-btn" style="width:25px;height:25px;font-size:0.8rem" onclick="event.stopPropagation();renameUser('${e}')">✏️</button></div><span class="uc-email">${e}</span><div class="uc-stats"><span class="uc-val">${m[e].c} <small>LEZ</small></span></div></div>`; }); }
+    // --- UPDATED RENDER TEAM GRID (FIXED COUNT & ADDED COURSES) ---
+    function renderTeamGrid() {
+        const stats = {};
+
+        // 1. Count Assigned Courses
+        allAssignmentsCache.forEach(a => {
+            const email = a.istruttore;
+            if (!stats[email]) stats[email] = { lessons: 0, courses: 0 };
+            stats[email].courses++;
+        });
+
+        // 2. Count Lessons (based on actual allLessonsCache which updates on delete)
+        allLessonsCache.forEach(l => {
+            const email = l.email;
+            if (!stats[email]) stats[email] = { lessons: 0, courses: 0 };
+            stats[email].lessons++;
+        });
+
+        const g = document.getElementById('main-admin-grid');
+        g.innerHTML = "";
+
+        Object.keys(stats).sort().forEach(e => {
+            const name = allAnagraficaCache[e]?.nome || e.split('@')[0];
+            const s = stats[e];
+
+            g.innerHTML += `
+            <div class="user-card ${e === currentSelectedDetail ? 'active' : ''}" onclick="selectItem('${e}')">
+                <div class="uc-header">
+                    <div class="uc-name">${name}</div>
+                    <button class="action-btn" style="width:25px;height:25px;font-size:0.8rem" onclick="event.stopPropagation();renameUser('${e}')">✏️</button>
+                </div>
+                <span class="uc-email">${e}</span>
+                <div class="uc-stats">
+                    <span class="uc-val" style="color:var(--primary)">${s.lessons} <small>LEZ</small></span>
+                    <span class="uc-val" style="color:var(--text-sub); border-left:1px solid var(--border); padding-left:8px; margin-left:8px">${s.courses} <small>CORSI</small></span>
+                </div>
+            </div>`;
+        });
+    }
+
     function renderLevelsGrid() { const m={}; allLevelsCache.forEach(l=>m[l]=0); allAssignmentsCache.forEach(a=>{if(m[a.livello]!==undefined)m[a.livello]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; Object.keys(m).sort().forEach(l=>{ g.innerHTML+=`<div class="overview-card ${l===currentSelectedDetail?'active':''}" onclick="selectItem('${l}')"><div class="oc-name">${l}</div><div class="oc-count">${m[l]} Corsi</div></div>`; }); }
     function renderDaysGrid() { const m={}; allAssignmentsCache.forEach(a=>{const d=a.giorno||'Altro';if(!m[d])m[d]=0;m[d]++;}); const g=document.getElementById('main-admin-grid'); g.innerHTML=""; const ord={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7}; Object.keys(m).sort((a,b)=>(ord[a]||9)-(ord[b]||9)).forEach(d=>{ g.innerHTML+=`<div class="overview-card ${d===currentSelectedDetail?'active':''}" onclick="selectItem('${d}')"><div class="oc-name">${d}</div><div class="oc-count">${m[d]} Corsi</div></div>`; }); }
 
@@ -822,23 +869,11 @@
         pool = pool.filter(c => c[type] === val);
         
         pool.forEach(c => {
-            const lessons = allLessonsCache.filter(l => l.corso === c.nome);
-            const lessonCount = lessons.length;
-            let totalPresence = 0;
-            lessons.forEach(l => totalPresence += (parseInt(l.presenze) || 0));
-            const average = lessonCount > 0 ? (totalPresence / lessonCount).toFixed(1) : "0";
-            const enrolled = c.iscritti || "?";
-
              content.innerHTML += `
                 <div class="ac-course-card">
                     <div>
                         <span class="clickable-course" style="font-weight:bold;color:var(--primary);font-size:1.1rem" onclick="openAdminCourseHistory('${c.nome}', '${currentAdminView==='team'?entityId:c.istruttore}')">📂 ${c.nome}</span>
-                        <div class="cf-meta" style="margin-top:5px;border-top:1px dashed #eee;padding-top:5px">
-                            <span style="font-size:0.85rem;color:var(--text-sub)">👤 ${allAnagraficaCache[c.istruttore]?.nome || c.istruttore}</span>
-                            <div style="font-size:0.8rem;color:var(--text-main);margin-top:2px">
-                                👥 Iscritti: <b>${enrolled}</b> | 📊 Media: <b>${average}</b>
-                            </div>
-                        </div>
+                        <span style="display:block;font-size:0.9rem;color:var(--text-sub);margin-top:4px">👤 ${allAnagraficaCache[c.istruttore]?.nome || c.istruttore}</span>
                     </div>
                     <div class="btn-group">
                         <button onclick="openCourseSettings('${c.id}')" title="Valutazione">🎯</button>
