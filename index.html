@@ -14,14 +14,12 @@
         :root {
             --bg-body: #f3f4f6; --bg-card: #ffffff; --text-main: #1f2937; --text-sub: #6b7280;
             --border: #e5e7eb; --input-bg: #ffffff; 
-            /* Colore primario BLU */
             --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #ef4444;
             --tl-gray: #e5e7eb; --tl-red: #ef4444; --tl-yellow: #f59e0b; --tl-green: #10b981;
         }
         body.dark-mode {
             --bg-body: #111827; --bg-card: #1f2937; --text-main: #f9fafb; --text-sub: #9ca3af;
-            --border: #374151; --input-bg: #374151; 
-            --primary: #3b82f6; --primary-hover: #60a5fa;
+            --border: #374151; --input-bg: #374151; --primary: #3b82f6; --primary-hover: #60a5fa;
             --tl-gray: #4b5563;
         }
 
@@ -53,7 +51,7 @@
         /* FORM GRID SYSTEM */
         .form-header-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne identiche su Desktop */
+            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne Desktop */
             gap: 15px; margin-bottom: 15px; align-items: end;
             width: 100%;
         }
@@ -181,15 +179,26 @@
             cursor: pointer; transition: transform 0.2s;
         }
         .agenda-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .ac-instr { font-weight: 700; display: block; margin-bottom: 3px; font-size: 0.8rem; color: var(--text-main); }
-        .ac-course { color: var(--text-sub); display: block; margin-bottom: 3px; }
-        .ac-pres { font-weight: 600; color: var(--primary); font-size: 0.75rem; background: rgba(37,99,235,0.1); padding: 2px 6px; border-radius: 6px; }
+        .ac-instr { font-weight: 700; display: block; margin-bottom: 4px; font-size: 0.85rem; color: var(--text-main); }
+        .ac-summary { color: var(--text-sub); display: block; font-size: 0.75rem; }
+        .ac-badge { 
+            display: inline-block; background: rgba(37,99,235,0.1); color: var(--primary); 
+            padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; margin-top: 4px;
+        }
+        
+        /* NOTE BOX */
+        .course-notes-box {
+            background-color: #eff6ff; border: 1px solid #93c5fd; 
+            color: #1e3a8a; border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; 
+            line-height: 1.4; display: block;
+        }
+        body.dark-mode .course-notes-box { background-color: #172554; border-color: #1e40af; color: #bfdbfe; }
 
         /* ADMIN TOOLS */
-        .admin-tools { background: rgba(37, 99, 235, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #3b82f6; margin-bottom: 30px; }
+        .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 12px; align-items: end; }
         .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; margin-bottom: 20px;}
-        .level-tag { background: var(--bg-card); border: 2px solid #3b82f6; color: #1d4ed8; padding: 6px 14px; border-radius: 25px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .level-tag { background: var(--bg-card); border: 2px solid #f59e0b; color: #b45309; padding: 6px 14px; border-radius: 25px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
         /* SWITCHER */
         .view-switch-container { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 15px; overflow-x: auto; }
@@ -203,14 +212,6 @@
         .traffic-light { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0; }
         .tl-gray { background: var(--tl-gray); } .tl-red { background: var(--tl-red); } .tl-yellow { background: var(--tl-yellow); } .tl-green { background: var(--tl-green); }
         .readonly .traffic-light { cursor: default; opacity: 1; }
-        
-        /* NOTE BOX (BLUE) */
-        .course-notes-box {
-            background-color: #eff6ff; border: 1px solid #93c5fd; 
-            color: #1e3a8a; border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; 
-            line-height: 1.4; display: block;
-        }
-        body.dark-mode .course-notes-box { background-color: #172554; border-color: #1e40af; color: #bfdbfe; }
 
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
@@ -225,6 +226,12 @@
         .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
         .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; }
         body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
+        
+        .clickable-agenda-title {
+            font-weight: 800; color: var(--primary); margin-bottom: 5px; cursor: pointer; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 5px; font-size: 1rem;
+        }
+        .clickable-agenda-title:hover { text-decoration: underline; }
 
         /* NOTIFICHE */
         .notif-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; justify-content: center; padding-top: 80px; }
@@ -237,7 +244,7 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
+        /* --- MOBILE OPTIMIZATIONS --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
@@ -322,22 +329,10 @@
     </div>
 </div>
 
-<!-- MODAL ATTIVITA EXPANDED -->
-<div id="activity-modal" class="modal-overlay">
-    <div class="modal-box" style="height: 60vh; display: flex; flex-direction: column;">
-        <h3 class="modal-title">📝 Dettaglio Attività</h3>
-        <textarea id="modal-activity-text" style="flex: 1; margin-bottom: 15px; font-size: 16px; padding: 15px; border-radius: 12px; border: 2px solid var(--border); outline: none; resize: none; background: var(--input-bg); color: var(--text-main);"></textarea>
-        <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal('activity-modal')">Annulla</button>
-            <button class="btn-confirm" onclick="saveActivityFromModal()">Conferma</button>
-        </div>
-    </div>
-</div>
-
 <!-- MODAL AGENDA DETAIL -->
 <div id="agenda-detail-modal" class="modal-overlay">
     <div class="modal-box">
-        <h3 class="modal-title" style="margin-bottom:15px">📅 Dettaglio Lezione</h3>
+        <h3 class="modal-title" style="margin-bottom:15px">📅 Dettaglio Lezioni</h3>
         <div id="agenda-detail-content"></div>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeModal('agenda-detail-modal')" style="width:100%">Chiudi</button>
@@ -481,7 +476,10 @@
                 </div>
 
                 <div id="lessons-log-container" class="hidden">
-                    <h5 style="margin:30px 0 15px 0; color:var(--primary); font-size:1.1rem">📝 Storico Lezioni</h5>
+                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                         <h5 id="admin-history-title" style="margin:0; color:var(--primary); font-size:1.1rem">📝 Storico</h5>
+                         <button onclick="closeAdminHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer">⬅ Chiudi</button>
+                    </div>
                     <div id="admin-lessons-list" class="section-box"></div> 
                 </div>
             </div>
@@ -526,10 +524,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Attività</label>
-                <textarea id="attivita" placeholder="Esercizi..." onfocus="openActivityExpanded()"></textarea>
-            </div>
+            <div class="form-group"><label>Attività</label><textarea id="attivita" placeholder="Esercizi..."></textarea></div>
             <div class="form-group"><label>Note</label><textarea id="note" style="height:50px" placeholder="Note..."></textarea></div>
             <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             
@@ -635,21 +630,6 @@
     window.toast=(m)=>{const t=document.getElementById("toast");t.innerText=m;t.className="show";setTimeout(()=>t.className="",3000);};
     window.autoSetPeriod=(d,p)=>{const v=document.getElementById(d).value;if(v){const m=new Date(v).getMonth()+1;document.getElementById(p).value=(m>=9||m<=1)?"1° Periodo":"2° Periodo";}};
     window.modalPrompt = (t, m, d, c) => { const r=prompt(m,d); if(r) c(r); };
-
-    // ACTIVITY MODAL LOGIC
-    window.openActivityExpanded = () => {
-        if (window.innerWidth <= 768) {
-            document.getElementById('attivita').blur(); // Close keyboard on main
-            document.getElementById('modal-activity-text').value = document.getElementById('attivita').value;
-            openModal('activity-modal');
-            setTimeout(() => document.getElementById('modal-activity-text').focus(), 100);
-        }
-    };
-
-    window.saveActivityFromModal = () => {
-        document.getElementById('attivita').value = document.getElementById('modal-activity-text').value;
-        closeModal('activity-modal');
-    };
 
     document.getElementById('btn-login').onclick=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('email').value,document.getElementById('password').value);}catch(e){toast(e.message);}};
     window.logout=async()=>{await signOut(auth);location.reload();}
@@ -1032,6 +1012,9 @@
         const container = document.getElementById('lessons-log-container');
         container.classList.remove('hidden'); 
         
+        // --- FIX TITLE: Set dynamic course name ---
+        document.getElementById('admin-history-title').innerHTML = `📝 Storico: <span style="color:var(--text-main)">${courseName}</span>`;
+        
         let p=allLessonsCache.filter(x=>x.corso===courseName); 
         if(instructorEmail) p=p.filter(x=>x.email===instructorEmail); 
         
@@ -1099,6 +1082,9 @@
             } else {
                 notesDiv.classList.add('hidden');
             }
+
+            // --- FIX TITLE INSTRUCTOR: Set dynamic course name ---
+            document.getElementById('io-title').innerText = c.nome;
 
             openModal('instructor-obj-modal');
         }
@@ -1354,7 +1340,11 @@
     };
     window.closeFolderView=()=>{ document.getElementById('courses-list-wrapper').classList.add('hidden'); window.switchInstrView(document.getElementById('days-overview-grid').classList.contains('hidden')?'levels':'days'); };
 
-    window.openHistory=(n)=>{ currentOpenCourse=n; document.getElementById('courses-list-wrapper').classList.add('hidden'); document.getElementById('course-history').classList.remove('hidden'); document.getElementById('hist-title').innerText=n; renderHistoryList(); };
+    window.openHistory=(n)=>{ currentOpenCourse=n; document.getElementById('courses-list-wrapper').classList.add('hidden'); document.getElementById('course-history').classList.remove('hidden'); 
+        // --- FIX TITLE ISTRUTTORE ---
+        document.getElementById('hist-title').innerHTML=`📝 Storico: <span style="color:var(--text-main)">${n}</span>`;
+        renderHistoryList(); 
+    };
     window.closeHistory=()=>{ document.getElementById('course-history').classList.add('hidden'); document.getElementById('courses-list-wrapper').classList.remove('hidden'); };
     function renderHistoryList(){
         const l=document.getElementById('history-list'); l.innerHTML="";
