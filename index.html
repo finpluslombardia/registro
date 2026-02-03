@@ -29,7 +29,7 @@
         body.no-scroll { overflow: hidden; }
 
         .container { 
-            max-width: 1000px; margin: 0 auto; background: var(--bg-card); 
+            max-width: 1200px; margin: 0 auto; background: var(--bg-card); 
             padding: 30px; border-radius: 20px; min-height: 85vh; 
             border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             overflow-x: hidden;
@@ -43,7 +43,7 @@
         }
         
         /* HEADER */
-        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
         h2 { margin: 0; color: var(--primary); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
         .user-info { font-size: 0.95rem; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
         .header-actions { display: flex; gap: 12px; align-items: center; }
@@ -51,7 +51,7 @@
         /* FORM GRID SYSTEM */
         .form-header-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 Colonne Desktop */
+            grid-template-columns: 1fr 1fr 1fr; 
             gap: 15px; margin-bottom: 15px; align-items: end;
             width: 100%;
         }
@@ -124,12 +124,7 @@
         .overview-card:hover { transform: translateY(-2px); }
         .user-card { text-align: left; }
         .user-card.active { border: 2px solid var(--primary); background: rgba(37, 99, 235, 0.03); }
-        
-        .course-folder { 
-            border-bottom: 4px solid var(--primary); 
-            display: flex; flex-direction: column; justify-content: flex-start;
-            padding: 12px;
-        }
+        .course-folder { border-bottom: 4px solid var(--primary); display: flex; flex-direction: column; justify-content: flex-start; padding: 12px; }
         .ac-course-card { display: flex; flex-direction: column; gap: 10px; text-align: left; border-left: 4px solid var(--primary); }
         
         .uc-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px; }
@@ -185,14 +180,6 @@
             display: inline-block; background: rgba(37,99,235,0.1); color: var(--primary); 
             padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; margin-top: 4px;
         }
-        
-        /* NOTE BOX */
-        .course-notes-box {
-            background-color: #eff6ff; border: 1px solid #93c5fd; 
-            color: #1e3a8a; border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; 
-            line-height: 1.4; display: block;
-        }
-        body.dark-mode .course-notes-box { background-color: #172554; border-color: #1e40af; color: #bfdbfe; }
 
         /* ADMIN TOOLS */
         .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
@@ -212,6 +199,14 @@
         .traffic-light { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0; }
         .tl-gray { background: var(--tl-gray); } .tl-red { background: var(--tl-red); } .tl-yellow { background: var(--tl-yellow); } .tl-green { background: var(--tl-green); }
         .readonly .traffic-light { cursor: default; opacity: 1; }
+        
+        /* NOTE BOX (BLUE) */
+        .course-notes-box {
+            background-color: #eff6ff; border: 1px solid #93c5fd; 
+            color: #1e3a8a; border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; 
+            line-height: 1.4; display: block;
+        }
+        body.dark-mode .course-notes-box { background-color: #172554; border-color: #1e40af; color: #bfdbfe; }
 
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
@@ -244,7 +239,7 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* --- MOBILE OPTIMIZATIONS --- */
+        /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
         @media (max-width: 768px) {
             body { padding: 10px; font-size: 13.5px; }
             .container { padding: 15px; min-height: 90vh; }
@@ -300,7 +295,6 @@
 
 <div id="toast"></div>
 
-<!-- NOTIFICHE -->
 <div id="notif-overlay" class="notif-overlay">
     <div class="notif-box">
         <div class="notif-header">
@@ -311,12 +305,10 @@
     </div>
 </div>
 
-<!-- MODAL READONLY ISTRUTTORE -->
 <div id="instructor-obj-modal" class="modal-overlay">
     <div class="modal-box">
         <h3 class="modal-title">🎯 Obiettivi: <span id="io-title"></span></h3>
         
-        <!-- NOTE ADMIN NEL MODALE (VISIBILI QUI) -->
         <div id="io-notes" class="course-notes-box hidden"></div>
 
         <div class="obj-level-header" id="io-lvl-current-title">Livello Corrente</div>
@@ -329,7 +321,17 @@
     </div>
 </div>
 
-<!-- MODAL AGENDA DETAIL -->
+<div id="activity-modal" class="modal-overlay">
+    <div class="modal-box" style="height: 60vh; display: flex; flex-direction: column;">
+        <h3 class="modal-title">📝 Dettaglio Attività</h3>
+        <textarea id="modal-activity-text" style="flex: 1; margin-bottom: 15px; font-size: 16px; padding: 15px; border-radius: 12px; border: 2px solid var(--border); outline: none; resize: none; background: var(--input-bg); color: var(--text-main);"></textarea>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('activity-modal')">Annulla</button>
+            <button class="btn-confirm" onclick="saveActivityFromModal()">Conferma</button>
+        </div>
+    </div>
+</div>
+
 <div id="agenda-detail-modal" class="modal-overlay">
     <div class="modal-box">
         <h3 class="modal-title" style="margin-bottom:15px">📅 Dettaglio Lezioni</h3>
@@ -340,7 +342,6 @@
     </div>
 </div>
 
-<!-- MODAL DEFINIZIONE OBIETTIVI (Admin) -->
 <div id="objectives-config-modal" class="modal-overlay">
     <div class="modal-box">
         <h3 class="modal-title">🎯 Definisci Obiettivi: <span id="conf-lvl-name"></span></h3>
@@ -353,7 +354,6 @@
     </div>
 </div>
 
-<!-- MODAL IMPOSTAZIONI CORSO E SEMAFORI (Admin) -->
 <div id="course-settings-modal" class="modal-overlay">
     <div class="modal-box">
         <h3 class="modal-title">🎯 Valutazione Corso</h3>
@@ -373,7 +373,6 @@
     </div>
 </div>
 
-<!-- LOGIN -->
 <div id="login-section" style="max-width:350px; margin:80px auto; text-align:center;">
     <h1 style="color:var(--primary); margin-bottom:30px">Benvenuto</h1>
     <input type="email" id="email" placeholder="Email" style="margin-bottom:15px">
@@ -381,7 +380,6 @@
     <button id="btn-login" class="primary-btn">Accedi</button>
 </div>
 
-<!-- DASHBOARD -->
 <div class="container hidden" id="dashboard-section">
     <div class="app-header">
         <div>
@@ -395,7 +393,6 @@
         </div>
     </div>
 
-    <!-- VISTA ADMIN -->
     <div id="admin-view" class="hidden">
         <div class="global-season-bar">
             <span class="gsb-label">📅 Stagione Corrente:</span>
@@ -437,7 +434,6 @@
             <button id="btn-view-agenda" class="switch-btn" onclick="switchAdminView('agenda')">🗓 Agenda</button>
         </div>
 
-        <!-- AGENDA VIEW -->
         <div id="admin-agenda-view" class="hidden">
             <div class="agenda-controls">
                 <button class="action-btn" onclick="changeAgendaWeek(-1)">⬅</button>
@@ -447,7 +443,6 @@
             <div id="agenda-grid" class="agenda-grid"></div>
         </div>
 
-        <!-- OTHER VIEWS -->
         <div id="main-admin-grid" class="grid-courses"></div>
 
         <div id="admin-detail-area" class="hidden" style="margin-top:40px; border-top:2px solid var(--border); padding-top:30px">
@@ -486,12 +481,10 @@
         </div>
     </div>
 
-    <!-- VISTA ISTRUTTORE -->
     <div id="instructor-view" class="hidden">
         <h3 style="margin-bottom:15px; font-size:1.2rem">Nuova Lezione</h3>
         <div class="section-box">
             
-            <!-- FORM HEADER GRID -->
             <div class="form-header-grid">
                 <div class="form-group">
                     <label>Data</label>
@@ -501,7 +494,6 @@
                     <label>Periodo</label>
                     <select id="periodo"><option>1° Periodo</option><option>2° Periodo</option></select>
                 </div>
-                <!-- Checkbox -->
                 <div class="compact-checkbox-wrapper">
                     <input type="checkbox" id="is-substitution" onchange="toggleSubstitutionMode()">
                     <label for="is-substitution">Sostituzione</label>
@@ -524,11 +516,13 @@
                 </div>
             </div>
 
-            <div class="form-group"><label>Attività</label><textarea id="attivita" placeholder="Esercizi..."></textarea></div>
+            <div class="form-group">
+                <label>Attività</label>
+                <textarea id="attivita" placeholder="Esercizi..." onfocus="openActivityExpanded()"></textarea>
+            </div>
             <div class="form-group"><label>Note</label><textarea id="note" style="height:50px" placeholder="Note..."></textarea></div>
             <button onclick="salvaLezione()" class="primary-btn">Salva Lezione</button>
             
-            <!-- NOTE ADMIN NELLA DASHBOARD -->
             <div id="instr-course-notes" class="course-notes-box hidden" style="margin-top:20px"></div>
 
             <div id="last-lesson-info" class="last-lesson-box hidden" style="margin-top:20px">
@@ -566,7 +560,6 @@
         </div>
     </div>
     
-    <!-- STORICO -->
     <div id="course-history" class="hidden">
         <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:15px">
             <button onclick="closeHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer; margin-bottom:10px; font-size:1rem">⬅ Torna ai Corsi</button>
@@ -630,6 +623,21 @@
     window.toast=(m)=>{const t=document.getElementById("toast");t.innerText=m;t.className="show";setTimeout(()=>t.className="",3000);};
     window.autoSetPeriod=(d,p)=>{const v=document.getElementById(d).value;if(v){const m=new Date(v).getMonth()+1;document.getElementById(p).value=(m>=9||m<=1)?"1° Periodo":"2° Periodo";}};
     window.modalPrompt = (t, m, d, c) => { const r=prompt(m,d); if(r) c(r); };
+
+    // ACTIVITY MODAL LOGIC
+    window.openActivityExpanded = () => {
+        if (window.innerWidth <= 768) {
+            document.getElementById('attivita').blur(); // Close keyboard on main
+            document.getElementById('modal-activity-text').value = document.getElementById('attivita').value;
+            openModal('activity-modal');
+            setTimeout(() => document.getElementById('modal-activity-text').focus(), 100);
+        }
+    };
+
+    window.saveActivityFromModal = () => {
+        document.getElementById('attivita').value = document.getElementById('modal-activity-text').value;
+        closeModal('activity-modal');
+    };
 
     document.getElementById('btn-login').onclick=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('email').value,document.getElementById('password').value);}catch(e){toast(e.message);}};
     window.logout=async()=>{await signOut(auth);location.reload();}
