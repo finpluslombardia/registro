@@ -467,7 +467,10 @@
                 <div id="lessons-log-container" class="hidden">
                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                          <h5 id="admin-history-title" style="margin:0; color:var(--primary); font-size:1.1rem">📝 Storico</h5>
-                         <button onclick="closeAdminHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer">⬅ Chiudi</button>
+                         <div>
+                             <button onclick="downloadCoursePDF()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold; margin-right:10px">📥 PDF</button>
+                             <button onclick="closeAdminHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer">⬅ Chiudi</button>
+                         </div>
                     </div>
                     <div id="admin-lessons-list" class="section-box"></div> 
                 </div>
@@ -606,6 +609,7 @@
     let currentAdminProgress={}; let currentOpenCourse=null; let currentAdminView='team'; let currentSelectedDetail=null; 
     let currentAdminDetailView='days'; 
     let currentAgendaOffset = 0; // NEW: Track agenda week offset
+    let currentInstructorEmailFilter = null;
 
     window.toggleTheme=()=>{document.body.classList.toggle('dark-mode');localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');document.getElementById('theme-toggle').innerText=document.body.classList.contains('dark-mode')?'🌙':'☀️';}
     if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark-mode');document.getElementById('theme-toggle').innerText='🌙';}
@@ -1017,6 +1021,7 @@
 
     window.openAdminCourseHistory=(courseName, instructorEmail)=>{ 
         currentOpenCourse=courseName; 
+        currentInstructorEmailFilter=instructorEmail;
         document.getElementById('admin-courses-list').classList.add('hidden'); 
         const container = document.getElementById('lessons-log-container');
         container.classList.remove('hidden'); 
@@ -1402,7 +1407,19 @@
     };
     window.downloadCoursePDF = () => {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        const logs = myLessonsCache.filter(l=>l.corso===currentOpenCourse).sort((a,b)=>new Date(a.data)-new Date(b.data));
+        const isAdmin = !document.getElementById('admin-view').classList.contains('hidden');
+        let logs = [];
+        
+        if (isAdmin) {
+            logs = allLessonsCache.filter(l => l.corso === currentOpenCourse);
+            if (currentInstructorEmailFilter) {
+                logs = logs.filter(l => l.email === currentInstructorEmailFilter);
+            }
+        } else {
+            logs = myLessonsCache.filter(l => l.corso === currentOpenCourse);
+        }
+        
+        logs.sort((a,b)=>new Date(a.data)-new Date(b.data));
         doc.text(`Registro: ${currentOpenCourse}`, 10, 10);
         const body = logs.map(l=>[new Date(l.data).toLocaleDateString(), l.obiettivo, l.attivita, l.presenze]);
         doc.autoTable({head:[['Data','Obiettivo','Attività','Pres.']], body:body});
