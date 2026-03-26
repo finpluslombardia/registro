@@ -220,6 +220,9 @@
         .btn-cancel, .btn-confirm { flex: 1; padding: 12px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; font-size: 0.95rem; }
         .btn-cancel { background: var(--border); color: var(--text-main); } .btn-confirm { background: var(--primary); color: white; }
 
+        .btn-back { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-back:hover { background: var(--border); }
+
         /* UTILS */
         .hidden { display: none !important; }
         .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
@@ -468,7 +471,7 @@
                 <div id="admin-levels-grid" class="grid-courses hidden"></div>
 
                 <div id="admin-courses-list" class="hidden">
-                    <button onclick="backToAdminGrid()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer; margin-bottom:15px">⬅ Torna alle Cartelle</button>
+                    <button class="btn-back" onclick="backToAdminGrid()" style="margin-bottom:15px">⬅ Torna alle Cartelle</button>
                     <div id="admin-folder-content"></div>
                 </div>
 
@@ -477,7 +480,7 @@
                          <h5 id="admin-history-title" style="margin:0; color:var(--primary); font-size:1.1rem">📝 Storico</h5>
                          <div class="storico-actions">
                              <button onclick="downloadCoursePDF()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold;">📥 PDF</button>
-                             <button onclick="closeAdminHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer">⬅ Chiudi</button>
+                             <button class="btn-back" onclick="closeAdminHistory()">⬅ Chiudi</button>
                          </div>
                     </div>
                     <div id="admin-lessons-list" class="section-box"></div> 
@@ -557,7 +560,7 @@
             
             <div id="courses-list-wrapper" class="hidden">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px">
-                    <button onclick="closeFolderView()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer; font-size:1rem">⬅ Indietro</button>
+                    <button class="btn-back" onclick="closeFolderView()">⬅ Indietro</button>
                     <h4 style="margin:0; color:var(--primary); font-size:1.2rem" id="folder-title-display">...</h4>
                 </div>
                 <div id="my-courses-grid" class="grid-courses"></div>
@@ -567,7 +570,7 @@
     
     <div id="course-history" class="hidden">
         <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:15px">
-            <button onclick="closeHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer; margin-bottom:10px; font-size:1rem">⬅ Torna ai Corsi</button>
+            <button class="btn-back" onclick="closeHistory()" style="margin-bottom:10px">⬅ Torna ai Corsi</button>
             
             <div class="section-box">
                 <div class="storico-header">
