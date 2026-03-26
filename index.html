@@ -181,6 +181,10 @@
             padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; margin-top: 4px;
         }
 
+        /* STORICO HEADER */
+        .storico-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+        .storico-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+
         /* ADMIN TOOLS */
         .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 12px; align-items: end; }
@@ -288,6 +292,10 @@
             /* AGENDA MOBILE */
             .agenda-grid { grid-template-columns: 1fr; }
             .agenda-col { min-height: auto; margin-bottom: 15px; }
+
+            /* STORICO MOBILE */
+            .storico-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .storico-actions { width: 100%; justify-content: flex-start; }
         }
     </style>
 </head>
@@ -465,10 +473,10 @@
                 </div>
 
                 <div id="lessons-log-container" class="hidden">
-                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                     <div class="storico-header">
                          <h5 id="admin-history-title" style="margin:0; color:var(--primary); font-size:1.1rem">📝 Storico</h5>
-                         <div>
-                             <button onclick="downloadCoursePDF()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold; margin-right:10px">📥 PDF</button>
+                         <div class="storico-actions">
+                             <button onclick="downloadCoursePDF()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold;">📥 PDF</button>
                              <button onclick="closeAdminHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer">⬅ Chiudi</button>
                          </div>
                     </div>
@@ -562,9 +570,11 @@
             <button onclick="closeHistory()" style="background:none; border:none; color:var(--text-sub); font-weight:bold; cursor:pointer; margin-bottom:10px; font-size:1rem">⬅ Torna ai Corsi</button>
             
             <div class="section-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                <div class="storico-header">
                     <h3 style="margin:0; color:var(--primary); font-size:1.1rem"><span id="hist-title"></span></h3>
-                    <button onclick="downloadCoursePDF()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold">📥 PDF</button>
+                    <div class="storico-actions">
+                        <button onclick="downloadCoursePDF()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold">📥 PDF</button>
+                    </div>
                 </div>
                 <div id="history-list"></div>
             </div>
