@@ -448,12 +448,6 @@
         <div id="admin-detail-area" class="hidden" style="margin-top:40px; border-top:2px solid var(--border); padding-top:30px">
             <h4 style="margin:0 0 15px 0; font-size:1.3rem" id="detail-title">Dettagli...</h4>
             
-            <div class="filter-bar">
-                <select id="adm-sort" onchange="renderDetails(currentSelectedDetail)"><option value="name">Alfabetico</option><option value="day">Per Giorno</option></select>
-                <select id="adm-filter-level" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Livelli</option></select>
-                <select id="adm-filter-day" onchange="renderDetails(currentSelectedDetail)"><option value="all">Tutti i Giorni</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
-            </div>
-
             <div class="assigned-courses-box">
                 <h5 style="margin:0 0 15px 0; color:var(--primary); font-size:1.1rem" id="assigned-title">📋 Corsi Assegnati</h5>
                 
@@ -690,11 +684,10 @@
         onSnapshot(query(collection(db,"elenco_livelli"),orderBy("nome")), s=>{
             allLevelsCache=[]; const div=document.getElementById('levels-container'); div.innerHTML="";
             const sel=document.getElementById('new-level-select'); sel.innerHTML='<option>Livello...</option>';
-            const fil=document.getElementById('adm-filter-level'); fil.innerHTML='<option value="all">Tutti i Livelli</option>';
             s.forEach(d=>{
                 const l=d.data().nome; allLevelsCache.push(l);
                 div.innerHTML+=`<div class="level-tag" onclick="openObjConfig('${l}')">${l} <span onclick="event.stopPropagation();deleteLevel('${d.id}')" style="margin-left:5px;opacity:0.6">✕</span></div>`;
-                sel.innerHTML+=`<option value="${l}">${l}</option>`; fil.innerHTML+=`<option value="${l}">${l}</option>`;
+                sel.innerHTML+=`<option value="${l}">${l}</option>`;
             });
             if(currentAdminView==='levels') renderApp();
         });
@@ -781,7 +774,7 @@
         today.setDate(today.getDate() + (currentAgendaOffset * 7));
         
         const startOfWeek = getStartOfWeek(today);
-        const days = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+        const days = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato']; 
         
         // Label display
         const endOfWeek = new Date(startOfWeek);
@@ -981,6 +974,14 @@
         
         pool = pool.filter(c => c[type] === val);
         
+        pool.sort((a, b) => {
+            if (!a.ora) return 1;
+            if (!b.ora) return -1;
+            if (a.ora < b.ora) return -1;
+            if (a.ora > b.ora) return 1;
+            return a.nome.localeCompare(b.nome);
+        });
+        
         pool.forEach(c => {
             const lessons = allLessonsCache.filter(l => l.corso === c.nome);
             const lessonCount = lessons.length;
@@ -1104,7 +1105,7 @@
         if(!lvl) { titleEl.style.display='none'; container.style.display='none'; return; }
         titleEl.style.display='block'; container.style.display='block'; titleEl.innerText = lvl;
         const objs = objectivesConfigCache[lvl]||[];
-        if(objs.length===0) { container.innerHTML="<p style='color:gray;font-size:0.85rem'>Nessun obiettivo definito.</p>"; return; }
+        if(objs.length===0) { container.innerHTML="<p style='color:gray;font-size:0.85rem'>Nessun obiettivo defined.</p>"; return; }
         objs.forEach(o=>{
             const s = currentAdminProgress[o] || 'gray';
             const d = document.createElement('div'); d.className='obj-item';
@@ -1323,6 +1324,15 @@
         document.getElementById('folder-title-display').innerText=val;
         const grid=document.getElementById('my-courses-grid'); grid.innerHTML="";
         const pool=myAssignmentsCache.filter(c=>c[type]===val);
+        
+        pool.sort((a, b) => {
+            if (!a.ora) return 1;
+            if (!b.ora) return -1;
+            if (a.ora < b.ora) return -1;
+            if (a.ora > b.ora) return 1;
+            return a.nome.localeCompare(b.nome);
+        });
+
         pool.forEach(c=>{
             const count=myLessonsCache.filter(l=>l.corso===c.nome).length;
             
