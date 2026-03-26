@@ -1409,21 +1409,68 @@
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
         const isAdmin = !document.getElementById('admin-view').classList.contains('hidden');
         let logs = [];
+        let assignment = null;
         
         if (isAdmin) {
             logs = allLessonsCache.filter(l => l.corso === currentOpenCourse);
             if (currentInstructorEmailFilter) {
                 logs = logs.filter(l => l.email === currentInstructorEmailFilter);
             }
+            assignment = allAssignmentsCache.find(a => a.nome === currentOpenCourse && (!currentInstructorEmailFilter || a.istruttore === currentInstructorEmailFilter));
         } else {
             logs = myLessonsCache.filter(l => l.corso === currentOpenCourse);
+            assignment = myAssignmentsCache.find(a => a.nome === currentOpenCourse);
         }
         
         logs.sort((a,b)=>new Date(a.data)-new Date(b.data));
-        doc.text(`Registro: ${currentOpenCourse}`, 10, 10);
+        
+        doc.setFontSize(16);
+        doc.text(`Registro: ${currentOpenCourse}`, 10, 15);
+        
+        let currentY = 25;
+        
+        if (assignment && assignment.livello) {
+            const lvl = assignment.livello;
+            const progress = assignment.progress || {};
+            const objs = objectivesConfigCache[lvl] || [];
+            
+            if (objs.length > 0) {
+                doc.setFontSize(12);
+                doc.text(`Valutazione Obiettivi (${lvl}):`, 10, currentY);
+                currentY += 8;
+                doc.setFontSize(10);
+                
+                objs.forEach(obj => {
+                    const status = progress[obj] || 'gray';
+                    if(status === 'gray') doc.setFillColor(229, 231, 235);
+                    else if(status === 'red') doc.setFillColor(239, 68, 68);
+                    else if(status === 'yellow') doc.setFillColor(245, 158, 11);
+                    else if(status === 'green') doc.setFillColor(16, 185, 129);
+                    
+                    doc.circle(12, currentY - 1, 2, 'F');
+                    doc.setTextColor(0, 0, 0);
+                    
+                    const splitTitle = doc.splitTextToSize(obj, 170);
+                    doc.text(splitTitle, 17, currentY);
+                    currentY += (splitTitle.length * 5) + 2; 
+                    
+                    if (currentY > 280) {
+                        doc.addPage();
+                        currentY = 20;
+                    }
+                });
+                currentY += 5;
+            }
+        }
+
         const body = logs.map(l=>[new Date(l.data).toLocaleDateString(), l.obiettivo, l.attivita, l.presenze]);
-        doc.autoTable({head:[['Data','Obiettivo','Attività','Pres.']], body:body});
-        doc.save("registro.pdf");
+        doc.autoTable({
+            startY: currentY,
+            head:[['Data','Obiettivo','Attività','Pres.']], 
+            body:body,
+            styles: { fontSize: 9 }
+        });
+        doc.save(`${currentOpenCourse}.pdf`);
     };
 
     window.sendNotice=async()=>{ const t=document.getElementById('admin-notice-text').value; if(t) await addDoc(collection(db,"avvisi"),{testo:t, destinatario:document.getElementById('admin-notice-target').value, data:new Date()}); document.getElementById('admin-notice-text').value=""; toast("Inviato"); };
