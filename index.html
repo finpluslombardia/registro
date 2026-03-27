@@ -1259,7 +1259,8 @@
         }
         
         pool.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.nome} ${isSub ? '('+c.istruttore+')' : ''}</option>`;
+            const instrName = allAnagraficaCache[c.istruttore]?.nome || c.istruttore;
+            select.innerHTML += `<option value="${c.id}">${c.nome} ${isSub ? '('+instrName+')' : ''}</option>`;
         });
         
         updateInstructorPreview();
