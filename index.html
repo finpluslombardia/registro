@@ -313,6 +313,15 @@
             <span>Bacheca Avvisi</span>
             <button onclick="toggleNotifications()" style="background:none; border:none; font-size:2rem; color:var(--text-main); cursor:pointer; line-height:1">×</button>
         </div>
+        <div id="admin-notice-container" class="hidden" style="background:rgba(37, 99, 235, 0.04); padding:20px; border-bottom:1px solid var(--border);">
+            <h4 style="margin:0 0 10px 0; color:#2563eb; font-size: 1rem;">📢 Invia Nuovo Avviso</h4>
+            <div style="display:flex; gap:10px">
+                <input type="text" id="admin-notice-text" placeholder="Messaggio..." style="flex:2; height: 40px; min-width: 0;">
+                <select id="admin-notice-target" style="flex:1; height: 40px; min-width: 0;"><option value="all">A: Tutti</option></select>
+                <button onclick="sendNotice()" class="primary-btn" style="width:auto; margin:0; padding:0 15px; height: 40px;">Invia</button>
+            </div>
+            <div id="admin-sent-notices" style="margin-top:15px; max-height:250px; overflow-y:auto; border-top:1px dashed var(--border); padding-top:10px; font-size:0.9rem"></div>
+        </div>
         <div id="notif-list" class="notif-list"></div>
     </div>
 </div>
@@ -409,16 +418,6 @@
         <div class="global-season-bar">
             <span class="gsb-label">📅 Stagione Corrente:</span>
             <select id="season-selector" class="gsb-select" onchange="changeSeason()"></select>
-        </div>
-
-        <div style="background:rgba(37, 99, 235, 0.08); padding:20px; border-radius:16px; border:2px dashed #2563eb; margin-bottom:30px">
-            <h4 style="margin:0 0 15px 0; color:#2563eb">📢 Invia Avviso</h4>
-            <div style="display:flex; gap:10px">
-                <input type="text" id="admin-notice-text" placeholder="Messaggio..." style="flex:2">
-                <select id="admin-notice-target" style="flex:1"><option value="all">A: Tutti</option></select>
-                <button onclick="sendNotice()" class="primary-btn" style="width:auto; margin:0; padding:0 20px">Invia</button>
-            </div>
-            <div id="admin-sent-notices" style="margin-top:10px; max-height:150px; overflow-y:auto; border-top:1px solid rgba(0,0,0,0.1); padding-top:10px; font-size:0.9rem"></div>
         </div>
 
         <div class="view-switch-container">
@@ -696,7 +695,13 @@
                 if(user.email.toLowerCase()===ADMIN_EMAIL.toLowerCase()) renderAdminNotices(); else renderInstructorNotices(); 
             });
 
-            if(user.email.toLowerCase()===ADMIN_EMAIL.toLowerCase()) initAdmin(); else initInstructor();
+            if(user.email.toLowerCase()===ADMIN_EMAIL.toLowerCase()) {
+                document.getElementById('admin-notice-container').classList.remove('hidden');
+                document.getElementById('notif-list').style.display = 'none';
+                initAdmin(); 
+            } else {
+                initInstructor();
+            }
         }
     });
 
@@ -1499,7 +1504,7 @@
 
     window.sendNotice=async()=>{ const t=document.getElementById('admin-notice-text').value; if(t) await addDoc(collection(db,"avvisi"),{testo:t, destinatario:document.getElementById('admin-notice-target').value, data:new Date()}); document.getElementById('admin-notice-text').value=""; toast("Inviato"); };
     window.deleteNotice=async(id)=>{ if(confirm("Eliminare?")) await deleteDoc(doc(db,"avvisi",id)); };
-    function renderAdminNotices(){ const l=document.getElementById('admin-sent-notices'); l.innerHTML=""; allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{ l.innerHTML+=`<div style="padding:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.9rem"><div><b>A: ${n.destinatario==='all'?'Tutti':n.destinatario}</b><br>${n.testo}</div><button onclick="deleteNotice('${n.id}')" style="color:red; border:none; background:none">🗑️</button></div>`; }); }
+    function renderAdminNotices(){ const l=document.getElementById('admin-sent-notices'); const b=document.getElementById('notif-badge'); l.innerHTML=""; let c=0; allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{ c++; l.innerHTML+=`<div style="padding:8px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.9rem; align-items:center;"><div><b>A: ${n.destinatario==='all'?'Tutti':n.destinatario}</b><br>${n.testo}</div><button onclick="deleteNotice('${n.id}')" style="color:var(--danger); border:none; background:none; font-size:1.2rem; cursor:pointer;">🗑️</button></div>`; }); if(c===0) l.innerHTML="<p style='color:var(--text-sub); font-size:0.85rem'>Nessun avviso attivo.</p>"; b.innerText=c; b.classList.toggle('hidden', c===0); }
     function renderInstructorNotices(){ const l=document.getElementById('notif-list'); const b=document.getElementById('notif-badge'); l.innerHTML=""; let c=0; allNoticesCache.sort((a,b)=>b.data.seconds-a.data.seconds).forEach(n=>{ if(n.destinatario==='all' || n.destinatario===currentUser.email.toLowerCase()){ c++; l.innerHTML+=`<div class="notif-item"><div style="flex:1"><small style="color:var(--text-sub)">${new Date(n.data.seconds*1000).toLocaleDateString()}</small><br>${n.testo}</div></div>`; } }); if(c===0) l.innerHTML="<p style='padding:20px;text-align:center;color:gray'>Nessun avviso.</p>"; b.innerText=c; b.classList.toggle('hidden', c===0); }
     
     window.deleteLesson = async(id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db,"registro_didattico",id)); };
