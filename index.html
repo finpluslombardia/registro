@@ -659,7 +659,14 @@
             currentUser=user; setupAutoLogout();
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
+            
             document.getElementById('user-display').innerText = "Ciao " + user.email;
+            getDoc(doc(db, "anagrafica", user.email)).then(docSnap => {
+                if (docSnap.exists() && docSnap.data().nome) {
+                    document.getElementById('user-display').innerText = "Ciao " + docSnap.data().nome;
+                }
+            });
+            
             document.getElementById('data').valueAsDate = new Date();
             autoSetPeriod('data','periodo');
             
