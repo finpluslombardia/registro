@@ -394,6 +394,21 @@
     </div>
 </div>
 
+<div id="reassign-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="modal-title">👤 Riassegna Istruttore</h3>
+        <input type="hidden" id="reassign-course-id">
+        <div class="form-group">
+            <label>Scegli il nuovo istruttore</label>
+            <select id="reassign-instructor-select"></select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('reassign-modal')">Annulla</button>
+            <button class="btn-confirm" onclick="confirmReassign()">Salva</button>
+        </div>
+    </div>
+</div>
+
 <div id="login-section" style="max-width:350px; margin:80px auto; text-align:center;">
     <h1 style="color:var(--primary); margin-bottom:30px">Benvenuto</h1>
     <input type="email" id="email" placeholder="Email" style="margin-bottom:15px">
@@ -1189,7 +1204,17 @@
     };
     
     window.deleteAssignment=async(id)=>{if(confirm("Eliminare?")) await deleteDoc(doc(db,"corsi_assegnati",id));};
-    window.reassignInstructor=async(id,old)=>{const n=prompt("Nuova email:",old); if(n)await updateDoc(doc(db,"corsi_assegnati",id),{istruttore:n.trim()});};
+    window.reassignInstructor=(id,old)=>{
+        document.getElementById('reassign-course-id').value=id; const sel=document.getElementById('reassign-instructor-select'); sel.innerHTML='';
+        let instrs=[]; Object.keys(allAnagraficaCache).forEach(email=>instrs.push({e:email,n:allAnagraficaCache[email].nome||email}));
+        instrs.sort((a,b)=>a.n.localeCompare(b.n));
+        instrs.forEach(i=>{ sel.innerHTML+=`<option value="${i.e}" ${i.e===old?'selected':''}>${i.n}</option>`; });
+        openModal('reassign-modal');
+    };
+    window.confirmReassign=async()=>{
+        const id=document.getElementById('reassign-course-id').value; const n=document.getElementById('reassign-instructor-select').value;
+        if(id&&n){ await updateDoc(doc(db,"corsi_assegnati",id),{istruttore:n}); closeModal('reassign-modal'); toast("Aggiornato"); }
+    };
     window.renameUser=async(e)=>{const n=prompt("Nome reale:",allAnagraficaCache[e]?.nome); if(n)await setDoc(doc(db,"anagrafica",e),{nome:n},{merge:true});};
     
     // --- INSTRUCTOR LOGIC ---
