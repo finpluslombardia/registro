@@ -421,24 +421,6 @@
             <div id="admin-sent-notices" style="margin-top:10px; max-height:150px; overflow-y:auto; border-top:1px solid rgba(0,0,0,0.1); padding-top:10px; font-size:0.9rem"></div>
         </div>
 
-        <div class="admin-tools">
-            <h4 style="margin:0 0 15px 0; color:#b45309; font-size:1.2rem">🎚 Gestione Livelli</h4>
-            <div id="levels-container" class="levels-container"></div>
-            <div style="display:flex; gap:10px">
-                <input type="text" id="new-level-input" placeholder="Nuovo Livello">
-                <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer">+</button>
-            </div>
-            
-            <h4 style="margin:25px 0 10px 0; color:#b45309">🛠 Nuova Assegnazione</h4>
-            <div class="create-grid">
-                <select id="new-level-select"><option>Livello...</option></select>
-                <select id="new-day"><option>Giorno...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
-                <input type="time" id="new-time">
-                <select id="new-instructor-select"><option value="">Scegli Istruttore...</option></select>
-                <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:14px; margin:0">Crea</button>
-            </div>
-        </div>
-
         <div class="view-switch-container">
             <button id="btn-view-team" class="switch-btn active" onclick="switchAdminView('team')">👥 Istruttori</button>
             <button id="btn-view-levels" class="switch-btn" onclick="switchAdminView('levels')">🎚 Livelli</button>
@@ -486,6 +468,24 @@
                     </div>
                     <div id="admin-lessons-list" class="section-box"></div> 
                 </div>
+            </div>
+        </div>
+
+        <div class="admin-tools" style="margin-top: 30px;">
+            <h4 style="margin:0 0 15px 0; color:#b45309; font-size:1.2rem">🎚 Gestione Livelli</h4>
+            <div id="levels-container" class="levels-container"></div>
+            <div style="display:flex; gap:10px">
+                <input type="text" id="new-level-input" placeholder="Nuovo Livello">
+                <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer">+</button>
+            </div>
+            
+            <h4 style="margin:25px 0 10px 0; color:#b45309">🛠 Nuova Assegnazione</h4>
+            <div class="create-grid">
+                <select id="new-level-select"><option>Livello...</option></select>
+                <select id="new-day"><option>Giorno...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
+                <input type="time" id="new-time">
+                <select id="new-instructor-select"><option value="">Scegli Istruttore...</option></select>
+                <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:14px; margin:0">Crea</button>
             </div>
         </div>
     </div>
