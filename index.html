@@ -946,7 +946,14 @@
         const g = document.getElementById('main-admin-grid');
         g.innerHTML = "";
 
-        Object.keys(stats).sort().forEach(e => {
+        const emails = Object.keys(stats);
+        emails.sort((a, b) => {
+            const nameA = (allAnagraficaCache[a]?.nome || a.split('@')[0]).toLowerCase();
+            const nameB = (allAnagraficaCache[b]?.nome || b.split('@')[0]).toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+
+        emails.forEach(e => {
             const name = allAnagraficaCache[e]?.nome || e.split('@')[0];
             const s = stats[e];
 
