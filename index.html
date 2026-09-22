@@ -228,6 +228,29 @@
         .sub-active select#corso { border-color: #f59e0b; background-color: #fffbeb; }
         .last-lesson-box { background-color: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.9rem; }
         body.dark-mode .last-lesson-box { background-color: #451a03; border-color: #d97706; color: #fbbf24; }
+
+        /* TODAY WIDGET */
+        .today-section {
+            background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(37,99,235,0.02));
+            border: 2px solid var(--primary);
+        }
+        .today-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap; gap: 6px; }
+        .today-greeting { margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+        .today-date { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; text-transform: capitalize; }
+        .today-courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .today-course-card {
+            background: var(--bg-card); border: 2px solid var(--border); border-radius: 14px;
+            padding: 14px; cursor: pointer; transition: 0.2s; text-align: left;
+        }
+        .today-course-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 6px 14px rgba(37,99,235,0.15); }
+        .today-course-card.done { border-color: #10b981; background: rgba(16,185,129,0.06); }
+        body.dark-mode .today-course-card.done { background: rgba(16,185,129,0.12); }
+        .tc-time { font-weight: 800; color: var(--primary); font-size: 1.1rem; margin-bottom: 4px; }
+        .today-course-card.done .tc-time { color: #10b981; }
+        .tc-name { font-weight: 700; font-size: 1rem; margin-bottom: 10px; line-height: 1.25; }
+        .tc-status { font-size: 0.78rem; font-weight: 700; display: inline-block; padding: 3px 10px; border-radius: 20px; background: var(--bg-body); color: var(--text-sub); }
+        .today-course-card.done .tc-status { background: rgba(16,185,129,0.18); color: #059669; }
+        .today-empty { text-align: center; padding: 20px 10px; color: var(--text-sub); font-weight: 600; }
         
         .clickable-agenda-title {
             font-weight: 800; color: var(--primary); margin-bottom: 5px; cursor: pointer; text-decoration: none;
@@ -272,6 +295,9 @@
             button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
             .grid-courses { display: block; margin-bottom: 10px; }
             .course-folder, .overview-card, .user-card, .ac-course-card { padding: 12px; margin-bottom: 8px; display: block; width: 100%; border-radius: 12px; }
+            .today-courses-grid { display: block; }
+            .today-course-card { margin-bottom: 8px; width: 100%; }
+            .today-header { flex-direction: column; align-items: flex-start; }
             .cf-title, .ac-course-card span { font-size: 1rem; }
             .cf-settings-btn { font-size: 1.2rem; padding: 4px; }
 
@@ -507,7 +533,17 @@
     </div>
 
     <div id="instructor-view" class="hidden">
-        <h3 style="margin-bottom:15px; font-size:1.2rem">Nuova Lezione</h3>
+
+        <div class="section-box today-section">
+            <div class="today-header">
+                <h3 id="today-greeting" class="today-greeting">👋 Ciao</h3>
+                <span id="today-date" class="today-date"></span>
+            </div>
+            <div id="today-courses-grid" class="today-courses-grid"></div>
+            <div id="today-empty-msg" class="today-empty hidden">🎉 Nessun corso in programma oggi. Buona giornata!</div>
+        </div>
+
+        <h3 id="new-lesson-section" style="margin-bottom:15px; font-size:1.2rem">Nuova Lezione</h3>
         <div class="section-box">
             
             <div class="form-header-grid">
@@ -632,7 +668,7 @@
     const ADMIN_EMAIL = "a.chiodini01@gmail.com"; 
     
     const AVAILABLE_SEASONS = ["2024/2025", "2025/2026", "2026/2027"];
-    let CURRENT_SEASON = "2025/2026"; 
+    let CURRENT_SEASON = "2026/2027"; 
     let selectedSeason = CURRENT_SEASON;
 
     let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLessonsCache=[], allAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={};
@@ -1248,11 +1284,13 @@
             toggleSubstitutionMode(); 
             renderInstrOverview();
             updateInstructorPreview();
+            renderTodayCourses();
         });
         
         onSnapshot(query(collection(db,"registro_didattico"),where("uid","==",currentUser.uid)), s=>{
             myLessonsCache=[]; s.forEach(d=>myLessonsCache.push({id:d.id,...d.data()}));
             updateInstructorPreview();
+            renderTodayCourses();
         });
     }
 
@@ -1268,6 +1306,67 @@
         const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
         return days[d.getDay()];
     }
+
+    // --- TODAY HELPER (LOCAL TIME, NO TIMEZONE SHIFT) ---
+    function getTodayDateString() {
+        const d = new Date();
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // --- RENDER "I CORSI DI OGGI" WIDGET ---
+    function renderTodayCourses() {
+        const grid = document.getElementById('today-courses-grid');
+        const emptyMsg = document.getElementById('today-empty-msg');
+        if (!grid) return;
+
+        const now = new Date();
+        const hour = now.getHours();
+        const greeting = hour < 12 ? "☀️ Buongiorno" : (hour < 18 ? "🌤️ Buon pomeriggio" : "🌙 Buonasera");
+        document.getElementById('today-greeting').innerText = greeting;
+        document.getElementById('today-date').innerText = now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        const todayStr = getTodayDateString();
+        const todayDayName = getDayName(todayStr);
+
+        const todays = myAssignmentsCache
+            .filter(c => c.giorno === todayDayName)
+            .sort((a, b) => (a.ora || '99:99').localeCompare(b.ora || '99:99'));
+
+        grid.innerHTML = "";
+
+        if (todays.length === 0) {
+            grid.classList.add('hidden');
+            emptyMsg.classList.remove('hidden');
+            return;
+        }
+        emptyMsg.classList.add('hidden');
+        grid.classList.remove('hidden');
+
+        todays.forEach(c => {
+            const doneToday = myLessonsCache.some(l => l.corso === c.nome && l.data === todayStr);
+            grid.innerHTML += `
+                <div class="today-course-card ${doneToday ? 'done' : ''}" onclick="quickLogCourse('${c.id}')">
+                    <div class="tc-time">${c.ora || '--:--'}</div>
+                    <div class="tc-name">${c.nome}</div>
+                    <div class="tc-status">${doneToday ? '✅ Registrata' : '📝 Da registrare'}</div>
+                </div>`;
+        });
+    }
+
+    // --- QUICK FILL: SALTA DIRETTAMENTE ALLA SCHEDA DEL CORSO DI OGGI ---
+    window.quickLogCourse = (id) => {
+        document.getElementById('is-substitution').checked = false;
+        document.getElementById('data').value = getTodayDateString();
+        autoSetPeriod('data', 'periodo');
+        renderCourseOptions();
+        document.getElementById('corso').value = id;
+        updateInstructorPreview();
+        document.getElementById('new-lesson-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => document.getElementById('obiettivo').focus(), 400);
+    };
 
     // --- RENDER COURSE OPTIONS BASED ON DATE ---
     function renderCourseOptions() {
