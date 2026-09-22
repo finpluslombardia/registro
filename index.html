@@ -804,7 +804,12 @@
         
         onSnapshot(query(collection(db,"registro_didattico"),orderBy("data","desc")), s=>{ 
             allLessonsCache=[]; 
-            s.forEach(d=>{ allLessonsCache.push({id:d.id,...d.data()}); }); 
+            s.forEach(d=>{ 
+                const data = d.data();
+                if((data.stagione && data.stagione === selectedSeason) || (!data.stagione && selectedSeason === CURRENT_SEASON)) {
+                    allLessonsCache.push({id:d.id,...data}); 
+                }
+            }); 
             renderApp(); 
             if(currentAdminView==='agenda') renderWeeklyAgenda();
         });
@@ -1288,7 +1293,13 @@
         });
         
         onSnapshot(query(collection(db,"registro_didattico"),where("uid","==",currentUser.uid)), s=>{
-            myLessonsCache=[]; s.forEach(d=>myLessonsCache.push({id:d.id,...d.data()}));
+            myLessonsCache=[];
+            s.forEach(d=>{
+                const data = d.data();
+                if(!data.stagione || data.stagione === CURRENT_SEASON) {
+                    myLessonsCache.push({id:d.id,...data});
+                }
+            });
             updateInstructorPreview();
             renderTodayCourses();
         });
