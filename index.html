@@ -29,7 +29,7 @@
         body.no-scroll { overflow: hidden; }
 
         .container { 
-            max-width: 1200px; margin: 0 auto; background: var(--bg-card); 
+            max-width: 1500px; margin: 0 auto; background: var(--bg-card); 
             padding: 30px; border-radius: 20px; min-height: 85vh; 
             border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             overflow-x: hidden;
@@ -167,20 +167,21 @@
         /* AGENDA */
         .agenda-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .agenda-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+        #admin-agenda-view { margin-bottom: 25px; }
         .agenda-col { background: var(--bg-body); border-radius: 12px; padding: 10px; min-height: 200px; border: 1px solid var(--border); }
         .agenda-header { text-align: center; font-weight: 800; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 8px; margin-bottom: 10px; text-transform: uppercase; font-size: 0.85rem; }
-        .agenda-card {
-            background: var(--bg-card); border-left: 3px solid var(--primary); border-radius: 8px;
-            padding: 10px; margin-bottom: 8px; font-size: 0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            cursor: pointer; transition: transform 0.2s;
+        .agenda-course-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--text-sub); border-radius: 8px;
+            padding: 8px 10px; margin-bottom: 8px; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
         }
-        .agenda-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .ac-instr { font-weight: 700; display: block; margin-bottom: 4px; font-size: 0.85rem; color: var(--text-main); }
-        .ac-summary { color: var(--text-sub); display: block; font-size: 0.75rem; }
-        .ac-badge { 
-            display: inline-block; background: rgba(37,99,235,0.1); color: var(--primary); 
-            padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; margin-top: 4px;
-        }
+        .agenda-course-card.done { border-left-color: #10b981; cursor: pointer; }
+        .agenda-course-card.done:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .ac-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+        .ac-time-badge { font-weight: 800; color: var(--primary); font-size: 0.75rem; }
+        .ac-check-icon { font-size: 0.85rem; line-height: 1; }
+        .ac-course-name { font-weight: 700; display: block; margin-bottom: 2px; font-size: 0.8rem; color: var(--text-main); line-height: 1.2; }
+        .ac-instr-name { color: var(--text-sub); display: block; font-size: 0.72rem; }
 
         /* STORICO HEADER */
         .storico-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
@@ -512,13 +513,13 @@
         </div>
 
         <div class="view-switch-container">
-            <button id="btn-view-team" class="switch-btn active" onclick="switchAdminView('team')">👥 Istruttori</button>
+            <button id="btn-view-agenda" class="switch-btn active" onclick="switchAdminView('agenda')">🗓 Agenda</button>
+            <button id="btn-view-team" class="switch-btn" onclick="switchAdminView('team')">👥 Istruttori</button>
             <button id="btn-view-levels" class="switch-btn" onclick="switchAdminView('levels')">🎚 Livelli</button>
             <button id="btn-view-days" class="switch-btn" onclick="switchAdminView('days')">📅 Giorni</button>
-            <button id="btn-view-agenda" class="switch-btn" onclick="switchAdminView('agenda')">🗓 Agenda</button>
         </div>
 
-        <div id="admin-agenda-view" class="hidden">
+        <div id="admin-agenda-view">
             <div class="agenda-controls">
                 <button class="action-btn" onclick="changeAgendaWeek(-1)">&#10094;</button>
                 <span id="agenda-week-label" style="font-weight:700; font-size:1rem; color:var(--primary)">Settimana Corrente</span>
@@ -527,7 +528,7 @@
             <div id="agenda-grid" class="agenda-grid"></div>
         </div>
 
-        <div id="main-admin-grid" class="grid-courses"></div>
+        <div id="main-admin-grid" class="grid-courses hidden"></div>
 
         <div id="admin-detail-area" class="section-box mycourses-section hidden" style="margin-top:30px">
             <h4 class="mycourses-section-title" id="detail-title">Dettagli...</h4>
@@ -736,7 +737,7 @@
     let selectedSeason = CURRENT_SEASON;
 
     let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLessonsCache=[], allAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={};
-    let currentAdminProgress={}; let currentOpenCourse=null; let currentAdminView='team'; let currentSelectedDetail=null; 
+    let currentAdminProgress={}; let currentOpenCourse=null; let currentAdminView='agenda'; let currentSelectedDetail=null; 
     let currentAdminDetailView='days'; 
     let currentAgendaOffset = 0; // NEW: Track agenda week offset
     let currentInstructorEmailFilter = null;
@@ -960,30 +961,26 @@
             const day = String(currentDay.getDate()).padStart(2, '0');
             const checkStr = `${year}-${month}-${day}`;
             
-            const dayLessons = weekLessons.filter(l => l.data === checkStr);
+            // TUTTI I CORSI PREVISTI QUEL GIORNO DELLA SETTIMANA (non solo quelli già registrati)
+            const dayCourses = allAssignmentsCache
+                .filter(c => c.giorno === days[i])
+                .sort((a,b) => (a.ora||'99:99').localeCompare(b.ora||'99:99'));
             
-            if(dayLessons.length === 0) {
+            if(dayCourses.length === 0) {
                  colHTML += `<div style="text-align:center; color:var(--text-sub); font-size:0.8rem; margin-top:20px;">-</div>`;
             } else {
-                // GROUP BY INSTRUCTOR
-                const grouped = {};
-                dayLessons.forEach(l => {
-                    if(!grouped[l.email]) grouped[l.email] = [];
-                    grouped[l.email].push(l);
-                });
-                
-                Object.keys(grouped).forEach(email => {
-                    const lessons = grouped[email];
-                    const instrName = allAnagraficaCache[email]?.nome || email.split('@')[0];
-                    const count = lessons.length;
-                    
-                    // Create a summary card for this instructor on this day
-                    // On click -> open modal with details of ALL these lessons
+                dayCourses.forEach(c => {
+                    const instrName = allAnagraficaCache[c.istruttore]?.nome || c.istruttore.split('@')[0];
+                    const done = weekLessons.some(l => l.corso === c.nome && l.data === checkStr && l.email === c.istruttore);
+                    const clickAttr = done ? `onclick="openAgendaGroupDetail('${checkStr}', '${c.istruttore}')"` : '';
                     colHTML += `
-                    <div class="agenda-card" onclick="openAgendaGroupDetail('${checkStr}', '${email}')">
-                        <span class="ac-instr">👤 ${instrName}</span>
-                        <span class="ac-summary">${count} Lezioni</span>
-                        <span class="ac-badge">Vedi Dettagli</span>
+                    <div class="agenda-course-card ${done ? 'done' : ''}" ${clickAttr}>
+                        <div class="ac-top-row">
+                            <span class="ac-time-badge">${c.ora || '--:--'}</span>
+                            <span class="ac-check-icon">${done ? '✅' : '⬜'}</span>
+                        </div>
+                        <span class="ac-course-name">${c.nome}</span>
+                        <span class="ac-instr-name">👤 ${instrName}</span>
                     </div>`;
                 });
             }
