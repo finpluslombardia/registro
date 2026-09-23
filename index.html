@@ -536,7 +536,7 @@
 
         <div class="section-box today-section">
             <div class="today-header">
-                <h3 id="today-greeting" class="today-greeting">👋 Ciao</h3>
+                <h3 id="today-greeting" class="today-greeting">📅 Corsi di oggi</h3>
                 <span id="today-date" class="today-date"></span>
             </div>
             <div id="today-courses-grid" class="today-courses-grid"></div>
@@ -1334,9 +1334,6 @@
         if (!grid) return;
 
         const now = new Date();
-        const hour = now.getHours();
-        const greeting = hour < 12 ? "☀️ Buongiorno" : (hour < 18 ? "🌤️ Buon pomeriggio" : "🌙 Buonasera");
-        document.getElementById('today-greeting').innerText = greeting;
         document.getElementById('today-date').innerText = now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
 
         const todayStr = getTodayDateString();
