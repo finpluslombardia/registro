@@ -226,6 +226,14 @@
         .traffic-light { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0; }
         .tl-gray { background: var(--tl-gray); } .tl-red { background: var(--tl-red); } .tl-yellow { background: var(--tl-yellow); } .tl-green { background: var(--tl-green); }
         .readonly .traffic-light { cursor: default; opacity: 1; }
+
+        /* SELETTORE COLORE OBIETTIVI (POPOVER) */
+        .color-picker-popover {
+            position: fixed; display: flex; gap: 10px; background: var(--bg-card); border: 2px solid var(--border);
+            border-radius: 30px; padding: 8px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); z-index: 5000;
+        }
+        .cp-swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 3px solid rgba(0,0,0,0.08); transition: transform 0.15s; }
+        .cp-swatch:hover { transform: scale(1.18); }
         
         /* NOTE BOX (BLUE) */
         .course-notes-box {
@@ -476,6 +484,13 @@
             <button class="btn-confirm" onclick="saveCourseSettings()">Salva Tutto</button>
         </div>
     </div>
+</div>
+
+<div id="color-picker-popover" class="color-picker-popover hidden">
+    <div class="cp-swatch tl-gray" onclick="pickColor('gray')" title="Non iniziato"></div>
+    <div class="cp-swatch tl-red" onclick="pickColor('red')" title="In difficoltà"></div>
+    <div class="cp-swatch tl-yellow" onclick="pickColor('yellow')" title="In corso"></div>
+    <div class="cp-swatch tl-green" onclick="pickColor('green')" title="Acquisito"></div>
 </div>
 
 <div id="reassign-modal" class="modal-overlay">
@@ -1329,16 +1344,40 @@
         objs.forEach(o=>{
             const s = currentAdminProgress[o] || 'gray';
             const d = document.createElement('div'); d.className='obj-item';
-            d.innerHTML = `<div class="traffic-light tl-${s}" onclick="cycleLight('${o}','${lvl}','${containerId}','${titleId}')"></div><span class="obj-label">${o}</span>`;
+            d.innerHTML = `<div class="traffic-light tl-${s}" onclick="openColorPicker(event,'${o}','${lvl}','${containerId}','${titleId}')"></div><span class="obj-label">${o}</span>`;
             container.appendChild(d);
         });
     }
 
-    window.cycleLight=(o, lvl, containerId, titleId) => { 
-        const s=['gray','red','yellow','green']; const curr=currentAdminProgress[o]||'gray'; 
-        currentAdminProgress[o]=s[(s.indexOf(curr)+1)%4]; 
-        renderAdminTrafficLights(lvl, containerId, titleId); 
+    let colorPickerTarget = null;
+
+    window.openColorPicker = (event, o, lvl, containerId, titleId) => {
+        event.stopPropagation();
+        colorPickerTarget = { o, lvl, containerId, titleId };
+        const popover = document.getElementById('color-picker-popover');
+        const rect = event.currentTarget.getBoundingClientRect();
+        popover.style.top = (rect.bottom + 8) + 'px';
+        popover.style.left = Math.min(rect.left, window.innerWidth - 190) + 'px';
+        popover.classList.remove('hidden');
     };
+
+    window.pickColor = (color) => {
+        if(!colorPickerTarget) return;
+        const { o, lvl, containerId, titleId } = colorPickerTarget;
+        currentAdminProgress[o] = color;
+        renderAdminTrafficLights(lvl, containerId, titleId);
+        closeColorPicker();
+    };
+
+    function closeColorPicker() {
+        document.getElementById('color-picker-popover').classList.add('hidden');
+        colorPickerTarget = null;
+    }
+
+    document.addEventListener('click', (e) => {
+        const popover = document.getElementById('color-picker-popover');
+        if(!popover.classList.contains('hidden') && !popover.contains(e.target)) closeColorPicker();
+    });
 
     window.saveCourseSettings=async()=>{
         try {
