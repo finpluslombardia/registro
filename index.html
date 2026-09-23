@@ -256,6 +256,8 @@
         }
         body.dark-mode .course-notes-box { background-color: #172554; border-color: #1e40af; color: #bfdbfe; }
 
+        .last-updated-text { font-size: 0.72rem; color: var(--text-sub); font-style: italic; margin-bottom: 10px; }
+
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
         .modal-box { background: var(--bg-card); padding: 25px; border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.4); color: var(--text-main); }
@@ -438,6 +440,7 @@
         <h3 class="modal-title">🎯 Obiettivi: <span id="io-title"></span></h3>
         
         <div id="io-notes" class="course-notes-box hidden"></div>
+        <div id="io-last-updated" class="last-updated-text hidden"></div>
 
         <div class="obj-level-header" id="io-lvl-current-title">Livello Corrente</div>
         <div id="io-list-current" class="obj-container"></div>
@@ -488,6 +491,7 @@
         <input type="hidden" id="cs-id">
         <div class="form-group"><label>Iscritti</label><input type="number" id="cs-iscritti"></div>
         <div class="form-group"><label>Note (Visibili all'istruttore)</label><textarea id="cs-note" style="height:80px"></textarea></div>
+        <div id="cs-last-updated" class="last-updated-text hidden"></div>
 
         <div class="obj-level-header" id="modal-lvl-current-title" style="margin-top:20px">Livello Corrente</div>
         <div id="admin-obj-list-current" class="obj-container"></div>
@@ -694,6 +698,7 @@
             </div>
 
             <div id="instr-obj-wrapper" class="hidden" style="margin-top:15px">
+                 <div id="instr-last-updated" class="last-updated-text hidden"></div>
                  <div class="obj-level-header" id="instr-lvl-current-title">Livello Attuale</div>
                  <div id="instr-obj-list-current" class="obj-container"></div>
                  <div class="obj-level-header" id="instr-lvl-next-title" style="margin-top:10px">Livello Successivo</div>
@@ -1288,6 +1293,8 @@
             const c=allAssignmentsCache.find(x=>x.id===id); if(!c)return;
             document.getElementById('cs-id').value=c.id; document.getElementById('cs-iscritti').value=c.iscritti||""; document.getElementById('cs-note').value=c.note_corso||"";
             currentAdminProgress=c.progress||{}; 
+            const csLU = document.getElementById('cs-last-updated'); const csFormatted = formatLastUpdated(c.progress_updated);
+            if(csFormatted) { csLU.innerText = `🕒 Ultimo aggiornamento: ${csFormatted}`; csLU.classList.remove('hidden'); } else { csLU.classList.add('hidden'); }
             renderAdminTrafficLights(c.livello, 'admin-obj-list-current', 'modal-lvl-current-title');
             const nextLvl = getNextLevelName(c.livello);
             renderAdminTrafficLights(nextLvl, 'admin-obj-list-next', 'modal-lvl-next-title');
@@ -1295,6 +1302,8 @@
         } else {
             const c=allActiveAssignmentsCache.find(x=>x.id===id); if(!c)return;
             document.getElementById('io-title').innerText = c.nome;
+            const ioLU = document.getElementById('io-last-updated'); const ioFormatted = formatLastUpdated(c.progress_updated);
+            if(ioFormatted) { ioLU.innerText = `🕒 Ultimo aggiornamento: ${ioFormatted}`; ioLU.classList.remove('hidden'); } else { ioLU.classList.add('hidden'); }
             renderInstructorTrafficLights(c.livello, 'io-list-current', 'io-lvl-current-title', c.progress);
             const nextLvl = getNextLevelName(c.livello);
             renderInstructorTrafficLights(nextLvl, 'io-list-next', 'io-lvl-next-title', c.progress);
@@ -1364,11 +1373,19 @@
         try {
             const id=document.getElementById('cs-id').value;
             await updateDoc(doc(db,"corsi_assegnati",id), {
-                iscritti:document.getElementById('cs-iscritti').value, note_corso:document.getElementById('cs-note').value, progress:currentAdminProgress
+                iscritti:document.getElementById('cs-iscritti').value, note_corso:document.getElementById('cs-note').value, progress:currentAdminProgress, progress_updated: new Date()
             });
             closeModal('course-settings-modal'); toast("Salvato");
         } catch(e) { alert("Errore Salvataggio: " + e.message); }
     };
+
+    // Formatta una data (o Firestore Timestamp) in gg/mm/aaaa alle hh:mm
+    function formatLastUpdated(ts) {
+        if (!ts) return '';
+        const d = (typeof ts.toDate === 'function') ? ts.toDate() : new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'}) + ' alle ' + d.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+    }
 
     window.openObjConfig=(l)=>{document.getElementById('conf-lvl-name').innerText=l;document.getElementById('conf-obj-text').value=(objectivesConfigCache[l]||[]).join('\n');openModal('objectives-config-modal');};
     window.saveObjConfig=async()=>{
@@ -1605,6 +1622,8 @@
 
         if (hasCurr || hasNext) {
             wrapper.classList.remove('hidden');
+            const instrLU = document.getElementById('instr-last-updated'); const instrFormatted = formatLastUpdated(c.progress_updated);
+            if(instrFormatted) { instrLU.innerText = `🕒 Ultimo aggiornamento: ${instrFormatted}`; instrLU.classList.remove('hidden'); } else { instrLU.classList.add('hidden'); }
             renderInstructorTrafficLights(c.livello, 'instr-obj-list-current', 'instr-lvl-current-title', c.progress);
             renderInstructorTrafficLights(nextLvl, 'instr-obj-list-next', 'instr-lvl-next-title', c.progress);
         } else {
