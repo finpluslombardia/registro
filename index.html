@@ -1171,7 +1171,7 @@
 
             html += `
                 <div class="detail-course-card">
-                    <span class="dc-title" onclick="openAdminCourseHistory('${c.nome}', '${c.istruttore}')">📂 ${c.nome}${c.ora ? ' - ' + c.ora : ''}</span>
+                    <span class="dc-title" onclick="openAdminCourseHistory('${c.nome}', '${c.istruttore}')">📂 ${c.nome}</span>
                     <div class="dc-meta">👤 ${instrName}</div>
                     <div class="dc-meta">👥 Iscritti: ${enrolled} | 📊 Media: ${average}</div>
                     <div class="dc-actions">
@@ -1656,7 +1656,7 @@
 
             html+=`
                 <div class="course-folder">
-                    <div class="cf-title" onclick="openHistory('${c.nome}')">${c.nome}${c.ora ? ' - ' + c.ora : ''}</div>
+                    <div class="cf-title" onclick="openHistory('${c.nome}')">${c.nome}</div>
                     <div class="cf-meta">
                         <div class="cf-stat-item">👥 Iscritti: ${enrolled} | 📊 Media: ${average}</div>
                     </div>
