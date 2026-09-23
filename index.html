@@ -29,7 +29,7 @@
         body.no-scroll { overflow: hidden; }
 
         .container { 
-            max-width: 1500px; margin: 0 auto; background: var(--bg-card); 
+            max-width: 100%; margin: 0 auto; background: var(--bg-card); 
             padding: 30px; border-radius: 20px; min-height: 85vh; 
             border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             overflow-x: hidden;
@@ -166,6 +166,13 @@
 
         /* AGENDA */
         .agenda-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .agenda-label-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .agenda-week-label-text { font-weight: 700; font-size: 1rem; color: var(--primary); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 4px; }
+        .agenda-today-btn { background: rgba(37,99,235,0.1); color: var(--primary); border: none; padding: 3px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
+        .agenda-today-btn:hover { background: rgba(37,99,235,0.2); }
+        .agenda-hidden-date-input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; border: none; padding: 0; margin: 0; }
+        .agenda-col.is-today { border-color: var(--primary); border-width: 2px; }
+        .agenda-col.is-today .agenda-header { color: var(--primary); }
         .agenda-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
         #admin-agenda-view { margin-bottom: 25px; }
         .agenda-col { background: var(--bg-body); border-radius: 12px; padding: 10px; min-height: 200px; border: 1px solid var(--border); }
@@ -173,10 +180,10 @@
         .agenda-course-card {
             background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--text-sub); border-radius: 8px;
             padding: 8px 10px; margin-bottom: 8px; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: transform 0.2s;
+            cursor: pointer; transition: transform 0.2s;
         }
-        .agenda-course-card.done { border-left-color: #10b981; cursor: pointer; }
-        .agenda-course-card.done:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .agenda-course-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .agenda-course-card.done { border-left-color: #10b981; }
         .ac-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
         .ac-time-badge { font-weight: 800; color: var(--primary); font-size: 0.75rem; }
         .ac-check-icon { font-size: 0.85rem; line-height: 1; }
@@ -522,9 +529,13 @@
         <div id="admin-agenda-view">
             <div class="agenda-controls">
                 <button class="action-btn" onclick="changeAgendaWeek(-1)">&#10094;</button>
-                <span id="agenda-week-label" style="font-weight:700; font-size:1rem; color:var(--primary)">Settimana Corrente</span>
+                <div class="agenda-label-group">
+                    <span id="agenda-week-label" class="agenda-week-label-text" onclick="openAgendaDatePicker()">Settimana Corrente</span>
+                    <button class="agenda-today-btn" onclick="goToTodayAgenda()">📍 Oggi</button>
+                </div>
                 <button class="action-btn" onclick="changeAgendaWeek(1)">&#10095;</button>
             </div>
+            <input type="date" id="agenda-date-picker" class="agenda-hidden-date-input" onchange="onAgendaDatePicked()">
             <div id="agenda-grid" class="agenda-grid"></div>
         </div>
 
@@ -739,7 +750,7 @@
     let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLessonsCache=[], allAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={};
     let currentAdminProgress={}; let currentOpenCourse=null; let currentAdminView='agenda'; let currentSelectedDetail=null; 
     let currentAdminDetailView='days'; 
-    let currentAgendaOffset = 0; // NEW: Track agenda week offset
+    let currentAgendaDate = new Date(); // NEW: reference date within the currently viewed agenda week
     let currentInstructorEmailFilter = null;
 
     window.toggleTheme=()=>{document.body.classList.toggle('dark-mode');localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');document.getElementById('theme-toggle').innerText=document.body.classList.contains('dark-mode')?'🌙':'☀️';}
@@ -750,7 +761,7 @@
     let logoutTimer; const INACTIVITY_LIMIT=30*60*1000;
     function setupAutoLogout(){ const r=()=>{if(currentUser){clearTimeout(logoutTimer);logoutTimer=setTimeout(()=>{window.logout();toast("Sessione scaduta");},INACTIVITY_LIMIT);}}; ['mousedown','scroll','touchstart'].forEach(e=>document.addEventListener(e,r,true)); r(); }
     window.toast=(m)=>{const t=document.getElementById("toast");t.innerText=m;t.className="show";setTimeout(()=>t.className="",3000);};
-    window.autoSetPeriod=(d,p)=>{const v=document.getElementById(d).value;if(v){const m=new Date(v).getMonth()+1;document.getElementById(p).value=(m>=9||m<=1)?"1° Periodo":"2° Periodo";}};
+    window.autoSetPeriod=(d,p)=>{const v=document.getElementById(d).value;if(v){document.getElementById(p).value=(v<="2027-01-27")?"1° Periodo":"2° Periodo";}};
     window.modalPrompt = (t, m, d, c) => { const r=prompt(m,d); if(r) c(r); };
 
     // ACTIVITY MODAL LOGIC
@@ -914,7 +925,40 @@
     }
     
     window.changeAgendaWeek = (offset) => {
-        currentAgendaOffset += offset;
+        currentAgendaDate.setDate(currentAgendaDate.getDate() + (offset * 7));
+        renderWeeklyAgenda();
+    };
+
+    window.goToTodayAgenda = () => {
+        currentAgendaDate = new Date();
+        renderWeeklyAgenda();
+        const y = currentAgendaDate.getFullYear();
+        const m = String(currentAgendaDate.getMonth() + 1).padStart(2, '0');
+        const d = String(currentAgendaDate.getDate()).padStart(2, '0');
+        setTimeout(() => {
+            const el = document.getElementById(`agenda-col-${y}-${m}-${d}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    };
+
+    window.openAgendaDatePicker = () => {
+        const picker = document.getElementById('agenda-date-picker');
+        const y = currentAgendaDate.getFullYear();
+        const m = String(currentAgendaDate.getMonth() + 1).padStart(2, '0');
+        const d = String(currentAgendaDate.getDate()).padStart(2, '0');
+        picker.value = `${y}-${m}-${d}`;
+        if (picker.showPicker) {
+            try { picker.showPicker(); } catch (e) { picker.click(); }
+        } else {
+            picker.click();
+        }
+    };
+
+    window.onAgendaDatePicked = () => {
+        const val = document.getElementById('agenda-date-picker').value;
+        if (!val) return;
+        const parts = val.split('-');
+        currentAgendaDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
         renderWeeklyAgenda();
     };
 
@@ -922,11 +966,7 @@
         const grid = document.getElementById('agenda-grid');
         grid.innerHTML = "";
         
-        const today = new Date();
-        // Adjust for navigation
-        today.setDate(today.getDate() + (currentAgendaOffset * 7));
-        
-        const startOfWeek = getStartOfWeek(today);
+        const startOfWeek = getStartOfWeek(currentAgendaDate);
         const days = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato']; 
         
         // Label display
@@ -947,19 +987,24 @@
             return lDate >= weekStartFilter && lDate <= weekEndFilter;
         });
 
+        // Real "today" string, to highlight the matching column if visible in this week
+        const realToday = new Date();
+        const realTodayStr = `${realToday.getFullYear()}-${String(realToday.getMonth()+1).padStart(2,'0')}-${String(realToday.getDate()).padStart(2,'0')}`;
+
         // Generate Columns (0 to 5) -> Removed Sunday
         for (let i = 0; i < 6; i++) {
             const currentDay = new Date(startOfWeek);
             currentDay.setDate(startOfWeek.getDate() + i);
             const dateStr = currentDay.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
             
-            let colHTML = `<div class="agenda-col"><div class="agenda-header">${days[i]} ${dateStr}</div>`;
-            
             // LOCAL DATE STRING COMPARISON (FIXED)
             const year = currentDay.getFullYear();
             const month = String(currentDay.getMonth() + 1).padStart(2, '0');
             const day = String(currentDay.getDate()).padStart(2, '0');
             const checkStr = `${year}-${month}-${day}`;
+            const isToday = checkStr === realTodayStr;
+            
+            let colHTML = `<div class="agenda-col ${isToday ? 'is-today' : ''}" id="agenda-col-${checkStr}"><div class="agenda-header">${days[i]} ${dateStr}</div>`;
             
             // TUTTI I CORSI PREVISTI QUEL GIORNO DELLA SETTIMANA (non solo quelli già registrati)
             const dayCourses = allAssignmentsCache
@@ -972,7 +1017,9 @@
                 dayCourses.forEach(c => {
                     const instrName = allAnagraficaCache[c.istruttore]?.nome || c.istruttore.split('@')[0];
                     const done = weekLessons.some(l => l.corso === c.nome && l.data === checkStr && l.email === c.istruttore);
-                    const clickAttr = done ? `onclick="openAgendaGroupDetail('${checkStr}', '${c.istruttore}')"` : '';
+                    const clickAttr = done
+                        ? `onclick="openAgendaGroupDetail('${checkStr}', '${c.istruttore}')"`
+                        : `onclick="openCourseSettings('${c.id}')"`;
                     colHTML += `
                     <div class="agenda-course-card ${done ? 'done' : ''}" ${clickAttr}>
                         <div class="ac-top-row">
@@ -1106,14 +1153,30 @@
             dGrid.innerHTML+=`<div class="overview-card" onclick="openAdminFolder('giorno','${d}','${id}')"><div class="oc-name">${d}</div><div class="oc-count">${dMap[d]} Corsi</div></div>`;
         });
 
-        const lMap={}; pool.forEach(c=>{const l=c.livello||'Altro'; lMap[l]=(lMap[l]||0)+1;});
-        Object.keys(lMap).sort().forEach(l=>{
-            lGrid.innerHTML+=`<div class="overview-card" onclick="openAdminFolder('livello','${l}','${id}')"><div class="oc-name">${l}</div><div class="oc-count">${lMap[l]} Corsi</div></div>`;
-        });
+        // SECONDO FILTRO: normalmente per Livello, ma per Istruttore se siamo già dentro la vista Livelli
+        // (altrimenti sarebbe un filtro ridondante, dato che i corsi condividono già lo stesso livello)
+        const secondBtn = document.getElementById('btn-adm-det-levels');
+        if(currentAdminView==='levels') {
+            secondBtn.innerText = '👤 Istruttore';
+            const iMap={}; pool.forEach(c=>{const e=c.istruttore||'Altro'; iMap[e]=(iMap[e]||0)+1;});
+            Object.keys(iMap).sort((a,b)=>{
+                const nameA=(allAnagraficaCache[a]?.nome||a).toLowerCase();
+                const nameB=(allAnagraficaCache[b]?.nome||b).toLowerCase();
+                return nameA.localeCompare(nameB);
+            }).forEach(e=>{
+                const name = allAnagraficaCache[e]?.nome || e;
+                lGrid.innerHTML+=`<div class="overview-card" onclick="openAdminFolder('istruttore','${e}','${id}')"><div class="oc-name">${name}</div><div class="oc-count">${iMap[e]} Corsi</div></div>`;
+            });
+        } else {
+            secondBtn.innerText = '🎚 Livelli';
+            const lMap={}; pool.forEach(c=>{const l=c.livello||'Altro'; lMap[l]=(lMap[l]||0)+1;});
+            Object.keys(lMap).sort().forEach(l=>{
+                lGrid.innerHTML+=`<div class="overview-card" onclick="openAdminFolder('livello','${l}','${id}')"><div class="oc-name">${l}</div><div class="oc-count">${lMap[l]} Corsi</div></div>`;
+            });
+        }
         
         switchAdminDetailView('days');
     }
-
     window.openAdminFolder = (type, val, entityId) => {
         document.getElementById('admin-days-grid').classList.add('hidden');
         document.getElementById('admin-levels-grid').classList.add('hidden');
