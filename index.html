@@ -186,7 +186,21 @@
         .storico-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
 
         /* ADMIN TOOLS */
-        .admin-tools { background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 16px; border: 1px solid #fcd34d; margin-bottom: 30px; }
+        /* SEZIONI A COMPARSA (GENERICO, ADMIN) */
+        .collapsible-box .collapsible-title { margin: 0; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .collapsible-box .collapsible-title:active { opacity: 0.7; }
+        .collapsible-box .toggle-icon { transition: transform 0.2s ease; font-size: 1rem; }
+        .collapsible-box .collapsible-content { margin-top: 15px; }
+        .collapsible-box.collapsed .collapsible-content { display: none; }
+        .collapsible-box.collapsed .toggle-icon { transform: rotate(-90deg); }
+
+        /* GESTIONE LIVELLI (AMBER) */
+        .levels-mgmt-section { background: rgba(245, 158, 11, 0.08); border: 2px solid #f59e0b; margin-bottom: 25px; }
+        .levels-mgmt-section .collapsible-title { color: #b45309; }
+
+        /* NUOVA ASSEGNAZIONE (VERDE, come "Nuova Lezione") */
+        .new-assignment-section { background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02)); border: 2px solid #10b981; margin-bottom: 25px; }
+        .new-assignment-section .collapsible-title { color: #10b981; }
         .create-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr auto; gap: 12px; align-items: end; }
         .levels-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; margin-bottom: 20px;}
         .level-tag { background: var(--bg-card); border: 2px solid #f59e0b; color: #b45309; padding: 6px 14px; border-radius: 25px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
@@ -513,11 +527,11 @@
 
         <div id="main-admin-grid" class="grid-courses"></div>
 
-        <div id="admin-detail-area" class="hidden" style="margin-top:40px; border-top:2px solid var(--border); padding-top:30px">
-            <h4 style="margin:0 0 15px 0; font-size:1.3rem" id="detail-title">Dettagli...</h4>
+        <div id="admin-detail-area" class="section-box mycourses-section hidden" style="margin-top:30px">
+            <h4 class="mycourses-section-title" id="detail-title">Dettagli...</h4>
             
-            <div class="assigned-courses-box">
-                <h5 style="margin:0 0 15px 0; color:var(--primary); font-size:1.1rem" id="assigned-title">📋 Corsi Assegnati</h5>
+            <div class="assigned-courses-box" style="margin-top:15px">
+                <div style="font-size:0.8rem; color:var(--text-sub); font-weight:700; margin-bottom:15px; text-transform:uppercase; letter-spacing:0.3px" id="assigned-title">📋 Corsi Assegnati</div>
                 
                 <div class="view-switch-container" style="margin-bottom:20px;">
                     <button id="btn-adm-det-days" class="switch-btn active" onclick="switchAdminDetailView('days')">📅 Giorni</button>
@@ -545,23 +559,33 @@
             </div>
         </div>
 
-        <hr style="border: none; border-top: 2px solid var(--border); margin: 60px 0 40px 0;">
-
-        <div class="admin-tools">
-            <h4 style="margin:0 0 15px 0; color:#b45309; font-size:1.2rem">🎚 Gestione Livelli</h4>
-            <div id="levels-container" class="levels-container"></div>
-            <div style="display:flex; gap:10px">
-                <input type="text" id="new-level-input" placeholder="Nuovo Livello">
-                <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer">+</button>
+        <div class="section-box levels-mgmt-section collapsible-box collapsed" id="levels-mgmt-box">
+            <h4 class="collapsible-title" onclick="toggleCollapsible('levels-mgmt-box')">
+                <span>🎚 Gestione Livelli</span>
+                <span class="toggle-icon">▾</span>
+            </h4>
+            <div class="collapsible-content">
+                <div id="levels-container" class="levels-container"></div>
+                <div style="display:flex; gap:10px">
+                    <input type="text" id="new-level-input" placeholder="Nuovo Livello">
+                    <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer">+</button>
+                </div>
             </div>
-            
-            <h4 style="margin:25px 0 10px 0; color:#b45309">🛠 Nuova Assegnazione</h4>
-            <div class="create-grid">
-                <select id="new-level-select"><option>Livello...</option></select>
-                <select id="new-day"><option>Giorno...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
-                <input type="time" id="new-time">
-                <select id="new-instructor-select"><option value="">Scegli Istruttore...</option></select>
-                <button onclick="addCourseStructured()" class="primary-btn" style="background:#d97706; padding:14px; margin:0">Crea</button>
+        </div>
+
+        <div class="section-box new-assignment-section collapsible-box collapsed" id="new-assignment-box">
+            <h4 class="collapsible-title" onclick="toggleCollapsible('new-assignment-box')">
+                <span>🛠 Nuova Assegnazione</span>
+                <span class="toggle-icon">▾</span>
+            </h4>
+            <div class="collapsible-content">
+                <div class="create-grid">
+                    <select id="new-level-select"><option>Livello...</option></select>
+                    <select id="new-day"><option>Giorno...</option><option>Lunedì</option><option>Martedì</option><option>Mercoledì</option><option>Giovedì</option><option>Venerdì</option><option>Sabato</option><option>Domenica</option></select>
+                    <input type="time" id="new-time">
+                    <select id="new-instructor-select"><option value="">Scegli Istruttore...</option></select>
+                    <button onclick="addCourseStructured()" class="primary-btn" style="background:#10b981; padding:14px; margin:0">Crea</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1401,6 +1425,11 @@
                 </div>`;
         });
     }
+
+    // --- ACCORDION GENERICO (ADMIN) ---
+    window.toggleCollapsible = (id) => {
+        document.getElementById(id).classList.toggle('collapsed');
+    };
 
     // --- ACCORDION: APRI/CHIUDI SEZIONE NUOVA LEZIONE ---
     window.toggleLessonSection = () => {
