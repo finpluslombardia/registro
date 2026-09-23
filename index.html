@@ -708,16 +708,8 @@
                 <button onclick="switchInstrView('levels')" id="btn-instr-levels" class="action-btn" style="flex:1; width:auto; font-size:1rem; font-weight:bold">🎚 Livelli</button>
             </div>
 
-            <div id="days-overview-grid" class="grid-courses"></div>
-            <div id="levels-overview-grid" class="grid-courses hidden"></div>
-            
-            <div id="courses-list-wrapper" class="hidden">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px">
-                    <button class="btn-back" onclick="closeFolderView()">⬅ Indietro</button>
-                    <h4 style="margin:0; color:var(--primary); font-size:1.2rem" id="folder-title-display">...</h4>
-                </div>
-                <div id="my-courses-grid" class="grid-courses"></div>
-            </div>
+            <div id="days-overview-grid"></div>
+            <div id="levels-overview-grid" class="hidden"></div>
         </div>
     </div>
     
@@ -771,7 +763,7 @@
     let CURRENT_SEASON = "2026/2027"; 
     let selectedSeason = CURRENT_SEASON;
 
-    let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLessonsCache=[], allAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={};
+    let currentUser=null, myLessonsCache=[], myAssignmentsCache=[], allActiveAssignmentsCache=[], allLessonsCache=[], allAssignmentsCache=[], allLevelsCache=[], allAnagraficaCache={}, allNoticesCache=[], objectivesConfigCache={}, currentInstrTab='days';
     let currentAdminProgress={}; let currentOpenCourse=null; let currentAdminView='agenda'; let currentSelectedDetail=null; 
     let currentAdminDetailView='days'; 
     let currentAgendaDate = new Date(); // NEW: reference date within the currently viewed agenda week
@@ -1633,55 +1625,38 @@
     }
 
     window.switchInstrView=(v)=>{
+        currentInstrTab=v;
         document.getElementById('btn-instr-days').style.background=v==='days'?'var(--primary)':'var(--input-bg)';
         document.getElementById('btn-instr-days').style.color=v==='days'?'white':'var(--text-main)';
         document.getElementById('btn-instr-levels').style.background=v==='levels'?'var(--primary)':'var(--input-bg)';
         document.getElementById('btn-instr-levels').style.color=v==='levels'?'white':'var(--text-main)';
-        document.getElementById('courses-list-wrapper').classList.add('hidden');
         if(v==='days') { document.getElementById('days-overview-grid').classList.remove('hidden'); document.getElementById('levels-overview-grid').classList.add('hidden'); }
         else { document.getElementById('days-overview-grid').classList.add('hidden'); document.getElementById('levels-overview-grid').classList.remove('hidden'); }
         renderInstrOverview();
     };
 
-    function renderInstrOverview() {
-        const dGrid=document.getElementById('days-overview-grid'); const lGrid=document.getElementById('levels-overview-grid');
-        dGrid.innerHTML=""; lGrid.innerHTML="";
-        const dMap={}; myAssignmentsCache.forEach(c=>{const d=c.giorno||'Altro'; dMap[d]=(dMap[d]||0)+1;});
-        const dOrd={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7};
-        Object.keys(dMap).sort((a,b)=>(dOrd[a]||9)-(dOrd[b]||9)).forEach(d=>{ dGrid.innerHTML+=`<div class="overview-card" onclick="openFolder('giorno','${d}')"><div class="oc-name">${d}</div><div class="oc-count">${dMap[d]} Corsi</div></div>`; });
-        const lMap={}; myAssignmentsCache.forEach(c=>{const l=c.livello||'Altro'; lMap[l]=(lMap[l]||0)+1;});
-        Object.keys(lMap).sort().forEach(l=>{ lGrid.innerHTML+=`<div class="overview-card" onclick="openFolder('livello','${l}')"><div class="oc-name">${l}</div><div class="oc-count">${lMap[l]} Corsi</div></div>`; });
-    }
-
-    window.openFolder=(type, val)=>{
-        document.getElementById('days-overview-grid').classList.add('hidden'); document.getElementById('levels-overview-grid').classList.add('hidden');
-        document.getElementById('courses-list-wrapper').classList.remove('hidden');
-        document.getElementById('folder-title-display').innerText=val;
-        const grid=document.getElementById('my-courses-grid'); grid.innerHTML="";
-        const pool=myAssignmentsCache.filter(c=>c[type]===val);
-        
-        pool.sort((a, b) => {
+    // Un titolo (giorno o livello) + la griglia compatta dei corsi corrispondenti, uno dopo l'altro
+    function renderInstrDetailSection(title, courses) {
+        courses = courses.slice().sort((a, b) => {
             if (!a.ora) return 1;
             if (!b.ora) return -1;
             if (a.ora < b.ora) return -1;
             if (a.ora > b.ora) return 1;
             return a.nome.localeCompare(b.nome);
         });
-
-        pool.forEach(c=>{
-            const count=myLessonsCache.filter(l=>l.corso===c.nome).length;
-            
-            // STATS CALCULATION
+        let html = `<div class="detail-section"><div class="detail-section-title">${title}</div><div class="detail-courses-grid">`;
+        courses.forEach(c=>{
             const lessons = myLessonsCache.filter(l => l.corso === c.nome);
+            const count = lessons.length;
             let totalPresence = 0;
             lessons.forEach(l => totalPresence += (parseInt(l.presenze) || 0));
             const average = lessons.length > 0 ? (totalPresence / lessons.length).toFixed(1) : "0";
             const enrolled = c.iscritti || "?";
 
-            grid.innerHTML+=`
+            html+=`
                 <div class="course-folder">
                     <div class="cf-header">
-                        <div class="cf-title" onclick="openHistory('${c.nome}')">${c.nome}</div>
+                        <div class="cf-title" onclick="openHistory('${c.nome}')">${c.nome}${c.ora ? ' - ' + c.ora : ''}</div>
                         <button class="cf-settings-btn" onclick="event.stopPropagation();openCourseSettings('${c.id}')">🎯</button>
                     </div>
                     <div class="cf-meta" onclick="openHistory('${c.nome}')">
@@ -1690,15 +1665,31 @@
                     <div class="cf-count" style="margin-top:10px; cursor:pointer;" onclick="openHistory('${c.nome}')">${count} Schede</div>
                 </div>`;
         });
-    };
-    window.closeFolderView=()=>{ document.getElementById('courses-list-wrapper').classList.add('hidden'); window.switchInstrView(document.getElementById('days-overview-grid').classList.contains('hidden')?'levels':'days'); };
+        html+=`</div></div>`;
+        return html;
+    }
 
-    window.openHistory=(n)=>{ currentOpenCourse=n; document.getElementById('courses-list-wrapper').classList.add('hidden'); document.getElementById('course-history').classList.remove('hidden'); 
+    function renderInstrOverview() {
+        const dGrid=document.getElementById('days-overview-grid'); const lGrid=document.getElementById('levels-overview-grid');
+        dGrid.innerHTML=""; lGrid.innerHTML="";
+
+        const dGroups={}; myAssignmentsCache.forEach(c=>{const d=c.giorno||'Altro'; if(!dGroups[d])dGroups[d]=[]; dGroups[d].push(c);});
+        const dOrd={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7};
+        Object.keys(dGroups).sort((a,b)=>(dOrd[a]||9)-(dOrd[b]||9)).forEach(d=>{ dGrid.innerHTML += renderInstrDetailSection(d, dGroups[d]); });
+
+        const lGroups={}; myAssignmentsCache.forEach(c=>{const l=c.livello||'Altro'; if(!lGroups[l])lGroups[l]=[]; lGroups[l].push(c);});
+        Object.keys(lGroups).sort().forEach(l=>{ lGrid.innerHTML += renderInstrDetailSection(l, lGroups[l]); });
+    }
+
+    window.openHistory=(n)=>{ currentOpenCourse=n; 
+        document.getElementById('days-overview-grid').classList.add('hidden'); 
+        document.getElementById('levels-overview-grid').classList.add('hidden'); 
+        document.getElementById('course-history').classList.remove('hidden'); 
         // --- FIX TITLE ISTRUTTORE ---
         document.getElementById('hist-title').innerHTML=`📝 Storico: <span style="color:var(--text-main)">${n}</span>`;
         renderHistoryList(); 
     };
-    window.closeHistory=()=>{ document.getElementById('course-history').classList.add('hidden'); document.getElementById('courses-list-wrapper').classList.remove('hidden'); };
+    window.closeHistory=()=>{ document.getElementById('course-history').classList.add('hidden'); window.switchInstrView(currentInstrTab); };
     function renderHistoryList(){
         const l=document.getElementById('history-list'); l.innerHTML="";
         const p=myLessonsCache.filter(x=>x.corso===currentOpenCourse).sort((a,b)=>new Date(b.data)-new Date(a.data));
