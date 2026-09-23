@@ -139,7 +139,7 @@
         .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin-top: 5px; border-top: 1px dashed var(--border); padding-top: 5px; }
         .cf-stat-item { display:flex; gap: 5px; align-items:center; color: var(--text-main); }
         
-        .oc-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; display: block; }
+        .oc-name { font-size: 1rem; font-weight: 800; margin-bottom: 6px; display: block; }
         .oc-count { background: var(--bg-body); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
         .cf-count { margin-top: 8px; background: var(--bg-body); padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); display: inline-block; }
 
@@ -188,7 +188,7 @@
 
         /* ADMIN TOOLS */
         /* SEZIONI A COMPARSA (GENERICO, ADMIN) */
-        .collapsible-box .collapsible-title { margin: 0; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .collapsible-box .collapsible-title { margin: 0; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
         .collapsible-box .collapsible-title:active { opacity: 0.7; }
         .collapsible-box .toggle-icon { transition: transform 0.2s ease; font-size: 1rem; }
         .collapsible-box .collapsible-content { margin-top: 15px; }
@@ -561,20 +561,6 @@
             </div>
         </div>
 
-        <div class="section-box levels-mgmt-section collapsible-box collapsed" id="levels-mgmt-box">
-            <h4 class="collapsible-title" onclick="toggleCollapsible('levels-mgmt-box')">
-                <span>🎚 Gestione Livelli</span>
-                <span class="toggle-icon">▾</span>
-            </h4>
-            <div class="collapsible-content">
-                <div id="levels-container" class="levels-container"></div>
-                <div style="display:flex; gap:10px">
-                    <input type="text" id="new-level-input" placeholder="Nuovo Livello">
-                    <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer">+</button>
-                </div>
-            </div>
-        </div>
-
         <div class="section-box new-assignment-section collapsible-box collapsed" id="new-assignment-box">
             <h4 class="collapsible-title" onclick="toggleCollapsible('new-assignment-box')">
                 <span>🛠 Nuova Assegnazione</span>
@@ -587,6 +573,20 @@
                     <input type="time" id="new-time">
                     <select id="new-instructor-select"><option value="">Scegli Istruttore...</option></select>
                     <button onclick="addCourseStructured()" class="primary-btn" style="background:#10b981; padding:14px; margin:0">Crea</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box levels-mgmt-section collapsible-box collapsed" id="levels-mgmt-box">
+            <h4 class="collapsible-title" onclick="toggleCollapsible('levels-mgmt-box')">
+                <span>🎚 Gestione Livelli</span>
+                <span class="toggle-icon">▾</span>
+            </h4>
+            <div class="collapsible-content">
+                <div id="levels-container" class="levels-container"></div>
+                <div style="display:flex; gap:10px">
+                    <input type="text" id="new-level-input" placeholder="Nuovo Livello">
+                    <button onclick="saveNewLevel()" style="background:#d97706; color:white; border:none; padding:0 20px; border-radius:10px; font-weight:bold; cursor:pointer">+</button>
                 </div>
             </div>
         </div>
