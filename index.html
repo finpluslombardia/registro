@@ -271,11 +271,17 @@
 
         /* --- MOBILE OPTIMIZATIONS (Aggressive) --- */
         @media (max-width: 768px) {
-            body { padding: 10px; font-size: 13.5px; }
+            body { padding: 10px; font-size: 13px; }
             .container { padding: 15px; min-height: 90vh; }
-            .section-box { padding: 10px 12px; margin-bottom: 20px; }
+            .section-box { padding: 10px 12px; margin-bottom: 18px; }
             .app-header { margin-bottom: 15px; padding-bottom: 10px; }
-            h2 { font-size: 1.2rem; }
+            h2 { font-size: 1.1rem; }
+            h3 { font-size: 1rem !important; }
+            h4 { font-size: 0.92rem !important; }
+            h5 { font-size: 0.88rem !important; }
+
+            /* TIPOGRAFIA PIU' LEGGERA */
+            label { font-size: 0.72rem; font-weight: 600; margin-bottom: 4px; }
             
             /* FIX SFORAMENTO: Griglia 2 colonne */
             .form-header-grid { 
@@ -289,10 +295,12 @@
             /* Fix Anti-Overflow */
             .form-group, .compact-checkbox-wrapper { min-width: 0; }
             
-            .compact-checkbox-wrapper { padding: 0 8px; }
+            .compact-checkbox-wrapper { height: 42px; padding: 0 10px; border-width: 1.5px; }
+            .compact-checkbox-wrapper label { font-size: 0.85rem; font-weight: 600; }
             
             button.action-btn { width: 34px; height: 34px; font-size: 1.1rem; }
             button.logout-btn { height: 34px; padding: 0 10px; font-size: 0.75rem; }
+            button.primary-btn { padding: 12px; font-size: 14px; border-radius: 10px; }
             .grid-courses { display: block; margin-bottom: 10px; }
             .course-folder, .overview-card, .user-card, .ac-course-card { padding: 12px; margin-bottom: 8px; display: block; width: 100%; border-radius: 12px; }
             .today-courses-grid { display: block; }
@@ -301,8 +309,8 @@
             .cf-title, .ac-course-card span { font-size: 1rem; }
             .cf-settings-btn { font-size: 1.2rem; padding: 4px; }
 
-            input, select, textarea { padding: 10px; font-size: 16px !important; height: 44px; border-radius: 8px; }
-            textarea { min-height: 44px; }
+            input, select, textarea { padding: 8px 10px; font-size: 16px !important; height: 42px; border-radius: 10px; border-width: 1.5px; }
+            textarea { min-height: 42px; }
             
             .create-grid { grid-template-columns: 1fr; gap: 8px; }
             .create-grid button { width: 100%; margin-top: 5px; }
@@ -314,9 +322,12 @@
             .gsb-select { width: 100%; }
             .filter-bar { gap: 10px; padding: 5px 0; border: none; background: transparent; }
             .filter-bar select { padding: 8px; font-size: 0.85rem; min-width: 120px; }
-            .traffic-light { width: 20px; height: 20px; border-width: 2px; }
+            .traffic-light { width: 18px; height: 18px; border-width: 2px; }
+            .obj-level-header { font-size: 0.78rem; }
             .obj-label { font-size: 0.9rem; }
             .obj-item { padding: 6px 0; }
+            .obj-container { padding: 10px; }
+
 
             /* AGENDA MOBILE */
             .agenda-grid { grid-template-columns: 1fr; }
