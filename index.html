@@ -295,7 +295,7 @@
             /* Fix Anti-Overflow */
             .form-group, .compact-checkbox-wrapper { min-width: 0; }
             
-            .compact-checkbox-wrapper { height: 42px; padding: 0 10px; border-width: 1.5px; }
+            .compact-checkbox-wrapper { height: 38px; padding: 0 10px; border-width: 1.5px; }
             .compact-checkbox-wrapper label { font-size: 0.85rem; font-weight: 600; }
             
             button.action-btn { width: 34px; height: 34px; font-size: 1.1rem; }
@@ -312,8 +312,9 @@
             .tc-name { font-size: 0.9rem; }
             .cf-settings-btn { font-size: 1.2rem; padding: 4px; }
 
-            input, select, textarea { padding: 8px 10px; font-size: 16px !important; height: 42px; border-radius: 10px; border-width: 1.5px; }
-            textarea { min-height: 42px; }
+            /* Il font resta a 16px: è il minimo per evitare lo zoom automatico di iOS al tocco. Il box attorno però è più compatto. */
+            input, select, textarea { padding: 6px 10px; font-size: 16px !important; height: 38px; border-radius: 10px; border-width: 1.5px; }
+            textarea { min-height: 38px; }
             
             .create-grid { grid-template-columns: 1fr; gap: 8px; }
             .create-grid button { width: 100%; margin-top: 5px; }
