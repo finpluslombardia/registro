@@ -133,15 +133,16 @@
         .uc-email { font-size: 0.8rem; color: var(--text-sub); display: block; margin-bottom: 8px; }
         .uc-stats { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 8px; font-weight: 700; color: var(--primary); font-size: 0.85rem; }
         
-        .cf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-        .cf-title { font-weight: 800; font-size: 1rem; line-height: 1.25; text-align: left; margin-bottom: 0; }
-        .cf-settings-btn { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 0 0 0 5px; color: var(--text-sub); margin-top: -2px; }
-        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin-top: 5px; border-top: 1px dashed var(--border); padding-top: 5px; }
+        .cf-title { font-weight: 800; font-size: 1rem; line-height: 1.25; text-align: left; margin-bottom: 6px; cursor: pointer; }
+        .cf-meta { display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; }
         .cf-stat-item { display:flex; gap: 5px; align-items:center; color: var(--text-main); }
+        .cf-actions { display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); }
+        .cf-actions button { flex: 1; padding: 7px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--text-main); transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .cf-actions button:hover { background: var(--border); }
+        .cf-history-btn { color: var(--primary) !important; }
         
         .oc-name { font-size: 1rem; font-weight: 800; margin-bottom: 6px; display: block; }
         .oc-count { background: var(--bg-body); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
-        .cf-count { margin-top: 8px; background: var(--bg-body); padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); display: inline-block; }
 
         .btn-group { display: flex; gap: 8px; margin-top: 5px; }
         .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-body); font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
@@ -374,7 +375,7 @@
             .oc-name, .uc-name { font-size: 0.95rem; }
             .tc-time { font-size: 0.92rem; }
             .tc-name { font-size: 0.9rem; }
-            .cf-settings-btn { font-size: 1.2rem; padding: 4px; }
+            .cf-actions button { font-size: 0.72rem; padding: 6px 4px; }
 
             /* Il font resta a 16px: è il minimo per evitare lo zoom automatico di iOS al tocco. Il box attorno però è più compatto. */
             input, select, textarea { padding: 6px 10px; font-size: 16px !important; height: 38px; border-radius: 10px; border-width: 1.5px; }
@@ -1655,14 +1656,14 @@
 
             html+=`
                 <div class="course-folder">
-                    <div class="cf-header">
-                        <div class="cf-title" onclick="openHistory('${c.nome}')">${c.nome}${c.ora ? ' - ' + c.ora : ''}</div>
-                        <button class="cf-settings-btn" onclick="event.stopPropagation();openCourseSettings('${c.id}')">🎯</button>
-                    </div>
-                    <div class="cf-meta" onclick="openHistory('${c.nome}')">
+                    <div class="cf-title" onclick="openHistory('${c.nome}')">${c.nome}${c.ora ? ' - ' + c.ora : ''}</div>
+                    <div class="cf-meta">
                         <div class="cf-stat-item">👥 Iscritti: ${enrolled} | 📊 Media: ${average}</div>
                     </div>
-                    <div class="cf-count" style="margin-top:10px; cursor:pointer;" onclick="openHistory('${c.nome}')">${count} Schede</div>
+                    <div class="cf-actions">
+                        <button onclick="openCourseSettings('${c.id}')" title="Obiettivi">🎯 Obiettivi</button>
+                        <button class="cf-history-btn" onclick="openHistory('${c.nome}')" title="Storico">📋 ${count} Schede</button>
+                    </div>
                 </div>`;
         });
         html+=`</div></div>`;
