@@ -147,6 +147,18 @@
         .btn-group button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-body); font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
         .btn-group button:hover { background: var(--border); }
 
+        /* SEZIONI DETTAGLIO ISTRUTTORE/GIORNO/LIVELLO: titolo + box corsi compatti, senza click intermedio */
+        .detail-section { margin-bottom: 25px; }
+        .detail-section:last-child { margin-bottom: 0; }
+        .detail-section-title { font-weight: 800; color: var(--primary); font-size: 0.95rem; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); text-transform: uppercase; letter-spacing: 0.3px; }
+        .detail-courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
+        .detail-course-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .dc-title { font-weight: 800; color: var(--primary); font-size: 0.92rem; cursor: pointer; display: block; margin-bottom: 6px; line-height: 1.25; }
+        .dc-meta { font-size: 0.78rem; color: var(--text-sub); margin-bottom: 3px; }
+        .dc-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); }
+        .dc-actions button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .dc-actions button:hover { background: var(--border); }
+
         /* LESSON CARD */
         .lesson-card {
             background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--primary);
@@ -353,6 +365,8 @@
             button.primary-btn { padding: 12px; font-size: 14px; border-radius: 10px; }
             .grid-courses { display: block; margin-bottom: 10px; }
             .course-folder, .overview-card, .user-card, .ac-course-card { padding: 12px; margin-bottom: 8px; display: block; width: 100%; border-radius: 12px; }
+            .detail-courses-grid { display: block; }
+            .detail-course-card { margin-bottom: 10px; width: 100%; }
             .today-courses-grid { display: block; }
             .today-course-card { margin-bottom: 8px; width: 100%; }
             .today-header { flex-direction: column; align-items: flex-start; }
@@ -567,13 +581,8 @@
                     <button id="btn-adm-det-levels" class="switch-btn" onclick="switchAdminDetailView('levels')">🎚 Livelli</button>
                 </div>
                 
-                <div id="admin-days-grid" class="grid-courses"></div>
-                <div id="admin-levels-grid" class="grid-courses hidden"></div>
-
-                <div id="admin-courses-list" class="hidden">
-                    <button class="btn-back" onclick="backToAdminGrid()" style="margin-bottom:15px">⬅ Torna alle Cartelle</button>
-                    <div id="admin-folder-content"></div>
-                </div>
+                <div id="admin-days-grid"></div>
+                <div id="admin-levels-grid" class="hidden"></div>
 
                 <div id="lessons-log-container" class="hidden">
                      <div class="storico-header">
@@ -1145,9 +1154,43 @@
         document.getElementById('btn-adm-det-levels').classList.toggle('active', v==='levels');
         document.getElementById('admin-days-grid').classList.toggle('hidden', v!=='days');
         document.getElementById('admin-levels-grid').classList.toggle('hidden', v!=='levels');
-        document.getElementById('admin-courses-list').classList.add('hidden');
         document.getElementById('lessons-log-container').classList.add('hidden'); 
     };
+
+    // Un titolo + la griglia compatta dei corsi di quel gruppo (giorno / livello / istruttore)
+    function renderDetailSection(title, courses) {
+        courses = courses.slice().sort((a, b) => {
+            if (!a.ora) return 1;
+            if (!b.ora) return -1;
+            if (a.ora < b.ora) return -1;
+            if (a.ora > b.ora) return 1;
+            return a.nome.localeCompare(b.nome);
+        });
+        let html = `<div class="detail-section"><div class="detail-section-title">${title}</div><div class="detail-courses-grid">`;
+        courses.forEach(c => {
+            const lessons = allLessonsCache.filter(l => l.corso === c.nome);
+            const lessonCount = lessons.length;
+            let totalPresence = 0;
+            lessons.forEach(l => totalPresence += (parseInt(l.presenze) || 0));
+            const average = lessonCount > 0 ? (totalPresence / lessonCount).toFixed(1) : "0";
+            const enrolled = c.iscritti || "?";
+            const instrName = allAnagraficaCache[c.istruttore]?.nome || c.istruttore;
+
+            html += `
+                <div class="detail-course-card">
+                    <span class="dc-title" onclick="openAdminCourseHistory('${c.nome}', '${c.istruttore}')">📂 ${c.nome}${c.ora ? ' - ' + c.ora : ''}</span>
+                    <div class="dc-meta">👤 ${instrName}</div>
+                    <div class="dc-meta">👥 Iscritti: ${enrolled} | 📊 Media: ${average}</div>
+                    <div class="dc-actions">
+                        <button onclick="openCourseSettings('${c.id}')" title="Valutazione">🎯</button>
+                        <button onclick="reassignInstructor('${c.id}','${c.istruttore}')" title="Riassegna">👤</button>
+                        <button onclick="deleteAssignment('${c.id}')" style="color:var(--danger)" title="Elimina">🗑️</button>
+                    </div>
+                </div>`;
+        });
+        html += `</div></div>`;
+        return html;
+    }
     
     function renderDetails(id) {
         document.getElementById('admin-detail-area').classList.remove('hidden');
@@ -1162,10 +1205,11 @@
         const lGrid = document.getElementById('admin-levels-grid');
         dGrid.innerHTML = ""; lGrid.innerHTML = "";
 
-        const dMap={}; pool.forEach(c=>{const d=c.giorno||'Altro'; dMap[d]=(dMap[d]||0)+1;});
+        // GIORNI: titolo del giorno + box dei corsi, uno dopo l'altro (nessun click intermedio)
+        const dGroups={}; pool.forEach(c=>{const d=c.giorno||'Altro'; if(!dGroups[d])dGroups[d]=[]; dGroups[d].push(c);});
         const dOrd={"Lunedì":1,"Martedì":2,"Mercoledì":3,"Giovedì":4,"Venerdì":5,"Sabato":6,"Domenica":7};
-        Object.keys(dMap).sort((a,b)=>(dOrd[a]||9)-(dOrd[b]||9)).forEach(d=>{
-            dGrid.innerHTML+=`<div class="overview-card" onclick="openAdminFolder('giorno','${d}','${id}')"><div class="oc-name">${d}</div><div class="oc-count">${dMap[d]} Corsi</div></div>`;
+        Object.keys(dGroups).sort((a,b)=>(dOrd[a]||9)-(dOrd[b]||9)).forEach(d=>{
+            dGrid.innerHTML += renderDetailSection(d, dGroups[d]);
         });
 
         // SECONDO FILTRO: normalmente per Livello, ma per Istruttore se siamo già dentro la vista Livelli
@@ -1173,86 +1217,30 @@
         const secondBtn = document.getElementById('btn-adm-det-levels');
         if(currentAdminView==='levels') {
             secondBtn.innerText = '👤 Istruttore';
-            const iMap={}; pool.forEach(c=>{const e=c.istruttore||'Altro'; iMap[e]=(iMap[e]||0)+1;});
-            Object.keys(iMap).sort((a,b)=>{
+            const iGroups={}; pool.forEach(c=>{const e=c.istruttore||'Altro'; if(!iGroups[e])iGroups[e]=[]; iGroups[e].push(c);});
+            Object.keys(iGroups).sort((a,b)=>{
                 const nameA=(allAnagraficaCache[a]?.nome||a).toLowerCase();
                 const nameB=(allAnagraficaCache[b]?.nome||b).toLowerCase();
                 return nameA.localeCompare(nameB);
             }).forEach(e=>{
                 const name = allAnagraficaCache[e]?.nome || e;
-                lGrid.innerHTML+=`<div class="overview-card" onclick="openAdminFolder('istruttore','${e}','${id}')"><div class="oc-name">${name}</div><div class="oc-count">${iMap[e]} Corsi</div></div>`;
+                lGrid.innerHTML += renderDetailSection(name, iGroups[e]);
             });
         } else {
             secondBtn.innerText = '🎚 Livelli';
-            const lMap={}; pool.forEach(c=>{const l=c.livello||'Altro'; lMap[l]=(lMap[l]||0)+1;});
-            Object.keys(lMap).sort().forEach(l=>{
-                lGrid.innerHTML+=`<div class="overview-card" onclick="openAdminFolder('livello','${l}','${id}')"><div class="oc-name">${l}</div><div class="oc-count">${lMap[l]} Corsi</div></div>`;
+            const lGroups={}; pool.forEach(c=>{const l=c.livello||'Altro'; if(!lGroups[l])lGroups[l]=[]; lGroups[l].push(c);});
+            Object.keys(lGroups).sort().forEach(l=>{
+                lGrid.innerHTML += renderDetailSection(l, lGroups[l]);
             });
         }
         
         switchAdminDetailView('days');
     }
-    window.openAdminFolder = (type, val, entityId) => {
-        document.getElementById('admin-days-grid').classList.add('hidden');
-        document.getElementById('admin-levels-grid').classList.add('hidden');
-        document.getElementById('admin-courses-list').classList.remove('hidden');
-        document.getElementById('lessons-log-container').classList.add('hidden'); 
-        
-        const content = document.getElementById('admin-folder-content');
-        content.innerHTML = "";
-        
-        let pool = allAssignmentsCache;
-        if(currentAdminView==='team') pool=pool.filter(a=>a.istruttore===entityId);
-        else if(currentAdminView==='levels') pool=pool.filter(a=>a.livello===entityId);
-        else pool=pool.filter(a=>a.giorno===entityId);
-        
-        pool = pool.filter(c => c[type] === val);
-        
-        pool.sort((a, b) => {
-            if (!a.ora) return 1;
-            if (!b.ora) return -1;
-            if (a.ora < b.ora) return -1;
-            if (a.ora > b.ora) return 1;
-            return a.nome.localeCompare(b.nome);
-        });
-        
-        pool.forEach(c => {
-            const lessons = allLessonsCache.filter(l => l.corso === c.nome);
-            const lessonCount = lessons.length;
-            let totalPresence = 0;
-            lessons.forEach(l => totalPresence += (parseInt(l.presenze) || 0));
-            const average = lessonCount > 0 ? (totalPresence / lessonCount).toFixed(1) : "0";
-            const enrolled = c.iscritti || "?";
-
-             content.innerHTML += `
-                <div class="ac-course-card">
-                    <div>
-                        <span class="clickable-course" style="font-weight:bold;color:var(--primary);font-size:1.1rem" onclick="openAdminCourseHistory('${c.nome}', '${currentAdminView==='team'?entityId:c.istruttore}')">📂 ${c.nome}</span>
-                        <div class="cf-meta" style="margin-top:5px;border-top:1px dashed #eee;padding-top:5px">
-                            <span style="font-size:0.85rem;color:var(--text-sub)">👤 ${allAnagraficaCache[c.istruttore]?.nome || c.istruttore}</span>
-                            <div style="font-size:0.8rem;color:var(--text-main);margin-top:2px">
-                                👥 Iscritti: <b>${enrolled}</b> | 📊 Media: <b>${average}</b>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="btn-group">
-                        <button onclick="openCourseSettings('${c.id}')" title="Valutazione">🎯</button>
-                        <button onclick="reassignInstructor('${c.id}','${c.istruttore}')">👤</button>
-                        <button onclick="deleteAssignment('${c.id}')" style="color:red">🗑️</button>
-                    </div>
-                </div>`;
-        });
-    };
-    
-    window.backToAdminGrid = () => {
-         document.getElementById('admin-courses-list').classList.add('hidden');
-         switchAdminDetailView(currentAdminDetailView); 
-    };
-
     window.openAdminCourseHistory=(courseName, instructorEmail)=>{ 
         currentOpenCourse=courseName; 
         currentInstructorEmailFilter=instructorEmail;
-        document.getElementById('admin-courses-list').classList.add('hidden'); 
+        document.getElementById('admin-days-grid').classList.add('hidden');
+        document.getElementById('admin-levels-grid').classList.add('hidden');
         const container = document.getElementById('lessons-log-container');
         container.classList.remove('hidden'); 
         
@@ -1292,7 +1280,7 @@
 
     window.closeAdminHistory = () => {
         document.getElementById('lessons-log-container').classList.add('hidden');
-        document.getElementById('admin-courses-list').classList.remove('hidden');
+        switchAdminDetailView(currentAdminDetailView);
     };
 
     function getNextLevelName(currentLvl) {
